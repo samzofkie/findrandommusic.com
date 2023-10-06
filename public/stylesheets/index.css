@@ -1,6 +1,40 @@
+body {
+  background-image: url("https://img.freepik.com/free-vector/detailed-grunge-style-texture-background_1048-14786.jpg?w=1380&t=st=1696607845~exp=1696608445~hmac=33382c64176febd22b302590746dc4dff1f4f96193e031c0f54306d44a7079a7");
+}
+
+#welcome-mat {
+  margin: auto;
+}
+
+#title-svg {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+  width: 75%;
+  height: 200px;
+}
+
+#title-curve {
+  fill: transparent;
+}
+
+#main-title {
+  font-family: 'Caprasimo', serif;
+  font-size: 70px;
+  text-shadow: 5px 5px 5px yellow;
+}
+
 #link-button {
   padding: 14px 25px;
   background-color: blue;
   color: white;
   text-align: center;
+  
+  border-radius: 25px;
+
+  /* center align */
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+  width: 35%;
 }
