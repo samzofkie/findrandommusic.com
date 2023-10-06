@@ -1,14 +1,13 @@
 {
-  "name": "spotify-game",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "name": "app",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./bin/www"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "debug": "~2.6.9",
+    "express": "^4.18.2",
+    "morgan": "~1.9.1"
   }
 }
