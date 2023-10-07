@@ -2,6 +2,17 @@ const https = require('node:https');
 const fs = require('node:fs');
 
 
+function extractArt(res) {
+  const numTracks = res.tracks.total;
+  let artUrls = [];
+  for (let index in res.tracks.items) {
+    const track = res.tracks.items[index];
+    const artUrl = track.album.images['0'].url;
+    artUrls.push(artUrl);
+  }
+  // TODO
+}
+
 function gibberish() { 
   const chars = 'abcdefghijklmnopqrstuvwxyz';
   const len = 3 + Math.floor(Math.random() * 4);
@@ -24,12 +35,21 @@ function makeSearchRequest(accessToken) {
   };
 
   const req = https.request(options, (res) => {
-    console.log('statusCode:', res.statusCode);
-    console.log('headers:', res.headers);
-    res.on('data', (d) => {
-      // TODO
-      process.stdout.write(d);
-    });
+    let data = '';
+    res.on('data', (chunk) => data += chunk);
+    res.on('end', () => {
+      /*fs.writeFile(
+        'search-results.json',
+        data,
+        (err) => { 
+          if (err) {
+            console.error('Writing \'search-results.json\' failed.');
+            process.exit(1);
+          }
+        }
+      );*/
+      extractArt(JSON.parse(data)); 
+    });  
   });
   req.on('error', (e) => {
     console.error(e);
@@ -110,4 +130,4 @@ function findSongs() {
     generateAccessToken();
 }
 
-findSongs()
+findSongs();
