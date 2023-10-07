@@ -4,5 +4,5 @@ FROM node
 WORKDIR /app
 COPY . .
 RUN apt-get update && apt-get -y upgrade
-CMD ["node", "app.js"]
+CMD ["npm", "run", "start"]
 EXPOSE 3000
