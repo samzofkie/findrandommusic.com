@@ -1,7 +1,6 @@
 const https = require('node:https');
+const fs = require('node:fs');
 
-const client_id = '';
-const client_secret = '';
 
 function gibberish() { 
   const chars = 'abcdefghijklmnopqrstuvwxyz';
@@ -12,36 +11,55 @@ function gibberish() {
   return gib; 
 }
 
-function search(accessToken, searchTerm) {
+function makeSearchRequest(accessToken) {
+  const searchTerm = gibberish();
   const options = {
     hostname: 'api.spotify.com',
     port: 443,
-    path: `/v1/search?q=${searchTerm}&type=track`,
+    path: `/v1/search?q=${searchTerm}&type=track&limit=50`,
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${accessToken}`
     },
   };
-  
-  console.log(accessToken);
-  console.log(searchTerm);
 
   const req = https.request(options, (res) => {
     console.log('statusCode:', res.statusCode);
     console.log('headers:', res.headers);
-
     res.on('data', (d) => {
+      // TODO
       process.stdout.write(d);
     });
   });
-
   req.on('error', (e) => {
     console.error(e);
   });
   req.end(); 
 }
 
-function getAccessToken() {
+function writeAccessToken(accessToken, tokenExpirationDate) { 
+  fs.writeFile(
+    'access-token',
+    `${accessToken}\n${tokenExpirationDate}`,
+    (err) => {
+      if (err) {
+        console.error('Writing \'access-token\' failed.');
+        process.exit(1);
+      }
+      makeSearchRequest(accessToken);
+    }
+  );
+}
+
+function generateAccessToken() {
+  if (!process.env.CLIENT_ID || !process.env.CLIENT_SECRET) {
+    console.error("Missing CLIENT_ID or CLIENT_SECRET environment variables.");
+    process.exit(1);
+  }
+
+  const client_id = process.env.CLIENT_ID;
+  const client_secret = process.env.CLIENT_SECRET;
+
   const options = {
     hostname: 'accounts.spotify.com',
     port: 443,
@@ -53,12 +71,12 @@ function getAccessToken() {
   };
 
   const req = https.request(options, (res) => {
-    console.log('statusCode:', res.statusCode);
-    console.log('headers:', res.headers);
-
     res.on('data', (d) => {
-      let accessToken = d.toString().match(/"access_token":"[a-zA-Z0-9\-_]*/g)[0].slice(16);
-      search(accessToken, gibberish());
+      const accessToken = d.toString().match(/"access_token":"[a-zA-Z0-9\-_]*/g)[0].slice(16);
+      const expiresInSeconds = parseInt(d.toString().match(/"expires_in":[0-9]*/g)[0].slice(13));
+      const currentTime = new Date();
+      const tokenExpirationDate = new Date(currentTime.getTime() + expiresInSeconds * 1000);
+      writeAccessToken(accessToken, tokenExpirationDate);
     });
   });
   req.on('error', (e) => {
@@ -68,9 +86,28 @@ function getAccessToken() {
   req.end();
 }
 
+function readAccessToken() {
+  fs.readFile('access-token', 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      console.error('failed to read file \'access-token\'');
+      process.exit(1);
+    }
+    const [accessToken, expirationDateString] = data.split('\n');
+    const expirationDate = new Date(expirationDateString);
+    const currentDate = new Date();
+    if (currentDate < expirationDate)
+      makeSearchRequest(accessToken);
+    else
+      generateAccessToken();
+  });
+}
+
 function findSongs() {
-  console.log(process.env.CLIENT_ID);
-  console.log(process.env.CLIENT_SECRET);
+  if (fs.existsSync('access-token'))
+    readAccessToken();
+  else
+    generateAccessToken();
 }
 
 findSongs()
