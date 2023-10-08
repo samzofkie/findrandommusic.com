@@ -2,8 +2,9 @@ import React from "react";
 import { render } from "react-dom";
 
 
-function DisplayRack() {
-  return <h1>Hiya</h1>;
-}
+const root = document.getElementById('root');
 
-render(<DisplayRack/>, document.getElementById("root"));
+fetch('/art')
+  .then(res => res.json())
+  .then(urls => urls.map(url => <img src={url} width={125}/>))
+  .then(imgs => render(imgs, root));

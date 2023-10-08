@@ -1,16 +1,17 @@
 const https = require('node:https');
 const fs = require('node:fs');
 
+let artUrls = [];
 
-function extractArt(res) {
-  const numTracks = res.tracks.total;
-  let artUrls = [];
-  for (let index in res.tracks.items) {
-    const track = res.tracks.items[index];
+function extractArt(json) {
+  //const numTracks = json.tracks.total;
+  artUrls.splice(0, artUrls.length);
+  for (let index in json.tracks.items) {
+    const track = json.tracks.items[index];
     const artUrl = track.album.images['0'].url;
     artUrls.push(artUrl);
   }
-  fs.writeFile(
+  /*fs.writeFile(
     'art',
     artUrls.join('\n'),
     (err) => { 
@@ -18,7 +19,7 @@ function extractArt(res) {
         console.error('Writing \'art\' failed.');
       }
     }
-  );
+  );*/
 }
 
 function gibberish() { 
@@ -31,8 +32,8 @@ function gibberish() {
 }
 
 function makeSearchRequest(accessToken) {
-  console.log(`Searching for ${searchTerm}...`);
   const searchTerm = gibberish();
+  console.log(`Searching for ${searchTerm}...`);
 
   const options = {
     hostname: 'api.spotify.com',
@@ -123,7 +124,7 @@ function readAccessToken() {
       if (currentDate < expirationDate)
         makeSearchRequest(accessToken);
       else
-        generateAccessToken();
+        requestAccessToken();
     }
   });
 }
@@ -136,3 +137,4 @@ function findSongs() {
 }
 
 exports.findSongs = findSongs;
+exports.artUrls = artUrls;
