@@ -10,7 +10,15 @@ function extractArt(res) {
     const artUrl = track.album.images['0'].url;
     artUrls.push(artUrl);
   }
-  // TODO
+  fs.writeFile(
+    'art',
+    artUrls.join('\n'),
+    (err) => { 
+      if (err) {
+        console.error('Writing \'art\' failed.');
+      }
+    }
+  );
 }
 
 function gibberish() { 
@@ -23,7 +31,9 @@ function gibberish() {
 }
 
 function makeSearchRequest(accessToken) {
+  console.log(`Searching for ${searchTerm}...`);
   const searchTerm = gibberish();
+
   const options = {
     hostname: 'api.spotify.com',
     port: 443,
@@ -51,9 +61,7 @@ function makeSearchRequest(accessToken) {
       extractArt(JSON.parse(data)); 
     });  
   });
-  req.on('error', (e) => {
-    console.error(e);
-  });
+  req.on('error', (e) => {console.error(e);});
   req.end(); 
 }
 
@@ -64,62 +72,59 @@ function writeAccessToken(accessToken, tokenExpirationDate) {
     (err) => {
       if (err) {
         console.error('Writing \'access-token\' failed.');
-        process.exit(1);
+      } else {
+        makeSearchRequest(accessToken);
       }
-      makeSearchRequest(accessToken);
     }
   );
 }
 
-function generateAccessToken() {
-  if (!process.env.CLIENT_ID || !process.env.CLIENT_SECRET) {
-    console.error("Missing CLIENT_ID or CLIENT_SECRET environment variables.");
-    process.exit(1);
-  }
-
+function requestAccessToken() {
+  console.log('Requesting an access token...');
   const client_id = process.env.CLIENT_ID;
   const client_secret = process.env.CLIENT_SECRET;
 
-  const options = {
-    hostname: 'accounts.spotify.com',
-    port: 443,
-    path: '/api/token',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  };
+  if (!client_id || !client_secret) {
+    console.error("Missing CLIENT_ID or CLIENT_SECRET environment variables.");
+  } else {
+    const options = {
+      hostname: 'accounts.spotify.com',
+      port: 443,
+      path: '/api/token',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    };
 
-  const req = https.request(options, (res) => {
-    res.on('data', (d) => {
-      const accessToken = d.toString().match(/"access_token":"[a-zA-Z0-9\-_]*/g)[0].slice(16);
-      const expiresInSeconds = parseInt(d.toString().match(/"expires_in":[0-9]*/g)[0].slice(13));
-      const currentTime = new Date();
-      const tokenExpirationDate = new Date(currentTime.getTime() + expiresInSeconds * 1000);
-      writeAccessToken(accessToken, tokenExpirationDate);
+    const req = https.request(options, (res) => {
+      res.on('data', (d) => {
+        const accessToken = d.toString().match(/"access_token":"[a-zA-Z0-9\-_]*/g)[0].slice(16);
+        const expiresInSeconds = parseInt(d.toString().match(/"expires_in":[0-9]*/g)[0].slice(13));
+        const currentTime = new Date();
+        const tokenExpirationDate = new Date(currentTime.getTime() + expiresInSeconds * 1000);
+        writeAccessToken(accessToken, tokenExpirationDate);
+      });
     });
-  });
-  req.on('error', (e) => {
-    console.error(e);
-  });
-  req.write(`grant_type=client_credentials&client_id=${client_id}&client_secret=${client_secret}`);
-  req.end();
+    req.on('error', (e) => {console.error(e);});
+    req.write(`grant_type=client_credentials&client_id=${client_id}&client_secret=${client_secret}`);
+    req.end();
+  }
 }
 
 function readAccessToken() {
   fs.readFile('access-token', 'utf8', (err, data) => {
     if (err) {
-      console.error(err);
-      console.error('failed to read file \'access-token\'');
-      process.exit(1);
+      console.error(`Error: ${err}: Failed to read file \'access-token\'`);
+    } else {
+      const [accessToken, expirationDateString] = data.split('\n');
+      const expirationDate = new Date(expirationDateString);
+      const currentDate = new Date();
+      if (currentDate < expirationDate)
+        makeSearchRequest(accessToken);
+      else
+        generateAccessToken();
     }
-    const [accessToken, expirationDateString] = data.split('\n');
-    const expirationDate = new Date(expirationDateString);
-    const currentDate = new Date();
-    if (currentDate < expirationDate)
-      makeSearchRequest(accessToken);
-    else
-      generateAccessToken();
   });
 }
 
@@ -127,7 +132,7 @@ function findSongs() {
   if (fs.existsSync('access-token'))
     readAccessToken();
   else
-    generateAccessToken();
+    requestAccessToken();
 }
 
-findSongs();
+exports.findSongs = findSongs;
