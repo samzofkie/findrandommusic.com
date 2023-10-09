@@ -1,15 +1,21 @@
 const https = require('node:https');
 const fs = require('node:fs');
+const redis = require('redis');
 
-let artUrls = [];
 
-function extractArt(json) {
+const client = redis.createClient({
+  'url': 'redis://redis',
+});
+client.on('error', err => console.log('Redis Client Error', err));
+client.connect();
+
+async function extractArt(json) {
   //const numTracks = json.tracks.total;
-  artUrls.splice(0, artUrls.length);
+  
   for (let index in json.tracks.items) {
     const track = json.tracks.items[index];
-    const artUrl = track.album.images['0'].url;
-    artUrls.push(artUrl);
+    const artUrl = track.album.images['0'].url;  
+    const res = await client.lPush('songs', artUrl);
   }
   /*fs.writeFile(
     'art',
@@ -33,7 +39,7 @@ function gibberish() {
 
 function makeSearchRequest(accessToken) {
   const searchTerm = gibberish();
-  console.log(`Searching for ${searchTerm}...`);
+  //console.log(`Searching for ${searchTerm}...`);
 
   const options = {
     hostname: 'api.spotify.com',
@@ -49,16 +55,6 @@ function makeSearchRequest(accessToken) {
     let data = '';
     res.on('data', (chunk) => data += chunk);
     res.on('end', () => {
-      /*fs.writeFile(
-        'search-results.json',
-        data,
-        (err) => { 
-          if (err) {
-            console.error('Writing \'search-results.json\' failed.');
-            process.exit(1);
-          }
-        }
-      );*/
       extractArt(JSON.parse(data)); 
     });  
   });
@@ -137,4 +133,3 @@ function findSongs() {
 }
 
 exports.findSongs = findSongs;
-exports.artUrls = artUrls;

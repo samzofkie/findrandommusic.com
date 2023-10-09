@@ -1,0 +1,14 @@
+services:
+  app:
+    image: spotify-game
+    ports: 
+      - 127.0.0.1:3000:3000
+    environment:
+      CLIENT_ID:
+      CLIENT_SECRET:
+    #volumes:
+      #- .:/app
+    
+  redis:
+    image: redis
+
