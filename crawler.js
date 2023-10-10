@@ -3,6 +3,8 @@ const fs = require('node:fs');
 const redis = require('redis');
 
 
+const writeTracksJson = true;
+
 const client = redis.createClient({
   'url': 'redis://redis',
 });
@@ -10,22 +12,14 @@ client.on('error', err => console.log('Redis Client Error', err));
 client.connect();
 
 async function extractArt(json) {
-  //const numTracks = json.tracks.total;
+  const numTracks = json.tracks.total;
   
   for (let index in json.tracks.items) {
     const track = json.tracks.items[index];
-    const artUrl = track.album.images['0'].url;  
-    const res = await client.lPush('songs', artUrl);
+    const artUrl = track.album.images['0'].url;
+    const previewUrl = track.preview_url;
+    client.lPush('songs', artUrl);
   }
-  /*fs.writeFile(
-    'art',
-    artUrls.join('\n'),
-    (err) => { 
-      if (err) {
-        console.error('Writing \'art\' failed.');
-      }
-    }
-  );*/
 }
 
 function gibberish() { 
@@ -55,6 +49,16 @@ function makeSearchRequest(accessToken) {
     let data = '';
     res.on('data', (chunk) => data += chunk);
     res.on('end', () => {
+      if (writeTracksJson) {
+        fs.writeFile(
+          'tracks.json', 
+          data, 
+          (err) => {
+            if (err) 
+              console.log(`Error writing 'tracks.json': ${err}`)
+          }
+        );
+      }
       extractArt(JSON.parse(data)); 
     });  
   });
