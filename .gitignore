@@ -1,4 +1,4 @@
 node_modules/*
+crawler/node_modules
 access-token
-TODO
 dist/bundle.js*

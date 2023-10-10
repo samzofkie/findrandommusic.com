@@ -5,12 +5,6 @@ const redis = require('redis');
 
 const writeTracksJson = true;
 
-const client = redis.createClient({
-  'url': 'redis://redis',
-});
-client.on('error', err => console.log('Redis Client Error', err));
-client.connect();
-
 async function extractArt(json) {
   const numTracks = json.tracks.total;
   
@@ -138,4 +132,10 @@ function findSongs() {
     requestAccessToken();
 }
 
-exports.findSongs = findSongs;
+const client = redis.createClient({
+  'url': 'redis://redis',
+});
+client.on('error', err => console.log('Redis Client Error', err));
+client.connect();
+
+client.lLen('songs').then(console.log);
