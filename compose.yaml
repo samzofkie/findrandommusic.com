@@ -6,8 +6,8 @@ services:
     environment:
       - CLIENT_ID=${CLIENT_ID}
       - CLIENT_SECRET=${CLIENT_SECRET}
-    volumes:
-      - .:/app
+    #volumes:
+      #- .:/app
     
   redis:
     image: redis/redis-stack-server
