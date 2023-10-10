@@ -62,16 +62,14 @@ function makeSearchRequest(accessToken) {
   req.end(); 
 }
 
-function writeAccessToken(accessToken, tokenExpirationDate) { 
+function writeAccessToken(accessToken, tokenExpirationDate) {
+  console.log('Writing access token...');
   fs.writeFile(
     'access-token',
     `${accessToken}\n${tokenExpirationDate}`,
     (err) => {
-      if (err) {
+      if (err) 
         console.error('Writing \'access-token\' failed.');
-      } else {
-        makeSearchRequest(accessToken);
-      }
     }
   );
 }
@@ -100,7 +98,8 @@ function requestAccessToken() {
         const expiresInSeconds = parseInt(d.toString().match(/"expires_in":[0-9]*/g)[0].slice(13));
         const currentTime = new Date();
         const tokenExpirationDate = new Date(currentTime.getTime() + expiresInSeconds * 1000);
-        writeAccessToken(accessToken, tokenExpirationDate);
+        writeAccessToken(accessToken, tokenExpirationDate); 
+        makeSearchRequest(accessToken);
       });
     });
     req.on('error', (e) => {console.error(e);});
@@ -109,7 +108,7 @@ function requestAccessToken() {
   }
 }
 
-function readAccessToken() {
+function checkAccessToken() {
   fs.readFile('access-token', 'utf8', (err, data) => {
     if (err) {
       console.error(`Error: ${err}: Failed to read file \'access-token\'`);
@@ -127,7 +126,7 @@ function readAccessToken() {
 
 function findSongs() {
   if (fs.existsSync('access-token'))
-    readAccessToken();
+    checkAccessToken();
   else
     requestAccessToken();
 }
