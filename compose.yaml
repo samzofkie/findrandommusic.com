@@ -6,9 +6,9 @@ services:
     environment:
       CLIENT_ID:
       CLIENT_SECRET:
-    #volumes:
-      #- .:/app
+    volumes:
+      - .:/app
     
   redis:
-    image: redis
+    image: redis/redis-stack-server
 
