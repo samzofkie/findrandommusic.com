@@ -16,9 +16,9 @@ async function extractArt(json) {
   
   for (let index in json.tracks.items) {
     const track = json.tracks.items[index];
-    const artUrl = track.album.images['0'].url;
+    const artUrl = track.album.images['1'].url;
     const previewUrl = track.preview_url;
-    client.lPush('songs', artUrl);
+    client.lPush('songs', [artUrl, previewUrl].join('@'));
   }
 }
 
