@@ -75,37 +75,40 @@ function writeAccessToken(accessToken, tokenExpirationDate) {
 }
 
 function requestAccessToken() {
-  console.log('Requesting an access token...');
   const client_id = process.env.CLIENT_ID;
   const client_secret = process.env.CLIENT_SECRET;
 
   if (!client_id || !client_secret) {
-    console.error("Missing CLIENT_ID or CLIENT_SECRET environment variables.");
-  } else {
-    const options = {
-      hostname: 'accounts.spotify.com',
-      port: 443,
-      path: '/api/token',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    };
-
-    const req = https.request(options, (res) => {
-      res.on('data', (d) => {
-        const accessToken = d.toString().match(/"access_token":"[a-zA-Z0-9\-_]*/g)[0].slice(16);
-        const expiresInSeconds = parseInt(d.toString().match(/"expires_in":[0-9]*/g)[0].slice(13));
-        const currentTime = new Date();
-        const tokenExpirationDate = new Date(currentTime.getTime() + expiresInSeconds * 1000);
-        writeAccessToken(accessToken, tokenExpirationDate); 
-        makeSearchRequest(accessToken);
-      });
-    });
-    req.on('error', (e) => {console.error(e);});
-    req.write(`grant_type=client_credentials&client_id=${client_id}&client_secret=${client_secret}`);
-    req.end();
+    console.error('Missing CLIENT_ID or CLIENT_SECRET environment variables. Exiting...');
+    process.exit(1);
   }
+
+  console.log('Requesting an access token...')
+  
+  const options = {
+    hostname: 'accounts.spotify.com',
+    port: 443,
+    path: '/api/token',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  };
+
+  const req = https.request(options, (res) => {
+    res.on('data', (d) => {
+      const accessToken = d.toString().match(/"access_token":"[a-zA-Z0-9\-_]*/g)[0].slice(16);
+      const expiresInSeconds = parseInt(d.toString().match(/"expires_in":[0-9]*/g)[0].slice(13));
+      const currentTime = new Date();
+      const tokenExpirationDate = new Date(currentTime.getTime() + expiresInSeconds * 1000);
+      writeAccessToken(accessToken, tokenExpirationDate); 
+      makeSearchRequest(accessToken);
+    });
+  });
+  req.on('error', (e) => {console.error(e);});
+  req.write(`grant_type=client_credentials&client_id=${client_id}&client_secret=${client_secret}`);
+  req.end();
+  
 }
 
 function checkAccessToken() {
