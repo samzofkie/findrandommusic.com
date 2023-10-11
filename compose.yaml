@@ -8,13 +8,15 @@ services:
     depends_on:
       - redis
     
-  redis:
-    image: redis/redis-stack-server
-
   crawler:
     image: spotify-game-crawler
     environment:
       - CLIENT_ID=${CLIENT_ID}
       - CLIENT_SECRET=${CLIENT_SECRET}
+    volumes:
+      - ./crawler:/crawler
     depends_on:
       - redis
+
+  redis:
+    image: redis
