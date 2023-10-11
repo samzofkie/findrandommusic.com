@@ -1,4 +1,3 @@
 node_modules/*
 crawler/node_modules
-access-token
 dist/bundle.js*
