@@ -1,4 +1,3 @@
 playback
 clean up frontend
-containerize crawler
-webpack dev sever / nodemon?
+remove EXPOSE 9000 from app Dockerfile, and adjust webpack.config.js for production

@@ -11,3 +11,8 @@ You can bundle the frontend with:
 ```
 npm run bundle
 ```
+Or if everything is up and running, run the frontend dev server with:
+```
+docker exec spotify-game-app-1 npx webpack serve
+```
+and view it at [http://localhost:9000](http://localhost:9000).

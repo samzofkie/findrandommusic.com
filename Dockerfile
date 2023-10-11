@@ -1,5 +1,4 @@
 FROM node:latest
-RUN apt-get update && apt-get -y upgrade
 
 WORKDIR /app
 COPY package.json package.json
@@ -11,3 +10,4 @@ RUN npm run bundle
 
 CMD ["npm", "run", "start"]
 EXPOSE 3000
+EXPOSE 9000

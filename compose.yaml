@@ -3,8 +3,11 @@ services:
     image: spotify-game
     ports: 
       - 127.0.0.1:3000:3000
+      - 127.0.0.1:9000:9000
     depends_on:
       - redis
+    volumes:
+      - .:/app
     
   crawler:
     image: spotify-game-crawler
@@ -13,6 +16,8 @@ services:
       - CLIENT_SECRET=${CLIENT_SECRET}
     depends_on:
       - redis
+    volumes:
+    - ./crawler:/app
 
   redis:
     image: redis
