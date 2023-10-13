@@ -1,3 +1,6 @@
-playback
-clean up frontend
+clean up frontend css
+double click to add to playlist
+create playlist
+options to filter by song playbackable
+options of what data to display
 remove EXPOSE 9000 from app Dockerfile, and adjust webpack.config.js for production

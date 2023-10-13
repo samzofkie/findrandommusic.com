@@ -4,20 +4,23 @@ import { createRoot } from "react-dom/client";
 
 
 function Song({songString=''}) {
-  if (songString) {
-    const audioRef = useRef();
+  if (songString) { 
+    const [artworkUrl, playbackUrl] = songString.split('@');
     const {pause, play} = useContext(PlaybackContext);
     
-    const [artworkUrl, playbackUrl] = songString.split('@');
- 
-    const audio = (
+    const audioRef = useRef();
+    const audio = playbackUrl ? 
       <audio ref={audioRef}>
         <source src={playbackUrl} type={'audio/mpeg'} />
-      </audio>
-    );
+      </audio> :
+      null;
 
-    const image = <img src={artworkUrl} onClick={() => {pause(); play(audioRef.current);}}/>;
-    
+    const handleClick = playbackUrl ?
+      () => {pause(); play(audioRef.current);} :
+      () => console.log('No audio playback for this song!');
+
+    const image = <img src={artworkUrl} onClick={handleClick}/>
+
     return (
       <div className={'song'}>
         {image}
@@ -61,18 +64,13 @@ function PlaybackProvider({ children }) {
   const [currentlyPlaying, setCurrentlyPlaying] = useState('');
 
   function pause() {
-    console.log('trying to pause:');
-    console.log(currentlyPlaying);
     if (currentlyPlaying) {
-      console.log('in pause if.');
       currentlyPlaying.pause()
       setCurrentlyPlaying('');
     }
   }
 
   function play(newAudio) {
-    console.log('trying to play:');
-    console.log(newAudio);
     newAudio.play();
     setCurrentlyPlaying(newAudio);
   }
