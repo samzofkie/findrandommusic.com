@@ -2,27 +2,36 @@ import React , { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 // import "./styles.css";
 
-function DisplayRack() {
-  const [songUrls, setSongUrls] = useState([]);
-  
-  function loadSongs() {
-    fetch('/art')
-      .then(res => res.json())
-      .then(strings => strings.map(string =>string.split('@')[0]))
-      .then(setSongUrls)
-  }
-  
-  const artworkImages = songUrls.map((url, i) => <img key={i} src={url} />);
+
+function DisplayRack({songs = []}) {
+  if (!songs.length) 
+    return <div className={'display-rack'}>No songs yet!</div>;
 
   return (
     <div className={'display-rack'}>
-      {artworkImages}
+      {songs.map((song, i) => {
+        if (song)
+          return <img key={i} src={song.split('@')[0]} />
+      })}
     </div>
   );
 }
 
 function App() {
-  return <DisplayRack />;
+  const [songs, setSongs] = useState([]);
+
+  function fetchSongs() {
+    fetch('/songs')
+      .then(res => res.json())
+      .then(setSongs)
+  }
+
+  return (
+    <>
+      <DisplayRack songs={songs} />
+      <button onClick={fetchSongs}>Load songs</button>
+    </>
+  );
 }
 
 const root = createRoot(document.getElementById('root'));
@@ -32,9 +41,3 @@ root.render(
     <App />
   </StrictMode>
 );
-
-/*fetch('/art')
-  .then(res => res.json())
-  .then(strings => strings.map(string => string.split('@')[0]))
-  .then(artUrls => artUrls.map(url => <img src={url}/>))
-  .then(imgs => render(imgs, root))*/

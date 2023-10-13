@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, 'dist')));
 
-app.get('/art', async (req, res) => {
+app.get('/songs', async (req, res) => {
   let urls = [];
   for (let i=0; i<50; i++) {
     const url = await client.lPop('songs');
