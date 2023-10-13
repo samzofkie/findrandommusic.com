@@ -170,7 +170,7 @@ function startCrawlerDaemon() {
   client.connect();
   
   replenishSongCache(client);
-  setTimeout(() => replenishSongCache(client), 60000);
+  setInterval(() => replenishSongCache(client), 30 * 1000);
 }
 
 startCrawlerDaemon();
