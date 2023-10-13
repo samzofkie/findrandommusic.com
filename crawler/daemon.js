@@ -2,6 +2,7 @@ const https = require('node:https');
 const fs = require('node:fs');
 const redis = require('redis');
 
+
 function readCachedAccessToken() {
   if (!accessTokenCached()) {
     console.error('Tried to read cached access token when none exists!');
@@ -140,7 +141,7 @@ function extractAndFormatSongStrings(searchResultsJson) {
 
 function pushSongUrlStringsToRedisCache(urlStrings, client) {
   urlStrings.map((urlString) => {
-    client.lPush('songs', urlString);
+    client.sAdd('songs', urlString);
   });
 }
 
@@ -153,11 +154,11 @@ async function findAndCacheSongs(redisClient) {
 }
 
 async function replenishSongCache(client) {
-  let numSongs = await client.lLen('songs');
+  let numSongs = await client.sCard('songs');
   while (numSongs < 500) {
     console.log(`Cache contains ${numSongs} songs. Searching...`);
     await findAndCacheSongs(client);
-    numSongs = await client.lLen('songs');
+    numSongs = await client.sCard('songs');
   }
 }
 

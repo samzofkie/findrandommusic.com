@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, 'dist')));
 app.get('/songs', async (req, res) => {
   let urls = [];
   for (let i=0; i<50; i++) {
-    const url = await client.lPop('songs');
+    const url = await client.sPop('songs');
     urls.push(url);
   }
   res.send(urls);
