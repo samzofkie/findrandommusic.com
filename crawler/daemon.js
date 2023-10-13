@@ -131,17 +131,18 @@ function makeSearchRequest(token, searchTerm) {
   });
 }
 
-function extractAndFormatSongStrings(searchResultsJson) {
+function extractAndFormatSongJsons(searchResultsJson) {
   return searchResultsJson.tracks.items.map((trackJson) => {
-    const albumImageUrl = trackJson.album.images['1'].url;
-    const previewUrl = trackJson.preview_url;
-    return [albumImageUrl, previewUrl].join('@');
+    return {
+      'artwork_url' : trackJson.album.images['1'].url,
+      'playback_url': trackJson.preview_url,
+    };
   });
 }
 
-function pushSongUrlStringsToRedisCache(urlStrings, client) {
-  urlStrings.map((urlString) => {
-    client.sAdd('songs', urlString);
+function pushSongJsonsToRedisCache(songJsons, client) {
+  songJsons.map((songJson) => {
+    client.sAdd('songs', JSON.stringify(songJson));
   });
 }
 
@@ -149,8 +150,9 @@ async function findAndCacheSongs(redisClient) {
   const accessToken = await getAccessToken();
   const searchTerm = gibberish();
   const searchResultsJson = await makeSearchRequest(accessToken, searchTerm);
-  const songUrlStrings = extractAndFormatSongStrings(searchResultsJson);
-  pushSongUrlStringsToRedisCache(songUrlStrings, redisClient);
+  
+  const songJsons = extractAndFormatSongJsons(searchResultsJson);
+  pushSongJsonsToRedisCache(songJsons, redisClient);
 }
 
 async function replenishSongCache(client) {

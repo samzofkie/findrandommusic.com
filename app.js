@@ -18,12 +18,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'dist')));
 
 app.get('/songs', async (req, res) => {
-  let urls = [];
+  let songs = [];
   for (let i=0; i<50; i++) {
-    const url = await client.sPop('songs');
-    urls.push(url);
+    const song = await client.sPop('songs');
+    songs.push(song);
   }
-  res.send(urls);
+  res.send(songs);
 });
 
 module.exports = app;

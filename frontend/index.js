@@ -3,9 +3,11 @@ import { createRoot } from "react-dom/client";
 // import "./styles.css";
 
 
-function Song({songString=''}) {
-  if (songString) { 
-    const [artworkUrl, playbackUrl] = songString.split('@');
+function Song({songJson = {}}) {
+  if (Object.keys(songJson).length !== 0) {
+    const artworkUrl = songJson.artwork_url;
+    const playbackUrl = songJson.playback_url;
+
     const {pause, play} = useContext(PlaybackContext);
     
     const audioRef = useRef();
@@ -36,7 +38,7 @@ function DisplayRack({songs = []}) {
 
   return (
     <div className={'display-rack'}>
-      {songs.map((songString, i) => <Song songString={songString} key={i}/>)}
+      {songs.map((songJson, i) => <Song songJson={songJson} key={i}/>)}
     </div>
   );
 }
@@ -47,6 +49,9 @@ function App() {
   function fetchSongs() {
     fetch('/songs')
       .then(res => res.json())
+      .then(songJsonStrings =>
+        songJsonStrings.map((string) => JSON.parse(string))
+      )
       .then(setSongs)
   }
 
