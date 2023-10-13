@@ -27,6 +27,11 @@ function Song({songJson = {}}) {
       <div className={'song'}>
         {image}
         {audio}
+        <div className={'song-info'}>
+          <p>{songJson.song_title}</p>
+          <p>{songJson.artist}</p>
+          <a href={songJson.link_url}>{songJson.link_url}</a>
+        </div>
       </div>
     );
   }
