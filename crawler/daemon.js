@@ -159,7 +159,6 @@ async function replenishSongCache(client) {
     await findAndCacheSongs(client);
     numSongs = await client.lLen('songs');
   }
-  console.log(`Cache contains ${numSongs} songs. Sleeping...`);
 }
 
 function startCrawlerDaemon() {

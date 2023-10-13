@@ -23,7 +23,7 @@ module.exports = {
     },
     port: 9000,
     proxy: {
-      '/art': 'http://localhost:3000',
+      '/songs': 'http://localhost:3000',
     },
   },
 };
