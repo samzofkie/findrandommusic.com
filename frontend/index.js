@@ -5,6 +5,8 @@ import { createRoot } from "react-dom/client";
 function SongArtwork({artworkUrl, audioRef, playbackSupported}) {
   const {pause, play} = useContext(PlaybackContext);
   const imageRef = useRef();
+  const [imageSubText, setImageSubText] = useState('');
+  const imageSubTextRef = useRef();
   const handleClick = playbackSupported ?
     () => {
       pause();
@@ -12,13 +14,25 @@ function SongArtwork({artworkUrl, audioRef, playbackSupported}) {
     } :
     () => {
       imageRef.current.style.opacity = 0.2;
+      imageSubTextRef.current.style.opacity = 1;
+      setImageSubText('Playback disabled for this song :(');
+
       setTimeout(() => {
         imageRef.current.style.opacity = 1;
+        imageSubTextRef.current.style.opacity = 0;
       }, 1000);
+
+      setTimeout(() => setImageSubText(''), 1750);
     };
 
-
-  return <img ref={imageRef} src={artworkUrl} onClick={handleClick}/>;
+  return (
+    <div className={'artwork'}>
+      <img ref={imageRef} src={artworkUrl} onClick={handleClick} />
+      <div ref={imageSubTextRef} className={'artwork-text'}>
+        {imageSubText}
+      </div>
+    </div>
+  );
 }
 
 function Song({songJson}) {
