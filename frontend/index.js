@@ -17,11 +17,16 @@ function Song({songJson = {}}) {
       </audio> :
       null;
 
+    const imageRef = useRef();
+    
     const handleClick = playbackUrl ?
       () => {pause(); play(audioRef.current);} :
-      () => console.log('No audio playback for this song!');
+      () => {
+        console.log('No audio playback for this song!');
+        console.log(imageRef.current.style);
+      };
 
-    const image = <img src={artworkUrl} onClick={handleClick}/>
+    const image = <img ref={imageRef} src={artworkUrl} onClick={handleClick}/>
 
     return (
       <div className={'song'}>

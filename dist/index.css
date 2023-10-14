@@ -16,6 +16,7 @@ body {
 
 .song img {
   width: 200px;
+  transition: opacity 0.5s;
 }
 
 .song-info {
