@@ -3,13 +3,26 @@ body {
 }
 
 .song {
+  border: 5px solid #32a852;
+  border-radius: 30px;
+  padding: 20px;
+  margin: 20px;
+
   position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  width: 600px;
+}
+
+.song img {
+  width: 200px;
 }
 
 .song-info {
   position: absolute;
   top: 0px;
-  left: 310px;
+  left: 300px;
   color: white;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Lato', Arial, sans-serif;
+  font-size: 20px;
 }
