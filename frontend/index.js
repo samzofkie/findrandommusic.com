@@ -2,12 +2,28 @@ import React , { StrictMode, useState, useRef, createContext, useContext} from "
 import { createRoot } from "react-dom/client";
 
 
-function Song({songJson = {}}) {
-  const artworkUrl = songJson.artwork_url;
-  const playbackUrl = songJson.playback_url;
-
+function SongArtwork({artworkUrl, audioRef, playbackSupported}) {
   const {pause, play} = useContext(PlaybackContext);
-  
+  const imageRef = useRef();
+  const handleClick = playbackSupported ?
+    () => {
+      pause();
+      play(audioRef.current);
+    } :
+    () => {
+      imageRef.current.style.opacity = 0.2;
+      setTimeout(() => {
+        imageRef.current.style.opacity = 1;
+      }, 1000);
+    };
+
+
+  return <img ref={imageRef} src={artworkUrl} onClick={handleClick}/>;
+}
+
+function Song({songJson}) {
+  const playbackUrl = songJson.playback_url;
+ 
   const audioRef = useRef();
   const audio = playbackUrl ? 
     <audio ref={audioRef}>
@@ -15,24 +31,11 @@ function Song({songJson = {}}) {
     </audio> :
     null;
 
-  const imageRef = useRef();
-  
-  const handleClick = playbackUrl ?
-    () => {pause(); play(audioRef.current);} :
-    () => {
-      //console.log('No audio playback for this song!');
-      imageRef.current.style.opacity = 0.2;
-      setTimeout(() => {
-        imageRef.current.style.opacity = 1
-      }, 1000);
-    };
-
-  const image = <img ref={imageRef} src={artworkUrl} onClick={handleClick}/>
-
   return (
     <div className={'song'}>
-      {image}
       {audio}
+      <SongArtwork artworkUrl={songJson.artwork_url} audioRef={audioRef} 
+        playbackSupported={songJson.playback_url} />
       <div className={'song-info'}>
         <p>{songJson.song_title}</p>
         <p>{songJson.artist}</p>
