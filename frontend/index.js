@@ -1,54 +1,43 @@
 import React , { StrictMode, useState, useRef, createContext, useContext} from "react";
 import { createRoot } from "react-dom/client";
-// import "./styles.css";
 
 
 function Song({songJson = {}}) {
-  if (Object.keys(songJson).length !== 0) {
-    const artworkUrl = songJson.artwork_url;
-    const playbackUrl = songJson.playback_url;
+  const artworkUrl = songJson.artwork_url;
+  const playbackUrl = songJson.playback_url;
 
-    const {pause, play} = useContext(PlaybackContext);
-    
-    const audioRef = useRef();
-    const audio = playbackUrl ? 
-      <audio ref={audioRef}>
-        <source src={playbackUrl} type={'audio/mpeg'} />
-      </audio> :
-      null;
+  const {pause, play} = useContext(PlaybackContext);
+  
+  const audioRef = useRef();
+  const audio = playbackUrl ? 
+    <audio ref={audioRef}>
+      <source src={playbackUrl} type={'audio/mpeg'} />
+    </audio> :
+    null;
 
-    const imageRef = useRef();
-    
-    const handleClick = playbackUrl ?
-      () => {pause(); play(audioRef.current);} :
-      () => {
-        console.log('No audio playback for this song!');
-        console.log(imageRef.current.style);
-      };
+  const imageRef = useRef();
+  
+  const handleClick = playbackUrl ?
+    () => {pause(); play(audioRef.current);} :
+    () => {
+      //console.log('No audio playback for this song!');
+      imageRef.current.style.opacity = 0.2;
+      setTimeout(() => {
+        imageRef.current.style.opacity = 1
+      }, 1000);
+    };
 
-    const image = <img ref={imageRef} src={artworkUrl} onClick={handleClick}/>
-
-    return (
-      <div className={'song'}>
-        {image}
-        {audio}
-        <div className={'song-info'}>
-          <p>{songJson.song_title}</p>
-          <p>{songJson.artist}</p>
-          <a href={songJson.link_url}>{songJson.link_url}</a>
-        </div>
-      </div>
-    );
-  }
-}
-
-function DisplayRack({songs = []}) {
-  if (!songs.length) 
-    return <div className={'display-rack'}>No songs yet!</div>;
+  const image = <img ref={imageRef} src={artworkUrl} onClick={handleClick}/>
 
   return (
-    <div className={'display-rack'}>
-      {songs.map((songJson, i) => <Song songJson={songJson} key={i}/>)}
+    <div className={'song'}>
+      {image}
+      {audio}
+      <div className={'song-info'}>
+        <p>{songJson.song_title}</p>
+        <p>{songJson.artist}</p>
+        <a href={songJson.link_url}>{songJson.link_url}</a>
+      </div>
     </div>
   );
 }
@@ -62,12 +51,15 @@ function App() {
       .then(songJsonStrings =>
         songJsonStrings.map((string) => JSON.parse(string))
       )
+      .then(songJsons => 
+        songJsons.filter((songJson) => Object.keys(songJson).length > 0)
+      )
       .then(setSongs)
   }
 
   return (
     <>
-      <DisplayRack songs={songs} />
+      {songs.map((songJson, i) => <Song songJson={songJson} key={i}/>)}
       <button onClick={fetchSongs}>Load songs</button>
     </>
   );
