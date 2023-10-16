@@ -1,5 +1,8 @@
 import React , { StrictMode, useState, useRef, createContext, useContext} from "react";
 import { createRoot } from "react-dom/client";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
 
 function SongArtwork({artworkUrl, audioRef, playbackSupported}) {
@@ -35,6 +38,21 @@ function SongArtwork({artworkUrl, audioRef, playbackSupported}) {
   );
 }
 
+function SongInfo({songJson}) {
+  return (
+    <div className={'song-info'}>
+      <p>{songJson.song_title}</p>
+      <p>{songJson.artist}</p>
+      <div className={'spotify-link'}>
+        <a href={songJson.link_url}>
+          <FontAwesomeIcon icon={faSpotify} />
+          <FontAwesomeIcon icon={faExternalLinkAlt} />
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function Song({songJson}) {
   const playbackUrl = songJson.playback_url;
  
@@ -48,13 +66,12 @@ function Song({songJson}) {
   return (
     <div className={'song'}>
       {audio}
-      <SongArtwork artworkUrl={songJson.artwork_url} audioRef={audioRef} 
-        playbackSupported={songJson.playback_url} />
-      <div className={'song-info'}>
-        <p>{songJson.song_title}</p>
-        <p>{songJson.artist}</p>
-        <a href={songJson.link_url}>{songJson.link_url}</a>
-      </div>
+      <SongArtwork 
+        artworkUrl={songJson.artwork_url} 
+        audioRef={audioRef} 
+        playbackSupported={songJson.playback_url} 
+      />
+      <SongInfo songJson={songJson} />
     </div>
   );
 }
