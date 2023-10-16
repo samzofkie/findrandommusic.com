@@ -43,10 +43,12 @@ function SongInfo({songJson}) {
     <div className={'song-info'}>
       <p>{songJson.song_title}</p>
       <p>{songJson.artist}</p>
+      <p>{songJson.release_date}</p>
+      <p>{songJson.popularity}</p>
       <div className={'spotify-link'}>
         <a href={songJson.link_url}>
-          <FontAwesomeIcon icon={faSpotify} />
-          <FontAwesomeIcon icon={faExternalLinkAlt} />
+          <FontAwesomeIcon icon={faSpotify} className={'spotify-icon'} />
+          <FontAwesomeIcon icon={faExternalLinkAlt} className={'external-link-icon'} />
         </a>
       </div>
     </div>

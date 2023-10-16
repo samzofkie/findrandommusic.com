@@ -139,6 +139,8 @@ function extractAndFormatSongJsons(searchResultsJson) {
       'song_title': track.name,
       'artist': track.artists['0'].name,
       'link_url': track.external_urls.spotify,
+      'release_date': track.album.release_date,
+      'popularity': track.popularity,
     };
   });
 }

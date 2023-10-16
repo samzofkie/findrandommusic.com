@@ -19,7 +19,7 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 app.get('/songs', async (req, res) => {
   let songs = [];
-  for (let i=0; i<50; i++) {
+  for (let i=0; i<20; i++) {
     const song = await client.sPop('songs');
     songs.push(song);
   }
