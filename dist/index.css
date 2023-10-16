@@ -42,16 +42,15 @@ body {
 }
 
 .song .song-info {
-  position: absolute;
+  position: absolute; 
+  padding-top: 3.5%;
   top: 0px;
-  left: 35%;
-  width: 60%;
-  height: 90%;
-  padding: 2%;
+  left: 33%;
 
-  color: white;
-  font-family: 'Lato', Arial, sans-serif;
-  font-size: 20px;
+  width: 63.5%;
+  height: 77.5%;
+
+  font-size: 2vw;
 }
 
 .song .song-info p {
@@ -60,15 +59,19 @@ body {
 
 .song .song-info .spotify-link {
   border: 2px solid white;
-  border-radius: 20px;
-  width: 12%;
+  border-radius: 25px;
+  width: 15%;
   padding: 5px;
+  
   position: absolute;
-  bottom: 30px;
-  right: 20px;
+  bottom: 0px;
+  right: 0px;
+  text-align: center;
+
+  background-color: #303030;
 }
 
 .song .song-info .spotify-link a * {
   color: white;
-  margin-left: 5px;
+  margin-left: 5%;
 }
