@@ -1,6 +1,7 @@
-scrape date and listens data
 differentiate title and artist fonts
 improve gibberish algorithm
+
+highlight currently playing song
 
 auto load immeadiately
 pause music

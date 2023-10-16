@@ -23,7 +23,7 @@ body {
 
 .song .artwork img {
   width: 100%;
-  transition: opacity 0.75s;
+  transition: opacity 0.5s;
 }
 
 .song .artwork .artwork-text {
@@ -33,7 +33,7 @@ body {
   font-size: 1.5vw;
     
   opacity: 0;
-  transition: opacity 0.75s;
+  transition: opacity 0.5s;
   cursor: default;
 }
 
@@ -73,5 +73,12 @@ body {
 
 .song .song-info .spotify-link a * {
   color: white;
+}
+
+.song .song-info .spotify-link a .spotify-icon {
+  margin-right: 5%;
+}
+
+.song .song-info .spotify-link a .external-link-icon {
   margin-left: 5%;
 }
