@@ -9,6 +9,7 @@ function PopularityBar({popularity}) {
   return (
     <div className={'popularity-bar'}>
       <hr className={'background-bar'} />
+      <hr className={'value-bar'} style={{width: `${popularity * 96 / 100}%`}}/>
     </div>
   );
 }
