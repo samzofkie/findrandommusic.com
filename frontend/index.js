@@ -5,6 +5,14 @@ import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
 
+function PopularityBar({popularity}) {
+  return (
+    <div className={'popularity-bar'}>
+      <hr className={'background-bar'} />
+    </div>
+  );
+}
+
 function SongArtwork({artworkUrl, audioRef, playbackSupported}) {
   const {pause, play} = useContext(PlaybackContext);
   const imageRef = useRef();
@@ -25,7 +33,7 @@ function SongArtwork({artworkUrl, audioRef, playbackSupported}) {
         imageSubTextRef.current.style.opacity = 0;
       }, 1000);
 
-      setTimeout(() => setImageSubText(''), 1750);
+      setTimeout(() => setImageSubText(''), 1500);
     };
 
   return (
@@ -41,10 +49,10 @@ function SongArtwork({artworkUrl, audioRef, playbackSupported}) {
 function SongInfo({songJson}) {
   return (
     <div className={'song-info'}>
-      <p>{songJson.song_title}</p>
-      <p>{songJson.artist}</p>
-      <p>{songJson.release_date}</p>
-      <p>{songJson.popularity}</p>
+      <p className={'title'}><b>{songJson.song_title}</b></p>
+      <p className={'artist'}>{songJson.artist}</p>
+      <p className={'date'}>{songJson.release_date}</p>
+      <PopularityBar popularity={songJson.popularity} />
       <div className={'spotify-link'}>
         <a href={songJson.link_url}>
           <FontAwesomeIcon icon={faSpotify} className={'spotify-icon'} />

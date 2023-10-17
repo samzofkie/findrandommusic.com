@@ -10,51 +10,53 @@ body {
   padding: 2%;
   margin: 2%;
 
-  position: relative;
   margin-left: auto;
   margin-right: auto;
-  max-width: 50%;
+  width: 50%;
+  height: 25%;
+
+  display: grid;
+  grid-template-columns: 34% 66%;
 }
 
 .song .artwork {
-  position: relative; /* This is for .artwork-text to be over the .artwork img */
-  width: 30%;
+  position: relative;
 }
 
 .song .artwork img {
-  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
   transition: opacity 0.5s;
 }
 
 .song .artwork .artwork-text {
   position: absolute;
-  top: 34%;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
   text-align: center;
-  font-size: 1.5vw;
-    
-  opacity: 0;
+
+  opacity: 0%;
   transition: opacity 0.5s;
   cursor: default;
 }
 
-.song .artwork .artwork-text:hover {
-  cursor: default;
+.song .song-info {
+  font-size: 1.5vw;
+  margin-left: 5%;
+  position: relative;
 }
 
-.song .song-info {
-  position: absolute; 
-  padding-top: 3.5%;
-  top: 0px;
-  left: 33%;
+.song .song-info * {
+  margin: 0px;
+}
 
-  width: 63.5%;
-  height: 77.5%;
-
+.song .song-info .title {
   font-size: 2vw;
 }
 
-.song .song-info p {
-  margin: 5px;
+.song .song-info .artist, .song .song-info .date {
+  margin-top: 2%;
 }
 
 .song .song-info .spotify-link {
@@ -62,16 +64,17 @@ body {
   border-radius: 25px;
   width: 15%;
   padding: 5px;
-  
+
   position: absolute;
-  bottom: 0px;
-  right: 0px;
+  bottom: 0%;
+  right: 0%;
+
   text-align: center;
 
   background-color: #303030;
 }
 
-.song .song-info .spotify-link a * {
+.song .song-info .spotify-link a {
   color: white;
 }
 
@@ -82,3 +85,15 @@ body {
 .song .song-info .spotify-link a .external-link-icon {
   margin-left: 5%;
 }
+
+.song .song-info .popularity-bar {
+  position: absolute;
+  bottom: 2%;
+  width: 75%;
+}
+
+.song .song-info .popularity-bar .background-bar {
+  border: 3px solid #303030;
+  border-radius: 10px;
+}
+
