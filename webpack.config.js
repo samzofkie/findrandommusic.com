@@ -24,6 +24,7 @@ module.exports = {
     port: 9000,
     proxy: {
       '/songs': 'http://localhost:3000',
+      '/favicon.ico': 'http://localhost:3000',
     },
   },
 };
