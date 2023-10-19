@@ -29,12 +29,14 @@ body {
   transition: opacity 0.5s;
 }
 
-.song .artwork .artwork-text {
+.song .artwork .playback-disabled-text {
   position: absolute;
   top: 50%;
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
   text-align: center;
+
+  padding: 5%;
 
   opacity: 0%;
   transition: opacity 0.5s;
