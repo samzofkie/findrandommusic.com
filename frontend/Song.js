@@ -62,7 +62,7 @@ function SongInfo({songJson}) {
     <div className={'song-info'}>
       <p className={'title'}><b>{songJson.song_title}</b></p>
       <p className={'artist'}>{songJson.artist}</p>
-      <p className={'date'}>{songJson.release_date}</p>
+      <p className={'date'}>{new Date(songJson.release_date).getFullYear()}</p>
       <PopularityBar popularity={songJson.popularity} />
       <SpotifyLink url={songJson.link_url} />
     </div>
