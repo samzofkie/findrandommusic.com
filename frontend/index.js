@@ -1,9 +1,10 @@
-import React, { useState, StrictMode } from 'react';
+import React, { useState, StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPause } from '@fortawesome/free-solid-svg-icons';
 
 import Song from './Song.js';
+
 
 function PauseButton({ onClick }) {
   const [pressed, setPressed] = useState(false);
@@ -38,8 +39,14 @@ function App() {
       .then(songJsons =>
         songJsons.filter(json => Object.keys(json).length > 0)
       )
-      .then(setSongs)
+      .then(songJsons =>
+        setSongs(songs.concat(songJsons))
+      )
   }
+
+  useEffect(() => {
+    fetchSongs();  
+  }, []);
  
   return (
     <>
