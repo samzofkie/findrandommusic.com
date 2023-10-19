@@ -2,8 +2,10 @@ import React, { useState, StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import Song from './Song.js';
 
+
 function App() {
   const [songs, setSongs] = useState([]);
+  const [playingSong, setPlayingSong] = useState('');
 
   function fetchSongs() {
     console.log('fetchin');
@@ -18,9 +20,20 @@ function App() {
       .then(setSongs)
   }
 
+  function changePlayingSong(id) {
+    setPlayingSong(id); 
+  }
+
   return (
     <>
-      {songs.map((songJson, i) => <Song songJson={songJson} key={songJson.id} />)}
+      {songs.map((songJson, i) => 
+        <Song  
+          key={songJson.id} 
+          songJson={songJson} 
+          isPlaying={playingSong === songJson.id}
+          changePlayingSong={changePlayingSong}
+        />
+      )}
       <button onClick={fetchSongs}>a</button>
     </>
   );

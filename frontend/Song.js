@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
@@ -6,12 +6,8 @@ import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
 
 
-function SongArtwork({url, hasPlayback}) {
+function SongArtwork({url, hasPlayback, playPreview}) {
   const [playbackDisabledMessageVisible, setPlaybackDisabledMessageVisible] = useState(false);
-
-  function playPreview() {
-    // TODO
-  }
 
   function informNoPlayback() {
       setPlaybackDisabledMessageVisible(true);
@@ -27,12 +23,14 @@ function SongArtwork({url, hasPlayback}) {
         src={url} 
         style={{opacity: playbackDisabledMessageVisible ? '0.2' : '1'}}
       />
-      <div
-        className={'playback-disabled-text'}
-        style={{opacity: playbackDisabledMessageVisible ? '1' : '0'}}
-      >
-        {'Playback disabled for this song :('}
-      </div>
+      {hasPlayback || 
+        <div
+          className={'playback-disabled-text'}
+          style={{opacity: playbackDisabledMessageVisible ? '1' : '0'}}
+        >
+        { 'Playback disabled for this song :('}
+        </div>
+      }
     </div>
   );
 }
@@ -70,26 +68,34 @@ function SongInfo({songJson}) {
   );
 }
 
-function SongAudio({url}) {
-  if (!url)
-    return null;
+function AudioPlayer({url, isPlaying}) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (isPlaying) {
+      ref.current.play();
+    } else
+      ref.current.pause();
+  });
+
   return (
-    <audio>
+    <audio ref={ref}>
       <source src={url} type={'audio/mpeg'} />
     </audio>
   );
 }
 
-export default function Song({songJson}) {
-  const [isPlaying, setIsPlaying] = useState(false);
+export default function Song({songJson, isPlaying, changePlayingSong}) {
+  const hasPlayback = songJson.playback_url !== null;
   return (
     <div className={'song'}>
       <SongArtwork 
         url={songJson.artwork_url} 
-        hasPlayback={songJson.playback_url !== null} 
+        hasPlayback={hasPlayback}
+        playPreview={() => changePlayingSong(songJson.id)}
       />
       <SongInfo songJson={songJson} />
-      <SongAudio url={songJson.playback_url} />
+      {hasPlayback && <AudioPlayer url={songJson.playback_url} isPlaying={isPlaying} />}
     </div>
   );
 }
