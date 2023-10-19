@@ -134,7 +134,8 @@ function makeSearchRequest(token, searchTerm) {
 function extractAndFormatSongJsons(searchResultsJson) {
   return searchResultsJson.tracks.items.map((track) => {
     return {
-      'artwork_url' : track.album.images['1'].url,
+      'id': track.id,
+      'artwork_url': track.album.images['1'].url,
       'playback_url': track.preview_url,
       'song_title': track.name,
       'artist': track.artists['0'].name,
