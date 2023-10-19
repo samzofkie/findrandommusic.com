@@ -1,9 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
-
 
 
 function SongArtwork({url, hasPlayback, playPreview}) {

@@ -111,3 +111,26 @@ body {
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
 }
+
+.pause-button-container {
+  width: 6%;
+  height: 0;
+  padding-bottom: 6%;
+  position: fixed;
+  bottom: 0%;
+  right: 0%;
+  font-size: 3vw;
+  border-radius: 50%;
+  border: 3px solid #303030;
+  margin: 2%;
+  background-color: #821fbf;
+}
+
+.pause-symbol {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  color: white;
+} 
