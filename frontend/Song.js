@@ -88,7 +88,10 @@ function AudioPlayer({url, isPlaying}) {
 export default function Song({songJson, isPlaying, changePlayingSong}) {
   const hasPlayback = songJson.playback_url !== null;
   return (
-    <div className={'song'}>
+    <div 
+      className={'song'}
+      style={isPlaying ? {outline: '5px solid white' } : null}
+    >
       <SongArtwork 
         url={songJson.artwork_url} 
         hasPlayback={hasPlayback}
