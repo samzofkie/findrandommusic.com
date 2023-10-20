@@ -3,6 +3,10 @@ const fs = require('node:fs');
 const redis = require('redis');
 
 
+const names = fs.readFileSync('./dictionaries/names', 'utf8').split('\n');
+const words = fs.readFileSync('./dictionaries/wordlist.10000', 'utf8').split('\n');
+let gibberishIndex = 0;
+
 function readCachedAccessToken() {
   if (!accessTokenCached()) {
     console.error('Tried to read cached access token when none exists!');
@@ -99,17 +103,44 @@ function getAccessToken() {
   }
 }
 
-function gibberish() { 
-  const chars = 'abcdefghijklmnopqrstuvwxyz';
-  const len = 3 + Math.floor(Math.random() * 4);
-  let gib = '';
-  for (let i=0; i<len; i++)
-    gib += chars.charAt(Math.floor(Math.random() * chars.length));
-  return gib; 
+function gibberishTruncate(word) {
+  if (word.length < 5)
+    return word;
+  const desiredLength = 5 + Math.floor(Math.random() * (word.length - 5));
+  const startIndex = Math.floor(Math.random() * (word.length - desiredLength));
+  return word.slice(startIndex, startIndex + desiredLength);
+}
+
+function gibberish() {
+  function gib1() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz';
+    const len = 3 + Math.floor(Math.random() * 4);
+    let gib = '';
+    for (let i=0; i<len; i++)
+      gib += chars.charAt(Math.floor(Math.random() * chars.length));
+    return gib; 
+  }
+
+  function gib2() {
+    const index = Math.floor(Math.random() * names.length);
+    return gibberishTruncate(names[index]);
+  }
+
+  function gib3() {
+    const index = Math.floor(Math.random() * words.length);
+    return gibberishTruncate(words[index]);
+  }
+
+  const gibFunctions = [gib1, gib2, gib3];
+  gibberishIndex++;
+  if (gibberishIndex > gibFunctions.length - 1)
+    gibberishIndex = 0;
+
+  return gibFunctions[gibberishIndex]();
 }
 
 function makeSearchRequest(token, searchTerm) {
-  //console.log(`Searching for ${searchTerm}...`);
+  console.log(`Searching for ${searchTerm}...`);
   const options = {
     hostname: 'api.spotify.com',
     port: 443,
@@ -131,8 +162,30 @@ function makeSearchRequest(token, searchTerm) {
   });
 }
 
+function randomIndexes(length, num) {
+  let indexes = [];
+  while (num >= 0) {
+    let candidate = Math.floor(Math.random() * length);
+    if (!(candidate in indexes)) {
+      indexes.push(candidate);
+      num--;
+    }
+  }
+  return indexes;
+}
+
 function extractAndFormatSongJsons(searchResultsJson) {
-  return searchResultsJson.tracks.items.map((track) => {
+  let tracks = searchResultsJson.tracks.items;
+  const numberToPick = 5;
+
+  if (tracks.length > 5) {
+    const indexes = randomIndexes(tracks.length, numberToPick);
+    let temp = [];
+    for (let index of indexes)
+      temp.push(tracks[index]);
+    tracks = temp;
+  }
+  return tracks.map((track) => {
     return {
       'id': track.id,
       'artwork_url': track.album.images['1'].url,
