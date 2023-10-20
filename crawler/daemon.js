@@ -138,7 +138,7 @@ function extractAndFormatSongJsons(searchResultsJson) {
       'artwork_url': track.album.images['1'].url,
       'playback_url': track.preview_url,
       'song_title': track.name,
-      'artist': track.artists['0'].name,
+      'artists': track.artists.map((artist) => artist.name),
       'link_url': track.external_urls.spotify,
       'release_date': track.album.release_date,
       'popularity': track.popularity,
