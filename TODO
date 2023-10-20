@@ -1,12 +1,12 @@
-make whole song div (except spotify link) clickable
 infinite scroll
+multiple artist handling
 improve gibberish algorithm
 playback loop
 song info text wrapping
-scale popularity bar and song border with js
 artwork bug / try block
-double click to add to playlist
-create playlist
-options to filter by song playbackable
-options of what data to display
 remove EXPOSE 9000 from app Dockerfile, and adjust webpack.config.js for production
+
+scale popularity bar and song border with js
+playlist
+filtering
+options of what data to display

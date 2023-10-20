@@ -4,27 +4,17 @@ import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
 
-function SongArtwork({url, hasPlayback, playPreview}) {
-  const [playbackDisabledMessageVisible, setPlaybackDisabledMessageVisible] = useState(false);
-
-  function informNoPlayback() {
-      setPlaybackDisabledMessageVisible(true);
-      setTimeout(() => setPlaybackDisabledMessageVisible(false), 1000);
-  }
-
+function SongArtwork({url, hasPreview, previewDisabledMessageVisible}) {
   return (
-    <div 
-      className={'artwork'} 
-      onClick={hasPlayback ? playPreview : informNoPlayback}
-    >
-      <img 
-        src={url} 
-        style={{opacity: playbackDisabledMessageVisible ? '0.2' : '1'}}
+    <div className={'artwork'}>
+      <img
+        src={url}
+        style={{opacity: previewDisabledMessageVisible ? '0.2' : '1'}}
       />
-      {hasPlayback || 
+      {hasPreview || 
         <div
           className={'playback-disabled-text'}
-          style={{opacity: playbackDisabledMessageVisible ? '1' : '0'}}
+          style={{opacity: previewDisabledMessageVisible ? '1' : '0'}}
         >
         { 'Playback disabled for this song :('}
         </div>
@@ -43,10 +33,14 @@ function PopularityBar({popularity}) {
 }
 
 function SpotifyLink({url}) {
+  function handleClick(event) {
+    event.stopPropagation();
+    window.open(url, 'popUpWindow');
+  }
   return (
     <div 
       className={'spotify-link'} 
-      onClick={() => window.open(url, 'popUpWindow')} 
+      onClick={handleClick} 
     >
         <FontAwesomeIcon icon={faSpotify} className={'spotify-icon'} />
         <FontAwesomeIcon icon={faExternalLinkAlt} className={'external-link-icon'} />
@@ -85,19 +79,31 @@ function AudioPlayer({url, isPlaying}) {
 }
 
 export default function Song({songJson, isPlaying, changePlayingSong}) {
-  const hasPlayback = songJson.playback_url !== null;
+  const [previewDisabledMessageVisible, setPreviewDisabledMessageVisible] = useState(false);
+  const hasPreview = songJson.playback_url !== null;
+  
+  function handleClick() {
+    if (hasPreview)
+      changePlayingSong(songJson.id);
+    else {
+      setPreviewDisabledMessageVisible(true);
+      setTimeout(() => setPreviewDisabledMessageVisible(false), 1000);
+    }
+  }
+
   return (
     <div 
       className={'song'}
       style={isPlaying ? {outline: '5px solid white' } : null}
+      onClick={handleClick}
     >
       <SongArtwork 
         url={songJson.artwork_url} 
-        hasPlayback={hasPlayback}
-        playPreview={() => changePlayingSong(songJson.id)}
+        hasPreview={hasPreview}
+        previewDisabledMessageVisible={previewDisabledMessageVisible}
       />
       <SongInfo songJson={songJson} />
-      {hasPlayback && <AudioPlayer url={songJson.playback_url} isPlaying={isPlaying} />}
+      {hasPreview && <AudioPlayer url={songJson.playback_url} isPlaying={isPlaying} />}
     </div>
   );
 }
