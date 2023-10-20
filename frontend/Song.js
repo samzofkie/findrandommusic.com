@@ -44,11 +44,12 @@ function PopularityBar({popularity}) {
 
 function SpotifyLink({url}) {
   return (
-    <div className={'spotify-link'}>
-      <a href={url}>
+    <div 
+      className={'spotify-link'} 
+      onClick={() => window.open(url, 'popUpWindow')} 
+    >
         <FontAwesomeIcon icon={faSpotify} className={'spotify-icon'} />
         <FontAwesomeIcon icon={faExternalLinkAlt} className={'external-link-icon'} />
-      </a>
     </div>
   );
 }

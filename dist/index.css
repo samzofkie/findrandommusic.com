@@ -76,17 +76,18 @@ body {
   text-align: center;
 
   background-color: #303030;
-}
-
-.song .song-info .spotify-link a {
   color: white;
 }
 
-.song .song-info .spotify-link a .spotify-icon {
+.song .song-info .spotify-link:hover {
+  cursor: pointer;
+}
+
+.song .song-info .spotify-link .spotify-icon {
   margin-right: 5%;
 }
 
-.song .song-info .spotify-link a .external-link-icon {
+.song .song-info .spotify-link .external-link-icon {
   margin-left: 5%;
 }
 

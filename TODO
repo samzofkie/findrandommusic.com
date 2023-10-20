@@ -1,10 +1,10 @@
+make whole song div (except spotify link) clickable
+infinite scroll
+improve gibberish algorithm
+playback loop
 song info text wrapping
 scale popularity bar and song border with js
-improve gibberish algorithm
-infinite scroll
-playback loop
-artwork bug
-try block
+artwork bug / try block
 double click to add to playlist
 create playlist
 options to filter by song playbackable
