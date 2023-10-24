@@ -39,12 +39,22 @@ function App() {
       .then(songJsons =>
         songJsons.filter(json => Object.keys(json).length > 0)
       )
-      .then(songJsons =>
-        setSongs(songs.concat(songJsons))
-      )
+      .then(songJsons => {
+        setSongs(s => s.concat(songJsons));
+      })
+  }
+
+  function scrollRatio() {
+    const html = document.documentElement;
+    const totalHeight = html.offsetHeight;
+    const windowHeight = html.clientHeight;
+    const ratio = (window.scrollY + windowHeight) / totalHeight;
+    if (ratio > 0.8)
+      fetchSongs();
   }
 
   useEffect(() => {
+    document.onscrollend = scrollRatio;
     fetchSongs();  
   }, []);
  
@@ -58,13 +68,13 @@ function App() {
           changePlayingSong={setPlayingSong}
         />
       )}
-      <button onClick={fetchSongs}>a</button>
       <PauseButton onClick={() => setPlayingSong('')} />
     </>
   );
 }
 
 const root = createRoot(document.getElementById('root'));
+window.addEventListener('load', () => window.scroll(0,0));
 
 root.render(
   <StrictMode>

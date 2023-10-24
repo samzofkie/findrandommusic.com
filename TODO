@@ -1,7 +1,9 @@
-infinite scroll
 playback loop
 song info text wrapping
 artwork bug / try block
+more graceful loading
+?
+log IP addrs
 remove EXPOSE 9000 from app Dockerfile, and adjust webpack.config.js for production
 
 scale popularity bar and song border with js

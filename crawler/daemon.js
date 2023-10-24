@@ -140,7 +140,7 @@ function gibberish() {
 }
 
 function makeSearchRequest(token, searchTerm) {
-  console.log(`Searching for ${searchTerm}...`);
+  //console.log(`Searching for ${searchTerm}...`);
   const options = {
     hostname: 'api.spotify.com',
     port: 443,
