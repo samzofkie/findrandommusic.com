@@ -9,5 +9,3 @@ COPY . .
 RUN npm run bundle
 
 CMD ["npm", "run", "start"]
-EXPOSE 3000
-EXPOSE 9000
