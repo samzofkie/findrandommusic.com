@@ -58,6 +58,8 @@ body {
 
 .song .song-info .title {
   font-size: 2vw;
+  max-height: 7.5vw;
+  overflow: hidden;
 }
 
 .song .song-info .artist, .song .song-info .date {
