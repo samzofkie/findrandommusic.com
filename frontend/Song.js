@@ -73,7 +73,7 @@ function AudioPlayer({url, isPlaying}) {
   });
 
   return (
-    <audio ref={ref}>
+    <audio ref={ref} onEnded={() => ref.current.play()}>
       <source src={url} type={'audio/mpeg'} />
     </audio>
   );
