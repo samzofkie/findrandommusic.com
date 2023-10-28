@@ -32,9 +32,10 @@ function PopularityBar({popularity}) {
   );
 }
 
-function SpotifyLink({url}) {
+function SpotifyLink({url, stopPlayback}) {
   function handleClick(event) {
     event.stopPropagation();
+    stopPlayback();
     window.open(url, 'popUpWindow');
   }
   return (
@@ -48,14 +49,14 @@ function SpotifyLink({url}) {
   );
 }
 
-function SongInfo({songJson}) {
+function SongInfo({songJson, stopPlayback}) {
   return (
     <div className={'song-info'}>
       <p className={'title'}><b>{songJson.song_title}</b></p>
       <p className={'artist'}>{songJson.artists.join(' & ')}</p>
       <p className={'date'}>{new Date(songJson.release_date).getFullYear()}</p>
       <PopularityBar popularity={songJson.popularity} />
-      <SpotifyLink url={songJson.link_url} />
+      <SpotifyLink url={songJson.link_url} stopPlayback={stopPlayback} />
     </div>
 
   );
@@ -102,7 +103,7 @@ export default function Song({songJson, isPlaying, changePlayingSong}) {
         hasPreview={hasPreview}
         previewDisabledMessageVisible={previewDisabledMessageVisible}
       />
-      <SongInfo songJson={songJson} />
+      <SongInfo songJson={songJson} stopPlayback={() => changePlayingSong('')}/>
       {hasPreview && <AudioPlayer url={songJson.playback_url} isPlaying={isPlaying} />}
     </div>
   );
