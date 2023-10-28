@@ -95,7 +95,7 @@ export default function Song({songJson, isPlaying, changePlayingSong}) {
   return (
     <div 
       className={'song'}
-      style={isPlaying ? {outline: '5px solid white' } : null}
+      style={isPlaying ? {backgroundColor: '#181818' } : null}
       onClick={handleClick}
     >
       <SongArtwork 

@@ -30,7 +30,7 @@ function App() {
   const [playingSong, setPlayingSong] = useState('');
 
   function fetchSongs() {
-    console.log('fetchin');
+    //console.log('fetchin');
     fetch('/songs')
       .then(res => res.json())
       .then(songJsonStrings =>
