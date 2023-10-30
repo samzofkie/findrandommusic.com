@@ -206,12 +206,16 @@ function pushSongJsonsToRedisCache(songJsons, client) {
 }
 
 async function findAndCacheSongs(redisClient) {
-  const accessToken = await getAccessToken();
-  const searchTerm = gibberish();
-  const searchResultsJson = await makeSearchRequest(accessToken, searchTerm);
+  try {
+    const accessToken = await getAccessToken();
+    const searchTerm = gibberish();
+    const searchResultsJson = await makeSearchRequest(accessToken, searchTerm);
   
-  const songJsons = extractAndFormatSongJsons(searchResultsJson);
-  pushSongJsonsToRedisCache(songJsons, redisClient);
+    const songJsons = extractAndFormatSongJsons(searchResultsJson);
+    pushSongJsonsToRedisCache(songJsons, redisClient);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function replenishSongCache(client) {

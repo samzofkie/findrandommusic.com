@@ -1,8 +1,7 @@
-try block crawler / no search results case
 more graceful loading
 links to artists album ect
-rate limiting
 
+rate limiting
 update logging
 kubernetes aws autoscaling
 unit testing
