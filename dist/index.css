@@ -4,6 +4,16 @@ body {
   font-family: 'Lato', Arial, sans-serif;
 }
 
+.introduction {
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+.introduction h1 {
+  text-align: center;
+}
+
 .song {
   border-radius: 20px;
   margin: 1px;
@@ -140,6 +150,10 @@ body {
 } 
 
 @media only screen and (max-width: 600px) {
+  .introduction {
+    width: 100%;
+  }
+
   .song {
     width: 100%;
   }

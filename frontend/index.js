@@ -1,10 +1,31 @@
 import React, { useState, StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPause } from '@fortawesome/free-solid-svg-icons';
+import { faPause, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
-import Song from './Song.js';
+import { Song, PopularityBar } from './Song.js';
 
+
+function Introduction() {
+  return (
+    <div className={'introduction'}>
+      <h1>findrandommusic.com</h1>
+      <ul>
+        <li> {'Click on songs to hear a preview'} </li>
+        <li> 
+          {'The '} 
+            <FontAwesomeIcon icon={faSpotify} className={'spotify-icon'} />
+            <FontAwesomeIcon icon={faExternalLinkAlt} className={'external-link-icon'} />
+          {' button opens the song in a new tab'} 
+        </li>
+        <li> 
+          {'The bar with the colored line shows how popular the song is, according to Spotify'}
+        </li>
+      </ul>
+    </div>
+  );
+}
 
 function PauseButton({ onClick }) {
   const [pressed, setPressed] = useState(false);
@@ -60,6 +81,7 @@ function App() {
  
   return (
     <>
+      <Introduction />
       {songs.map((songJson, i) => 
         <Song  
           key={songJson.id} 

@@ -23,7 +23,7 @@ function SongArtwork({url, hasPreview, previewDisabledMessageVisible}) {
   );
 }
 
-function PopularityBar({popularity}) {
+export function PopularityBar({popularity}) {
   return (
     <div className={'popularity-bar'}>
       <hr className={'background-bar'} />
@@ -79,7 +79,7 @@ function AudioPlayer({url, isPlaying}) {
   );
 }
 
-export default function Song({songJson, isPlaying, changePlayingSong}) {
+export function Song({songJson, isPlaying, changePlayingSong}) {
   const [previewDisabledMessageVisible, setPreviewDisabledMessageVisible] = useState(false);
   const hasPreview = songJson.playback_url !== null;
   
