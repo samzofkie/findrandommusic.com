@@ -10,8 +10,8 @@ body {
 
   margin-left: auto;
   margin-right: auto;
+ 
   width: 50%;
-  height: 25%;
 
   display: grid;
   grid-template-columns: 34% 66%;
@@ -138,3 +138,28 @@ body {
   transform: translate(-50%, -50%);
   color: white;
 } 
+
+@media only screen and (max-width: 600px) {
+  .song {
+    width: 100%;
+  }
+
+  .song .song-info {
+    font-size: 4vw;
+  }
+
+  .song .song-info .title {
+    font-size: 5vw;
+    max-height: 12vw;
+  }
+
+  .song .artwork .playback-disabled-text {
+    font-size: 4vw;
+  }
+
+  .pause-button-container {
+    width: 20%;
+    padding-bottom: 20%;
+    font-size: 7vw;
+  }
+}
