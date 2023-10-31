@@ -188,13 +188,24 @@ function extractAndFormatSongJsons(searchResultsJson) {
   return tracks.map((track) => {
     return {
       'id': track.id,
+      'track': {
+        'name': track.name,
+        'url': track.external_urls.spotify,
+      },
       'artwork_url': track.album.images['1'].url,
       'playback_url': track.preview_url,
-      'song_title': track.name,
-      'artists': track.artists.map((artist) => artist.name),
-      'link_url': track.external_urls.spotify,
+      'artists': track.artists.map((artist) =>
+        ({
+          'name': artist.name,
+          'url': artist.external_urls.spotify,
+        })
+      ),
       'release_date': track.album.release_date,
       'popularity': track.popularity,
+      'album': {
+        'name': track.album.name,
+        'url': track.album.external_urls.spotify,
+      },
     };
   });
 }

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
+import { faExternalLinkAlt, faPalette, faCalendarDays, faCompactDisc } from '@fortawesome/free-solid-svg-icons';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
 
@@ -32,31 +32,55 @@ export function PopularityBar({popularity}) {
   );
 }
 
-function SpotifyLink({url, stopPlayback}) {
-  function handleClick(event) {
-    event.stopPropagation();
+// input infoJson needs to have .name and .url properties
+function SongInfoLink({infoJson, stopPlayback}) {
+  function followLink(event) {
+    event.stopPropagation(event);
     stopPlayback();
-    window.open(url, 'popUpWindow');
+    window.open(infoJson.url, 'popUpWindow');
   }
+
   return (
-    <div 
-      className={'spotify-link'} 
-      onClick={handleClick} 
+    <span 
+      className={'song-info-link'}
+      onClick={followLink}
     >
-        <FontAwesomeIcon icon={faSpotify} className={'spotify-icon'} />
-        <FontAwesomeIcon icon={faExternalLinkAlt} className={'external-link-icon'} />
-    </div>
+      {infoJson.name}
+    </span>
   );
 }
 
 function SongInfo({songJson, stopPlayback}) {
   return (
     <div className={'song-info'}>
-      <p className={'title'}><b>{songJson.song_title}</b></p>
-      <p className={'artist'}>{songJson.artists.join(' & ')}</p>
-      <p className={'date'}>{new Date(songJson.release_date).getFullYear()}</p>
+      <p className={'title'}><b>
+        <SongInfoLink 
+          infoJson={songJson.track} 
+          stopPlayback={stopPlayback} 
+        />
+      </b></p>
+      <p className={'artists'}>
+        <FontAwesomeIcon icon={faPalette} />
+        {' '}
+        {
+          songJson.artists
+            .map((artist) => 
+              <SongInfoLink infoJson={artist} stopPlayback={stopPlayback} />  
+            )
+            .reduce((prev, curr) => [prev, ' & ', curr])
+        } 
+      </p>
+      <p className={'album'}>
+        <FontAwesomeIcon icon={faCompactDisc} />
+        {' '}
+        <SongInfoLink infoJson={songJson.album} stopPlayback={stopPlayback} />
+      </p>
+      <p className={'date'}>
+        <FontAwesomeIcon icon={faCalendarDays} />
+        {' '}
+        {new Date(songJson.release_date).getFullYear()}
+      </p>
       <PopularityBar popularity={songJson.popularity} />
-      <SpotifyLink url={songJson.link_url} stopPlayback={stopPlayback} />
     </div>
 
   );
