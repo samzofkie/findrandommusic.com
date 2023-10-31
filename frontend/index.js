@@ -12,16 +12,9 @@ function Introduction() {
     <div className={'introduction'}>
       <h1>findrandommusic.com</h1>
       <ul>
-        <li> {'Click on songs to hear a preview'} </li>
-        <li> 
-          {'The '} 
-            <FontAwesomeIcon icon={faSpotify} className={'spotify-icon'} />
-            <FontAwesomeIcon icon={faExternalLinkAlt} className={'external-link-icon'} />
-          {' button opens the song in a new tab'} 
-        </li>
-        <li> 
-          {'The bar with the colored line shows how popular the song is, according to Spotify'}
-        </li>
+        <li> {'Click on artwork or around text to hear a preview'} </li>
+        <li> {'Click on the song title to open song in Spotify, album title to open album, or artist name to open artist.'} </li>
+        <li> {'The bar with the colored line shows how popular the song is, according to Spotify'} </li>
       </ul>
     </div>
   );
