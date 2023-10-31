@@ -43,9 +43,9 @@ function App() {
   const [songs, setSongs] = useState([]);
   const [playingSong, setPlayingSong] = useState('');
 
-  function fetchSongs() {
+  async function fetchSongs() {
     //console.log('fetchin');
-    fetch('/songs')
+    await fetch('/songs')
       .then(res => res.json())
       .then(songJsonStrings =>
         songJsonStrings.map(string => JSON.parse(string))
@@ -55,7 +55,7 @@ function App() {
       )
       .then(songJsons => {
         setSongs(s => s.concat(songJsons));
-      })
+      });
   }
 
   function scrollRatio() {
@@ -83,6 +83,7 @@ function App() {
           changePlayingSong={setPlayingSong}
         />
       )}
+      <div className={'loader'}></div>
       <PauseButton onClick={() => setPlayingSong('')} />
     </>
   );

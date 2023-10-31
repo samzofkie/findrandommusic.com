@@ -65,7 +65,7 @@ function SongInfo({songJson, stopPlayback}) {
         {
           songJson.artists
             .map((artist) => 
-              <SongInfoLink infoJson={artist} stopPlayback={stopPlayback} />  
+              <SongInfoLink key={artist.name} infoJson={artist} stopPlayback={stopPlayback} />  
             )
             .reduce((prev, curr) => [prev, ' & ', curr])
         } 
