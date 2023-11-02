@@ -34,18 +34,13 @@ export function PopularityBar({popularity}) {
 
 // input infoJson needs to have .name and .url properties
 function SongInfoLink({infoJson, stopPlayback}) {
-  function followLink(event) {
-    event.stopPropagation(event);
-    stopPlayback();
-    window.open(infoJson.url, 'popUpWindow');
-  }
-
   return (
     <span 
       className={'song-info-link'}
-      onClick={followLink}
     >
-      {infoJson.name}
+      <a href={infoJson.url} target={'_blank'}>
+        {infoJson.name}
+      </a>
     </span>
   );
 }

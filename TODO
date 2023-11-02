@@ -1,12 +1,12 @@
-more graceful loading
-links to artists album ect
-
 rate limiting
 update logging
 kubernetes aws autoscaling
-unit testing
 
-scale popularity bar and song border with js
 playlist
 options of what data to display
 filtering
+auto play
+
+unit testing
+scale popularity bar and song border with js
+more graceful loading

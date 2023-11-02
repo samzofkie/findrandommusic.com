@@ -10,7 +10,7 @@ body {
   width: 50%;
 }
 
-.introduction h1 {
+.introduction h1, .introduction h3 {
   text-align: center;
 }
 
@@ -79,9 +79,14 @@ body {
   margin-top: 2%;
 }
 
-.song .song-info .song-info-link:hover {
-  cursor: pointer;
+.song .song-info .song-info-link a {
+  color: white;
+  text-decoration: none;
 }
+
+/*.song .song-info .song-info-link:hover {
+  cursor: pointer;
+}*/
 
 .song .song-info .popularity-bar {
   position: absolute;
