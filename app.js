@@ -2,6 +2,7 @@ var express = require('express');
 var path = require('path');
 var morgan = require('morgan');
 const {createClient} = require('redis');
+const {rateLimit} = require('express-rate-limit');
 
 const dateFormatter = require('./date-formatter.js');
 
@@ -27,6 +28,11 @@ app.use(morgan(function (tokens, req, res) {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use('/songs', rateLimit({
+  windowMs: 1000,
+  max: 2,
+}));
 
 app.use(express.static(path.join(__dirname, 'dist')));
 
