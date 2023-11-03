@@ -2,6 +2,7 @@ const https = require('node:https');
 const fs = require('node:fs');
 const redis = require('redis');
 
+const dateFormatter = require('./date-formatter.js');
 
 const names = fs.readFileSync('./dictionaries/names', 'utf8').split('\n');
 const words = fs.readFileSync('./dictionaries/wordlist.10000', 'utf8').split('\n');
@@ -140,7 +141,6 @@ function gibberish() {
 }
 
 function makeSearchRequest(token, searchTerm) {
-  //console.log(`Searching for ${searchTerm}...`);
   const options = {
     hostname: 'api.spotify.com',
     port: 443,
@@ -164,7 +164,7 @@ function makeSearchRequest(token, searchTerm) {
 
 function randomIndexes(length, num) {
   let indexes = [];
-  while (num >= 0) {
+  while (num > 0) {
     let candidate = Math.floor(Math.random() * length);
     if (!(candidate in indexes)) {
       indexes.push(candidate);
@@ -224,6 +224,8 @@ async function findAndCacheSongs(redisClient) {
   
     const songJsons = extractAndFormatSongJsons(searchResultsJson);
     pushSongJsonsToRedisCache(songJsons, redisClient);
+    
+    //console.log(`${dateFormatter.createDateString(new Date())} ${searchTerm} ${songJsons.length}`);
   } catch (error) {
     console.log(error);
   }
@@ -232,7 +234,6 @@ async function findAndCacheSongs(redisClient) {
 async function replenishSongCache(client) {
   let numSongs = await client.sCard('songs');
   while (numSongs < 500) {
-    console.log(`Cache contains ${numSongs} songs. Searching...`);
     await findAndCacheSongs(client);
     numSongs = await client.sCard('songs');
   }

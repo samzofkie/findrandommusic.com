@@ -1,6 +1,7 @@
 rate limiting
-update logging
 kubernetes aws autoscaling
+
+persist redis
 
 playlist
 options of what data to display
