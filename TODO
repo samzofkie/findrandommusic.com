@@ -1,12 +1,15 @@
-kubernetes aws autoscaling
-
 persist redis
+HTTPS
+rethink dir structure
 
+advanced CSS (new fonts, better line breakin)
+spotify app links
 playlist
 options of what data to display
 filtering
 auto play
 
+kubernetes aws autoscaling
 unit testing
 scale popularity bar and song border with js
 more graceful loading

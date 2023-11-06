@@ -1,9 +1,8 @@
 services:
-
   app:
     image: spotify-game
     ports: 
-      - 80:3000
+      #- 8080:3000
       - 9000:9000
     depends_on:
       - redis
@@ -22,3 +21,10 @@ services:
 
   redis:
     image: redis
+
+  rproxy:
+    image: spotify-game-rproxy
+    ports:
+      - 80:80
+    depends_on:
+      - app

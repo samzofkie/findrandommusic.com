@@ -4,6 +4,7 @@ Create the container images:
 ```
 docker build -t spotify-game .
 docker build -t spotify-game-crawler crawler
+docker build -t spotify-game-rproxy proxy
 ```
 Run everything with `docker compose up`, then open [http://localhost/](http://localhost/).
 
