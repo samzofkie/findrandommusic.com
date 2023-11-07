@@ -6,6 +6,8 @@ const {rateLimit} = require('express-rate-limit');
 
 //const dateFormatter = require('./date-formatter.js');
 
+const SERVE_STATIC = process.argv[2] === '--serve-static=true';
+
 const client = createClient({
   'url': 'redis://redis',
 });
@@ -44,9 +46,14 @@ app.get('/songs', async (req, res) => {
   res.send(songs);
 });
 
+if (SERVE_STATIC)
+  app.use(express.static('public'))
+
 const port = 3000;
 
 app.listen(port, () => {
   console.log(`app.js listening on port ${port}`)
+  if (SERVE_STATIC)
+    console.log('serving static files from \'public\' dir');
 })
 
