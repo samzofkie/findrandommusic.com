@@ -1,6 +1,8 @@
 services:
   redis:
     image: redis
+    volumes:
+      - redis-dump:/data
 
   app:
     image: node
@@ -35,3 +37,5 @@ services:
       - ./public:/public
       - ./proxy/certs:/etc/certs
 
+volumes:
+  redis-dump:

@@ -1,6 +1,8 @@
 services:
   redis:
     image: redis
+    volumes:
+      - redis-dump:/data
 
   app:
     image: node
@@ -38,3 +40,5 @@ services:
     ports:
       - 9000:9000
 
+volumes:
+  redis-dump:
