@@ -1,5 +1,7 @@
 api/node_modules
 crawler/node_modules
+frontend/node_modules
 crawler/access-token
+public/bundle.js*
 proxy/certs
 secrets

@@ -1,30 +1,17 @@
-const path = require("path");
+const path = require('path');
 
 module.exports = {
-  mode: 'development',
-  entry: "./frontend/index.js",
+  entry: './index.js',
   output: {
-    path: path.join(__dirname, "dist"),
-    filename: "bundle.js"
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'public'),
   },
+  mode: 'production',
   module: {
-    rules: [
-      { 
-        test: /\.js$/, 
-        exclude: /node_modules/, 
-        loader: "babel-loader",
-      }
-    ]
-  },
-  devtool: "source-map",
-  devServer: {
-    static: {
-      directory: path.join(__dirname, 'dist'),
-    },
-    port: 9000,
-    proxy: {
-      '/songs': 'http://localhost:3000',
-      '/favicon.ico': 'http://localhost:3000',
-    },
-  },
+    rules: [{
+      test: /\.js$/,
+      exclude: /node_modules/,
+      loader: "babel-loader"
+    }]
+  }
 };

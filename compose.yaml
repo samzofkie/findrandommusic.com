@@ -29,6 +29,6 @@ services:
       - app
     volumes:
       - ./proxy/nginx.conf:/etc/nginx/nginx.conf
-      - ./proxy/public:/public
+      - ./public:/public
       - ./proxy/certs:/etc/certs
 
