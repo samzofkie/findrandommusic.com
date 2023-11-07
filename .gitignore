@@ -1,5 +1,5 @@
-node_modules/*
+api/node_modules
 crawler/node_modules
 crawler/access-token
-proxy/dist/bundle.js*
+proxy/certs
 secrets

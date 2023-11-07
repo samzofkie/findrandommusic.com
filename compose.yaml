@@ -1,10 +1,11 @@
 services:
   app:
-    image: spotify-game
-    depends_on: 
+    image: node
+    depends_on:
       - redis
     volumes: 
-      - .:/app
+      - ./api:/api
+    command: node /api/app.js
     
   crawler:
     image: spotify-game-crawler

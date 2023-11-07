@@ -4,7 +4,7 @@ var morgan = require('morgan');
 const {createClient} = require('redis');
 const {rateLimit} = require('express-rate-limit');
 
-const dateFormatter = require('./date-formatter.js');
+//const dateFormatter = require('./date-formatter.js');
 
 const client = createClient({
   'url': 'redis://redis',
@@ -12,11 +12,12 @@ const client = createClient({
 client.on('error', err => console.log('Redis Client Error', err));
 client.connect();
 
-var app = express();
+const app = express();
 
 app.use(morgan(function (tokens, req, res) {
   return [
-    dateFormatter.createDateString(new Date(tokens.date(req, res))),
+    //dateFormatter.createDateString(new Date(tokens.date(req, res))),
+    tokens.date(req, res),
     tokens.method(req, res),
     tokens.url(req, res),
     tokens.status(req, res),
@@ -43,4 +44,9 @@ app.get('/songs', async (req, res) => {
   res.send(songs);
 });
 
-module.exports = app;
+const port = 3000;
+
+app.listen(port, () => {
+  console.log(`app.js listening on port ${port}`)
+})
+
