@@ -1,24 +1,27 @@
 services:
+  redis:
+    image: redis
+
   app:
     image: node
     depends_on:
       - redis
     volumes: 
       - ./api:/api
-    command: node /api/app.js
+    working_dir: /api
+    command: node app.js
     
   crawler:
-    image: spotify-game-crawler
+    image: node
     environment:
       - CLIENT_ID=${CLIENT_ID}
       - CLIENT_SECRET=${CLIENT_SECRET}
     depends_on: 
       - redis
     volumes: 
-      - ./crawler:/app
-
-  redis:
-    image: redis
+      - ./crawler:/crawler
+    working_dir: /crawler
+    command: node daemon.js
 
   proxy:
     image: nginx
