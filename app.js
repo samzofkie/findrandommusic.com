@@ -34,8 +34,6 @@ app.use('/songs', rateLimit({
   max: 2,
 }));
 
-app.use(express.static(path.join(__dirname, 'dist')));
-
 app.get('/songs', async (req, res) => {
   let songs = [];
   for (let i=0; i<10; i++) {

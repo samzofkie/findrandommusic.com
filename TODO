@@ -1,5 +1,7 @@
+webpack
+http
+
 persist redis
-HTTPS
 rethink dir structure
 
 advanced CSS (new fonts, better line breakin)
