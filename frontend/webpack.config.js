@@ -1,11 +1,6 @@
 const path = require('path');
 
 module.exports = {
-  //entry: './index.js',
-  /*entry: {
-    index: './index.js',
-    song: './Song.js'
-  },*/
   entry: {
     index: {
       import: './index.js',
