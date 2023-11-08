@@ -41,38 +41,53 @@ function SongInfoLink({infoJson}) {
   );
 }
 
+function IconLine({children}) {
+  return (
+    <div className={'song-icon-line'}>
+      <div>
+        {children[0]}
+      </div>
+      <div>
+        {children[1]}
+      </div>
+    </div>
+  );
+}
+
 function SongInfo({songJson, stopPlayback}) {
   return (
     <div className={'song-info'}>
-      <p className={'song-title'}><b>
-        <SongInfoLink 
-          infoJson={songJson.track} 
-        />
-      </b></p>
-      <p className={'song-artists'}>
+      
+      <p className={'song-title'}>
+        <b>
+          <SongInfoLink infoJson={songJson.track}/>
+        </b>
+      </p>
+            
+      <IconLine>
         <FontAwesomeIcon icon={faPalette} />
-        {' '}
         {
           songJson.artists
             .map((artist) => 
               <SongInfoLink key={artist.name} infoJson={artist} />  
             )
             .reduce((prev, curr) => [prev, ' & ', curr])
-        } 
-      </p>
-      <p className={'song-album'}>
-        <FontAwesomeIcon icon={faCompactDisc} />
-        {' '}
-        <SongInfoLink infoJson={songJson.album} />
-      </p>
-      <p className={'song-date'}>
-        <FontAwesomeIcon icon={faCalendarDays} />
-        {' '}
-        {new Date(songJson.release_date).getFullYear()}
-      </p>
-      <PopularityBar popularity={songJson.popularity} />
-    </div>
+        }
+      </IconLine>
 
+      <IconLine>
+        <FontAwesomeIcon icon={faCompactDisc} />
+        <SongInfoLink infoJson={songJson.album} />
+      </IconLine>
+      
+      <IconLine>
+          <FontAwesomeIcon icon={faCalendarDays} />
+          {songJson.release_date.slice(0, 4)}
+      </IconLine>
+      
+      <PopularityBar popularity={songJson.popularity} />
+    
+    </div>
   );
 }
 
