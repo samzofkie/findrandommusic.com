@@ -1,7 +1,7 @@
 body {
   background-color: black;
   color: white;
-  font-family: 'Lato', Arial, sans-serif;
+  font-family: 'Arimo', Arial, sans-serif;
 }
 
 .introduction h1, .introduction h3 {
@@ -23,7 +23,7 @@ body {
 }
 
 .song {
-  border-radius: 20px;
+  border-radius: 0px 20px 20px 0px;
   margin: 1px;
 
   margin-left: auto;
@@ -57,7 +57,7 @@ body {
 }
 
 .artwork .playback-disabled-text, .song-info, .introduction h3 {
-  font-size: 2vw;
+  font-size: 1.75vw;
 }
 
 .song-info {
@@ -71,8 +71,7 @@ body {
 }
 
 .song-title {
-  font-size: 2.5vw;
-  overflow: hidden;
+  font-size: 2.25vw;
 }
 
 .song-icon-line {
@@ -81,9 +80,18 @@ body {
   margin-top: 1%;
 }
 
+.icon-line-icon {
+  margin: auto;
+}
+
 .song-info-link {
   color: white;
   text-decoration: none;
+  background-image: linear-gradient(to bottom left, #484848, #181818, #484848);
+  border-radius: 15px;
+  padding: 1%;
+  line-height: 1.55;
+  box-decoration-break: clone;
 }
 
 .song-popularity-bar {
@@ -155,12 +163,16 @@ body {
 } 
 
 @media only screen and (max-width: 600px) {
-  .introduction {
+  .song, .introduction {
     width: 100%;
   }
 
-  .song {
-    width: 100%;
+  .introduction h1 {
+    font-size: 5vw;
+  }
+
+  .introduction li, .introduction h3 {
+    font-size: 3vw;
   }
 
   .artwork .playback-disabled-text, .song-info {
@@ -169,7 +181,6 @@ body {
 
   .song-title {
     font-size: 5vw;
-    max-height: 12vw;
   }
 
   .song-icon-line {

@@ -44,7 +44,7 @@ function SongInfoLink({infoJson}) {
 function IconLine({children}) {
   return (
     <div className={'song-icon-line'}>
-      <div>
+      <div className={'icon-line-icon'}>
         {children[0]}
       </div>
       <div>
@@ -58,11 +58,9 @@ function SongInfo({songJson, stopPlayback}) {
   return (
     <div className={'song-info'}>
       
-      <p className={'song-title'}>
-        <b>
-          <SongInfoLink infoJson={songJson.track}/>
-        </b>
-      </p>
+      <span className={'song-title'}>
+        <b><SongInfoLink infoJson={songJson.track}/></b>
+      </span>
             
       <IconLine>
         <FontAwesomeIcon icon={faPalette} />
@@ -124,7 +122,9 @@ export function Song({songJson, isPlaying, changePlayingSong}) {
   return (
     <div 
       className={'song'}
-      style={isPlaying ? {backgroundColor: '#181818' } : null}
+      style={isPlaying ? {
+        backgroundImage: 'linear-gradient(to bottom right, #303030, #050505, #303030)',
+        } : null}
       onClick={handleClick}
     >
       <SongArtwork 
