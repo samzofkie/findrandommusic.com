@@ -10,6 +10,7 @@ import { Song, PopularityBar } from './Song.js';
 function Introduction() {
   return (
     <div className={'introduction'}>
+      <h1>findrandommusic.com</h1>
       <h3>the only fair way to listen to music</h3>
       <ul>
         <li> {'Click on artwork or around text to hear a preview'} </li>

@@ -25,7 +25,7 @@ function SongArtwork({url, hasPreview, previewDisabledMessageVisible}) {
 
 export function PopularityBar({popularity}) {
   return (
-    <div className={'popularity-bar'}>
+    <div className={'song-popularity-bar'}>
       <hr className={'background-bar'} />
       <hr className={'value-bar'} style={{width: `${popularity * 96 / 100}%`}}/>
     </div>
@@ -33,44 +33,39 @@ export function PopularityBar({popularity}) {
 }
 
 // input infoJson needs to have .name and .url properties
-function SongInfoLink({infoJson, stopPlayback}) {
+function SongInfoLink({infoJson}) {
   return (
-    <span 
-      className={'song-info-link'}
-    >
-      <a href={infoJson.url} target={'_blank'}>
-        {infoJson.name}
-      </a>
-    </span>
+    <a href={infoJson.url} target={'_blank'} className={'song-info-link'}>
+      {infoJson.name}
+    </a>
   );
 }
 
 function SongInfo({songJson, stopPlayback}) {
   return (
     <div className={'song-info'}>
-      <p className={'title'}><b>
+      <p className={'song-title'}><b>
         <SongInfoLink 
           infoJson={songJson.track} 
-          stopPlayback={stopPlayback} 
         />
       </b></p>
-      <p className={'artists'}>
+      <p className={'song-artists'}>
         <FontAwesomeIcon icon={faPalette} />
         {' '}
         {
           songJson.artists
             .map((artist) => 
-              <SongInfoLink key={artist.name} infoJson={artist} stopPlayback={stopPlayback} />  
+              <SongInfoLink key={artist.name} infoJson={artist} />  
             )
             .reduce((prev, curr) => [prev, ' & ', curr])
         } 
       </p>
-      <p className={'album'}>
+      <p className={'song-album'}>
         <FontAwesomeIcon icon={faCompactDisc} />
         {' '}
-        <SongInfoLink infoJson={songJson.album} stopPlayback={stopPlayback} />
+        <SongInfoLink infoJson={songJson.album} />
       </p>
-      <p className={'date'}>
+      <p className={'song-date'}>
         <FontAwesomeIcon icon={faCalendarDays} />
         {' '}
         {new Date(songJson.release_date).getFullYear()}
