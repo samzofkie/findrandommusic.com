@@ -1,11 +1,13 @@
-scale popularity bar
-pause button
-
-spotify app links
-playlist
-options of what data to display
 filtering
 auto play
+playlist
+options of what data to display
+
+scale popularity bar
+pause button
+google icons
+spotify app links
+harden nginx
 
 kubernetes aws autoscaling
 unit testing

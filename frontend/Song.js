@@ -43,34 +43,36 @@ function SongInfoLink({infoJson}) {
 
 function IconLine({children}) {
   return (
-    <div className={'song-icon-line'}>
+    <>
       <div className={'icon-line-icon'}>
         {children[0]}
       </div>
-      <div>
+      <div className={'icon-line-text'}>
         {children[1]}
       </div>
-    </div>
+    </>
   );
 }
 
 function SongInfo({songJson, stopPlayback}) {
+  function calculateArtistsList(artists) {
+    let infoLinks = artists.map(artist =>
+      <SongInfoLink key={artist.name} infoJson={artist} />
+    ).reduce((prev, curr) => [prev, ', ', curr]);
+    if (Array.isArray(infoLinks))
+      infoLinks[infoLinks.length - 2] = ' & ';
+    return infoLinks;
+  }
   return (
     <div className={'song-info'}>
       
-      <span className={'song-title'}>
+      <div className={'song-title'}>
         <b><SongInfoLink infoJson={songJson.track}/></b>
-      </span>
+      </div>
             
       <IconLine>
         <FontAwesomeIcon icon={faPalette} />
-        {
-          songJson.artists
-            .map((artist) => 
-              <SongInfoLink key={artist.name} infoJson={artist} />  
-            )
-            .reduce((prev, curr) => [prev, ' & ', curr])
-        }
+        {calculateArtistsList(songJson.artists)}
       </IconLine>
 
       <IconLine>
@@ -80,7 +82,7 @@ function SongInfo({songJson, stopPlayback}) {
       
       <IconLine>
           <FontAwesomeIcon icon={faCalendarDays} />
-          {songJson.release_date.slice(0, 4)}
+          <div className={'song-date'}> {songJson.release_date.slice(0, 4)} </div>
       </IconLine>
       
       <PopularityBar popularity={songJson.popularity} />

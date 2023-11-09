@@ -1,7 +1,7 @@
 body {
   background-color: black;
   color: white;
-  font-family: 'Arimo', Arial, sans-serif;
+  font-family: 'Lato', Arial, sans-serif;
 }
 
 .introduction h1, .introduction h3 {
@@ -57,13 +57,15 @@ body {
 }
 
 .artwork .playback-disabled-text, .song-info, .introduction h3 {
-  font-size: 1.75vw;
+  font-size: 2vw;
 }
 
 .song-info {
   margin-left: 5%;
   position: relative;
   padding-bottom: 8%;
+  display: grid;
+  grid-template-columns: 7% 93%;
 }
 
 .song-info * {
@@ -71,17 +73,18 @@ body {
 }
 
 .song-title {
-  font-size: 2.25vw;
-}
-
-.song-icon-line {
-  display: grid;
-  grid-template-columns: 7% 93%;
-  margin-top: 1%;
+  font-size: 2.5vw;
+  font-weight: 900;
+  grid-column-start: 2;
 }
 
 .icon-line-icon {
-  margin: auto;
+  line-height: 1.7;
+  padding: 1%;
+}
+
+.song-date {
+  padding: 1.2%;
 }
 
 .song-info-link {
@@ -89,8 +92,8 @@ body {
   text-decoration: none;
   background-image: linear-gradient(to bottom left, #484848, #181818, #484848);
   border-radius: 15px;
+  line-height: 1.7;
   padding: 1%;
-  line-height: 1.55;
   box-decoration-break: clone;
 }
 
@@ -175,16 +178,16 @@ body {
     font-size: 3vw;
   }
 
+  .song-info {
+    grid-template-columns: 10% 90%;
+  }
+
   .artwork .playback-disabled-text, .song-info {
     font-size: 4vw;
   }
 
   .song-title {
     font-size: 5vw;
-  }
-
-  .song-icon-line {
-    grid-template-columns: 10% 90%;
   }
  
   .pause-button-container {
