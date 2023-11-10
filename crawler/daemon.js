@@ -192,7 +192,7 @@ function extractAndFormatSongJsons(searchResultsJson) {
         'name': track.name,
         'url': track.external_urls.spotify,
       },
-      'artwork_url': track.album.images['1'].url,
+      'artwork_url': track.album.images['0'].url,
       'playback_url': track.preview_url,
       'artists': track.artists.map((artist) =>
         ({
