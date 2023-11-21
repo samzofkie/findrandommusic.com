@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt, faPalette, faCalendarDays, faCompactDisc } from '@fortawesome/free-solid-svg-icons';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
+import PopularityBar from './PopularityBar.js';
 
 function SongArtwork({url, hasPreview, previewDisabledMessageVisible}) {
   return (
@@ -19,15 +20,6 @@ function SongArtwork({url, hasPreview, previewDisabledMessageVisible}) {
         { 'Playback disabled for this song :('}
         </div>
       }
-    </div>
-  );
-}
-
-export function PopularityBar({popularity}) {
-  return (
-    <div className={'song-popularity-bar'}>
-      <hr className={'background-bar'} />
-      <hr className={'value-bar'} style={{width: `${popularity * 96 / 100}%`}}/>
     </div>
   );
 }
@@ -63,6 +55,9 @@ function SongInfo({songJson, stopPlayback}) {
       infoLinks[infoLinks.length - 2] = ' & ';
     return infoLinks;
   }
+  
+  console.log(songJson.genre);
+
   return (
     <div className={'song-info'}>
       
@@ -84,7 +79,7 @@ function SongInfo({songJson, stopPlayback}) {
           <FontAwesomeIcon icon={faCalendarDays} />
           <div className={'song-date'}> {songJson.release_date.slice(0, 4)} </div>
       </IconLine>
-      
+
       <PopularityBar popularity={songJson.popularity} />
     
     </div>

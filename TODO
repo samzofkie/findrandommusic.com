@@ -1,9 +1,13 @@
 filtering
+  design sql table
+  update api and frontend w query strings
+  update crawler
+  session uuid
+  Proof of concept in git branch
 auto play
 playlist
 options of what data to display
 
-scale popularity bar
 pause button
 google icons
 spotify app links
