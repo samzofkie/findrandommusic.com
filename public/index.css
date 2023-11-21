@@ -136,27 +136,14 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-.pause-button-container {
-  width: 6%;
-  height: 0;
-  padding-bottom: 6%;
+.pause-symbol {
   position: fixed;
+  font-size: 6vw;
   bottom: 0%;
   right: 0%;
-  font-size: 3vw;
+  margin: 1%;
+  background-color: black;
   border-radius: 50%;
-  border: 3px solid #303030;
-  margin: 2%;
-  background-color: #821fbf;
-}
-
-.pause-symbol {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-  color: white;
 } 
 
 @media only screen and (max-width: 600px) {
@@ -184,9 +171,7 @@ body {
     font-size: 5vw;
   }
  
-  .pause-button-container {
-    width: 20%;
-    padding-bottom: 20%;
-    font-size: 7vw;
+  .pause-symbol {
+    font-size: 12vw;
   }
 }

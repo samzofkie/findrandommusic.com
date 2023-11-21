@@ -1,7 +1,7 @@
 import React, { useState, StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPause, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePause, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
 import { Song, PopularityBar } from './Song.js';
@@ -24,19 +24,12 @@ function Introduction() {
 function PauseButton({ onClick }) {
   const [pressed, setPressed] = useState(false);
   return (
-    <div 
-      className={'pause-button-container'} 
-      onClick={onClick}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
-      style={pressed ? {backgroundColor: '#202020'} : null}
-    > 
       <FontAwesomeIcon 
         className={'pause-symbol'} 
-        icon={faPause} 
+        icon={faCirclePause} 
         style={pressed ? {color: '#303030'} : null}
+        onClick={onClick}
       />
-    </div>
   );
 }
 
@@ -45,7 +38,6 @@ function App() {
   const [playingSong, setPlayingSong] = useState('');
 
   async function fetchSongs() {
-    //console.log('fetchin');
     await fetch('/songs')
       .then(res => res.json())
       .then(songJsonStrings =>

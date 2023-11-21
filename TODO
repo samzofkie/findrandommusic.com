@@ -1,19 +1,12 @@
+display genre
 filtering
-  design sql table
-  update api and frontend w query strings
-  update crawler
-  session uuid
+  worker queue with session uuids translating into spotify/search query strings
   Proof of concept in git branch
 auto play
 playlist
 options of what data to display
 
-pause button
-google icons
-spotify app links
 harden nginx
-
 kubernetes aws autoscaling
 unit testing
-scale popularity bar and song border with js
 more graceful loading
