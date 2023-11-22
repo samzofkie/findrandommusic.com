@@ -3,7 +3,6 @@ filtering
   worker queue with session uuids translating into spotify/search query strings
   Proof of concept in git branch
 auto play
-  trigger requesting new songs
   center currently playing song
   automatically play if no song currently selected
 playlist

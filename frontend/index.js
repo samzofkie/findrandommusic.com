@@ -68,6 +68,7 @@ function App() {
   const [autoPlayOn, setAutoPlayOn] = useState(false);
 
   async function fetchSongs() {
+    console.log('fetchin');
     await fetch('/songs')
       .then(res => res.json())
       .then(songJsonStrings =>
@@ -101,6 +102,9 @@ function App() {
     while (songs[i].playback_url === null)
       i++;
     setPlayingSong(songIds[i]);
+    
+    if (songs.slice(i).filter(song => song.playback_url !== null).length < 5)
+      fetchSongs();
   }
  
   return (
