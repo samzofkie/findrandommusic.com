@@ -1,14 +1,19 @@
 display genre
+
 filtering
   worker queue with session uuids translating into spotify/search query strings
   Proof of concept in git branch
+
 auto play
-  center currently playing song
   automatically play if no song currently selected
+  skip button
+
 playlist
+
 options of what data to display
 
 harden nginx
+
 kubernetes aws autoscaling
 unit testing
 more graceful loading

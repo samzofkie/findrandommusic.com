@@ -105,6 +105,13 @@ function App() {
     
     if (songs.slice(i).filter(song => song.playback_url !== null).length < 5)
       fetchSongs();
+    
+    const currentSongDiv = document.getElementsByClassName('song')[i];
+    const topPosition = currentSongDiv.offsetTop;
+    const divHeight = currentSongDiv.offsetHeight;
+    const windowHeight = window.innerHeight;
+    
+    window.scrollTo(0, topPosition - (windowHeight - divHeight) / 2);
   }
  
   return (
