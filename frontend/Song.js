@@ -1,9 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt, faPalette, faCalendarDays, faCompactDisc } from '@fortawesome/free-solid-svg-icons';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
 import PopularityBar from './PopularityBar.js';
+import { AutoPlayContext } from './index.js';
+
 
 function SongArtwork({url, hasPreview, previewDisabledMessageVisible}) {
   return (
@@ -55,8 +57,6 @@ function SongInfo({songJson, stopPlayback}) {
       infoLinks[infoLinks.length - 2] = ' & ';
     return infoLinks;
   }
-  
-  console.log(songJson.genre);
 
   return (
     <div className={'song-info'}>
@@ -86,18 +86,24 @@ function SongInfo({songJson, stopPlayback}) {
   );
 }
 
-function AudioPlayer({url, isPlaying}) {
+function AudioPlayer({url, isPlaying, id}) {
   const ref = useRef(null);
+  const { autoPlayOn, playNextSong } = useContext(AutoPlayContext);
+
+  //url = 'https://www.w3schools.com/html/horse.ogg';
 
   useEffect(() => {
-    if (isPlaying) {
+    if (isPlaying) 
       ref.current.play();
-    } else
+    else
       ref.current.pause();
   });
-
+  
   return (
-    <audio ref={ref} onEnded={() => ref.current.play()}>
+    <audio ref={ref} onEnded={() => {
+      if (autoPlayOn)
+        playNextSong(id);
+    }}>
       <source src={url} type={'audio/mpeg'} />
     </audio>
   );
@@ -129,8 +135,10 @@ export function Song({songJson, isPlaying, changePlayingSong}) {
         hasPreview={hasPreview}
         previewDisabledMessageVisible={previewDisabledMessageVisible}
       />
+      
       <SongInfo songJson={songJson} stopPlayback={() => changePlayingSong('')}/>
-      {hasPreview && <AudioPlayer url={songJson.playback_url} isPlaying={isPlaying} />}
+      
+      {hasPreview && <AudioPlayer url={songJson.playback_url} isPlaying={isPlaying} id={songJson.id} />}
     </div>
   );
 }

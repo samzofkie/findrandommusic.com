@@ -136,15 +136,29 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-.pause-symbol {
+.button-bar {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  column-gap: 10%;
+ 
   position: fixed;
   font-size: 6vw;
   bottom: 0%;
-  right: 0%;
-  margin: 1%;
-  background-color: black;
+  right: 5%;
+}
+
+.button-bar svg {
   border-radius: 50%;
-} 
+  background-color: black;
+}
+
+.auto-play-button-label {
+  font-size: 1.2vw;
+  background-color: black;
+  border-radius: 10px;
+  padding: 5%;
+  text-align: center;
+}
 
 @media only screen and (max-width: 600px) {
   .song, .introduction {
@@ -171,7 +185,11 @@ body {
     font-size: 5vw;
   }
  
-  .pause-symbol {
+  .button-bar {
     font-size: 12vw;
+  }
+
+  .auto-play-button-label {
+    font-size: 3vw;
   }
 }
