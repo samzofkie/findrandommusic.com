@@ -3,111 +3,27 @@ const fs = require('node:fs');
 const redis = require('redis');
 
 const { gibberish } = require('./gibberish.js');
+const { getAccessToken } = require('./accessToken.js');
 
-function readCachedAccessToken() {
-  if (!accessTokenCached()) {
-    console.error('Tried to read cached access token when none exists!');
-    return [undefined, undefined];
-  } else {
-    const [token, expirationDateString] = fs.readFileSync('access-token', 'utf8').split('\n');
-    return [token, new Date(expirationDateString)];
-  }
-}
 
-function accessTokenCached() {
-  return fs.existsSync('access-token');
-}
-
-function readClientIdAndSecret() {
-  const client_id = process.env.CLIENT_ID;
-  const client_secret = process.env.CLIENT_SECRET;
-
-  if (!client_id || !client_secret) {
-    console.error('Missing CLIENT_ID or CLIENT_SECRET environment variables. Exiting...');
-    process.exit(1);
-  }
-
-  return [client_id, client_secret];
-}
-
-function readAccessTokenFromHttpsResponse(data) {
-  const dataString = data.toString();
-  const tokenRe = RegExp('"access_token":"[a-zA-Z0-9\-_]*', 'g');
-  const accessToken = dataString.match(tokenRe)[0].slice(16);
-
-  const expiresInRe = RegExp('"expires_in":[0-9]*', 'g');
-  const expiresInSeconds = parseInt(dataString.match(expiresInRe)[0].slice(13));
-  const currentTime = new Date();
-  const expirationDate = new Date(currentTime.getTime() + expiresInSeconds * 1000);
-
-  return [accessToken, expirationDate];
-}
-
-function requestNewAccessToken() {
-  const [client_id, client_secret] = readClientIdAndSecret();
-  const requestBody = `grant_type=client_credentials&client_id=${client_id}&client_secret=${client_secret}`;
-
-  const options = {
-    hostname: 'accounts.spotify.com',
-    port: 443,
-    path: '/api/token',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  };
-
-  return new Promise((resolve, reject) => {
-    const req = https.request(options, (res) => {
-      res.on('data', (data) => {
-        resolve(readAccessTokenFromHttpsResponse(data));
-      });
-    });
-    req.on('error', (err) => reject(err));
-    req.write(requestBody);
-    req.end();
+function initializeRedisClient() {
+  const client = redis.createClient({
+    'url': 'redis://redis',
   });
+  client.on('error', err => console.log('Redis Client Error', err));
+  client.connect();
+  return client;
 }
 
-async function cacheAccessToken(token, expirationDate) {
-  console.log('Caching the new access token...');
-  fs.writeFile('access-token',`${token}\n${expirationDate}`,(err) => {
-    if (err) 
-      console.error('Writing \'access-token\' failed.');
-  });
-}
-
-async function requestAndCacheNewAccessToken() {
-  console.log('Requesting a new access token...');
-  
-  const [token, expirationDate] = await requestNewAccessToken();
-  
-  cacheAccessToken(token, expirationDate);
-  
-  return token;
-}
-
-function getAccessToken() {
-  if (accessTokenCached()) {
-    const [token, expirationDate] = readCachedAccessToken();
-    if (new Date() < expirationDate) {
-      return token
-    } else {
-      return requestAndCacheNewAccessToken();
-    }
-  } else {
-    return requestAndCacheNewAccessToken();
-  }
-}
-
-function makeSearchRequest(token, searchTerm) {
+function requestSpotify(accessToken, path) {
+  //console.log('requesting ' + path);
   const options = {
     hostname: 'api.spotify.com',
     port: 443,
-    path: `/v1/search?q=${searchTerm}&type=track&limit=50`,
+    path: path,
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${accessToken}`
     },
   };
 
@@ -120,92 +36,90 @@ function makeSearchRequest(token, searchTerm) {
     req.on('error', (err) => reject(err));
     req.end();
   });
+
 }
 
-function randomIndexes(length, num) {
-  let indexes = [];
-  while (num > 0) {
-    let candidate = Math.floor(Math.random() * length);
-    if (!(candidate in indexes)) {
-      indexes.push(candidate);
-      num--;
+function pickNRandom(items, n) {
+  
+  function randomIndexes(length, num) {
+    let indexes = [];
+    while (num > 0) {
+      let candidate = Math.floor(Math.random() * length);
+      if (!(candidate in indexes)) {
+        indexes.push(candidate);
+        num--;
+      }
     }
+    return indexes;
   }
-  return indexes;
-}
 
-function extractAndFormatSongJsons(searchResultsJson) {
-  let tracks = searchResultsJson.tracks.items;
-  const numberToPick = 5;
-
-  if (tracks.length > 5) {
-    const indexes = randomIndexes(tracks.length, numberToPick);
+  if (items.length > n) {
+    const indexes = randomIndexes(items.length, n);
     let temp = [];
     for (let index of indexes)
-      temp.push(tracks[index]);
-    tracks = temp;
+      temp.push(items[index]);
+    items = temp;
   }
-  return tracks.map((track) => {
-    return {
-      'id': track.id,
+
+  return items;
+}
+
+function reformatSongData(items) {
+  return items.map((item) => ({
+      'id': item.id,
+      'artwork_url': item.album.images['0'].url,
+      'playback_url': item.preview_url,
+      'release_date': item.album.release_date,
+      'popularity': item.popularity,
       'track': {
-        'name': track.name,
-        'url': track.external_urls.spotify,
+        'name': item.name,
+        'url': item.external_urls.spotify
       },
-      'artwork_url': track.album.images['0'].url,
-      'playback_url': track.preview_url,
-      'artists': track.artists.map((artist) =>
+      'artists': item.artists.map((artist) =>
         ({
           'name': artist.name,
           'url': artist.external_urls.spotify,
+          'id': artist.id
         })
       ),
-      'release_date': track.album.release_date,
-      'popularity': track.popularity,
       'album': {
-        'name': track.album.name,
-        'url': track.album.external_urls.spotify,
-      },
-    };
-  });
+        'name': item.album.name,
+        'url': item.album.external_urls.spotify
+      }
+    }));
 }
 
-function pushSongJsonsToRedisCache(songJsons, client) {
-  songJsons.map((songJson) => {
-    client.sAdd('songs', JSON.stringify(songJson));
-  });
-}
-
-async function findAndCacheSongs(redisClient) {
-  try {
-    const accessToken = await getAccessToken();
-    const searchTerm = gibberish();
-    const searchResultsJson = await makeSearchRequest(accessToken, searchTerm);
-  
-    const songJsons = extractAndFormatSongJsons(searchResultsJson);
-    pushSongJsonsToRedisCache(songJsons, redisClient);
-  } catch (error) {
-    console.log(error);
+async function lookupGenres(accessToken, items) {
+  for (let item of items) {
+    const ids = item.artists.map(artist => artist.id)
+      .reduce((prev, curr) => prev + ',' + curr, '')
+      .slice(1);
+    const artistsData = await requestSpotify(accessToken, `/v1/artists?ids=${ids}`);
+    const allGenres = artistsData.artists.map(artist => artist.genres).flat();
+    item.genres = allGenres;
   }
+  return items;
 }
 
-async function replenishSongCache(client) {
-  let numSongs = await client.sCard('songs');
-  while (numSongs < 500) {
-    await findAndCacheSongs(client);
-    numSongs = await client.sCard('songs');
-  }
+function pushSongsToRedisCache(redisClient, items) {
+  items.map(item => redisClient.sAdd('songs', JSON.stringify(item)));
 }
 
-function startCrawlerDaemon() {
-  const client = redis.createClient({
-    'url': 'redis://redis',
-  });
-  client.on('error', err => console.log('Redis Client Error', err));
-  client.connect();
-  
-  replenishSongCache(client);
-  setInterval(() => replenishSongCache(client), 30 * 1000);
+function start() {
+  const redisClient = initializeRedisClient();
+  const timeoutSeconds = 30;
+  setInterval(async () => { 
+    while (await redisClient.sCard('songs') < 500) { 
+      const accessToken = await getAccessToken();
+      const searchTerm = gibberish();
+       
+      await requestSpotify(accessToken, `/v1/search?q=${searchTerm}&type=track&limit=50`)
+        .then(resJson => pickNRandom(resJson.tracks.items, 5))
+        .then(reformatSongData)
+        .then(items => lookupGenres(accessToken, items))
+        .then(items => pushSongsToRedisCache(redisClient, items));
+    }
+  }, timeoutSeconds * 1000);
 }
 
-startCrawlerDaemon();
+start();
