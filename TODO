@@ -1,12 +1,12 @@
-display genre
+px not %
 
 filtering
   worker queue with session uuids translating into spotify/search query strings
   Proof of concept in git branch
 
 auto play
-  automatically play if no song currently selected
   skip button
+  rethink design
 
 playlist
 

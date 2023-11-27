@@ -92,7 +92,7 @@ function SongInfo({songJson, stopPlayback}) {
   );
 }
 
-function AudioPlayer({url, isPlaying, id}) {
+function AudioPlayer({url, isPlaying, stopPlayback, id}) {
   const ref = useRef(null);
   const { autoPlayOn, playNextSong } = useContext(AutoPlayContext);
 
@@ -109,6 +109,8 @@ function AudioPlayer({url, isPlaying, id}) {
     <audio ref={ref} onEnded={() => {
       if (autoPlayOn)
         playNextSong(id);
+      else
+        stopPlayback();
     }}>
       <source src={url} type={'audio/mpeg'} />
     </audio>
@@ -128,6 +130,8 @@ export function Song({songJson, isPlaying, changePlayingSong}) {
     }
   }
 
+  const stopPlayback = () => changePlayingSong('');
+
   return (
     <div 
       className={'song'}
@@ -142,9 +146,16 @@ export function Song({songJson, isPlaying, changePlayingSong}) {
         previewDisabledMessageVisible={previewDisabledMessageVisible}
       />
       
-      <SongInfo songJson={songJson} stopPlayback={() => changePlayingSong('')}/>
+      <SongInfo songJson={songJson} stopPlayback={stopPlayback}/>
       
-      {hasPreview && <AudioPlayer url={songJson.playback_url} isPlaying={isPlaying} id={songJson.id} />}
+      {hasPreview && 
+        <AudioPlayer 
+          url={songJson.playback_url} 
+          isPlaying={isPlaying} 
+          stopPlayback={stopPlayback} 
+          id={songJson.id} 
+        />
+      }
     </div>
   );
 }
