@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExternalLinkAlt, faPalette, faCalendarDays, faCompactDisc } from '@fortawesome/free-solid-svg-icons';
+import { faExternalLinkAlt, faPalette, faCalendarDays, faCompactDisc, faMasksTheater } from '@fortawesome/free-solid-svg-icons';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
 import PopularityBar from './PopularityBar.js';
@@ -51,7 +51,7 @@ function IconLine({children}) {
 function SongInfo({songJson, stopPlayback}) {
   function calculateArtistsList(artists) {
     let infoLinks = artists.map(artist =>
-      <SongInfoLink key={artist.name} infoJson={artist} />
+      <SongInfoLink key={artist.id} infoJson={artist} />
     ).reduce((prev, curr) => [prev, ', ', curr]);
     if (Array.isArray(infoLinks))
       infoLinks[infoLinks.length - 2] = ' & ';
@@ -76,9 +76,15 @@ function SongInfo({songJson, stopPlayback}) {
       </IconLine>
       
       <IconLine>
-          <FontAwesomeIcon icon={faCalendarDays} />
-          <div className={'song-date'}> {songJson.release_date.slice(0, 4)} </div>
+        <FontAwesomeIcon icon={faCalendarDays} />
+        <div className={'song-date'}> {songJson.release_date.slice(0, 4)} </div>
       </IconLine>
+
+      {songJson.genres.length > 0 ?
+        <IconLine>
+          <FontAwesomeIcon icon={faMasksTheater} />
+          <div className={'song-genres'}> {songJson.genres.join(', ')} </div>
+        </IconLine> : null}
 
       <PopularityBar popularity={songJson.popularity} />
     

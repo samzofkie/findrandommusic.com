@@ -68,7 +68,7 @@ function App() {
   const [autoPlayOn, setAutoPlayOn] = useState(false);
 
   async function fetchSongs() {
-    console.log('fetchin');
+    //console.log('fetchin');
     await fetch('/songs')
       .then(res => res.json())
       .then(songJsonStrings =>
