@@ -2,25 +2,12 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    index: {
-      import: './index.js',
-      dependOn: 'shared'
-    },
-    song: {
-      import: './Song.js',
-      dependOn: 'shared'
-    },
-    shared: 'react'
+    index: './index.js',
   },
-  devtool: 'inline-source-map',
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'public'),
   },
-  optimization: {
-    runtimeChunk: 'single',
-  },
-  mode: 'production',
   module: {
     rules: [{
       test: /\.js$/,
@@ -28,11 +15,12 @@ module.exports = {
       loader: "babel-loader"
     }]
   },
+ 
+  mode: 'development',
   devServer: {
     static: {
       directory: path.join(__dirname, 'public'),
     },
-    port: 9000,
     proxy: {
       '/songs': 'http://app:3000/'
     }

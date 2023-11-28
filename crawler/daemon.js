@@ -108,16 +108,20 @@ function pushSongsToRedisCache(redisClient, items) {
 function start() {
   const redisClient = initializeRedisClient();
   const timeoutSeconds = 30;
-  setInterval(async () => { 
-    while (await redisClient.sCard('songs') < 500) { 
-      const accessToken = await getAccessToken();
-      const searchTerm = gibberish();
-       
-      await requestSpotify(accessToken, `/v1/search?q=${searchTerm}&type=track&limit=50`)
-        .then(resJson => pickNRandom(resJson.tracks.items, 5))
-        .then(reformatSongData)
-        .then(items => lookupGenres(accessToken, items))
-        .then(items => pushSongsToRedisCache(redisClient, items));
+  setInterval(async () => {
+    try {
+      while (await redisClient.sCard('songs') < 500) { 
+        const accessToken = await getAccessToken();
+        const searchTerm = gibberish();
+         
+        await requestSpotify(accessToken, `/v1/search?q=${searchTerm}&type=track&limit=50`)
+          .then(resJson => pickNRandom(resJson.tracks.items, 5))
+          .then(reformatSongData)
+          .then(items => lookupGenres(accessToken, items))
+          .then(items => pushSongsToRedisCache(redisClient, items));
+      }
+    } catch (error) { 
+      console.log(error);
     }
   }, timeoutSeconds * 1000);
 }

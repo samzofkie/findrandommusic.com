@@ -1,0 +1,72 @@
+import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExternalLinkAlt, faPalette, faCalendarDays, faCompactDisc, faMasksTheater } from '@fortawesome/free-solid-svg-icons';
+
+import PopularityBar from './PopularityBar.js';
+
+// input infoJson needs to have .name and .url properties
+function SongInfoLink({infoJson}) {
+  return (
+    <a href={infoJson.url} target={'_blank'} className={'song-info-link'}>
+      {infoJson.name}
+    </a>
+  );
+}
+
+function IconLine({children}) {
+  return (
+    <>
+      <div className={'icon-line-icon'}>
+        {children[0]}
+      </div>
+      <div className={'icon-line-text'}>
+        {children[1]}
+      </div>
+    </>
+  );
+}
+
+export default function SongInfo({songJson, stopPlayback}) {
+  function calculateArtistsList(artists) {
+    let infoLinks = artists.map(artist =>
+      <SongInfoLink key={artist.id} infoJson={artist} />
+    ).reduce((prev, curr) => [prev, ', ', curr]);
+    if (Array.isArray(infoLinks))
+      infoLinks[infoLinks.length - 2] = ' & ';
+    return infoLinks;
+  }
+
+  return (
+    <div className={'song-info'}>
+      
+      <div className={'song-title'}>
+        <b><SongInfoLink infoJson={songJson.track}/></b>
+      </div>
+            
+      <IconLine>
+        <FontAwesomeIcon icon={faPalette} />
+        {calculateArtistsList(songJson.artists)}
+      </IconLine>
+
+      <IconLine>
+        <FontAwesomeIcon icon={faCompactDisc} />
+        <SongInfoLink infoJson={songJson.album} />
+      </IconLine>
+      
+      <IconLine>
+        <FontAwesomeIcon icon={faCalendarDays} />
+        <div className={'song-date'}> {songJson.release_date.slice(0, 4)} </div>
+      </IconLine>
+
+      {songJson.genres.length > 0 ?
+        <IconLine>
+          <FontAwesomeIcon icon={faMasksTheater} />
+          <div className={'song-genres'}> {songJson.genres.join(', ')} </div>
+        </IconLine> : null}
+
+      <PopularityBar popularity={songJson.popularity} />
+    
+    </div>
+  );
+}
+
