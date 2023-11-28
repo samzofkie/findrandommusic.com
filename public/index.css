@@ -101,10 +101,18 @@ body {
   box-decoration-break: clone;
 }
 
+.popularity-bar-container {
+  display: flex;
+  align-items: center;
+}
+
+.popularity-bar-container div {
+  width: 100%;
+}
+
 .song-popularity-bar {
   grid-column-start: 2;
   position: relative;
-  margin-top: 2%;
 }
 
 .song-popularity-bar .background-bar, .song-popularity-bar .value-bar{
