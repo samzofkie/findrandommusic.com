@@ -6,19 +6,21 @@ import './Song.css';
 
 function SongArtwork({url, hasPreview, previewDisabledMessageVisible}) {
   return (
-    <div className={'artwork'}>
-      <img
-        src={url}
-        style={{opacity: previewDisabledMessageVisible ? '0.2' : '1'}}
-      />
-      {hasPreview || 
-        <div
-          className={'playback-disabled-text'}
-          style={{opacity: previewDisabledMessageVisible ? '1' : '0'}}
-        >
-          { 'Playback disabled for this song :('}
-        </div>
-      }
+    <div className={'artwork-column'}>
+      <div className={'artwork'}>
+        <img
+          src={url}
+          style={{opacity: previewDisabledMessageVisible ? '0.2' : '1'}}
+        />
+        {hasPreview || 
+          <div
+            className={'playback-disabled-text'}
+            style={{opacity: previewDisabledMessageVisible ? '1' : '0'}}
+          >
+            { 'Playback disabled for this song :('}
+          </div>
+        }
+      </div>
     </div>
   );
 }
