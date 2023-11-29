@@ -16,7 +16,7 @@ function initializeRedisClient() {
 }
 
 function requestSpotify(accessToken, path) {
-  //console.log('requesting ' + path);
+  console.log('requesting ' + path);
   const options = {
     hostname: 'api.spotify.com',
     port: 443,
@@ -29,6 +29,8 @@ function requestSpotify(accessToken, path) {
 
   return new Promise((resolve, reject) => {
     const req = https.request(options, (res) => {
+      if (res.statusCode === 429)
+        console.log('\ngot 429!\n')
       let data = '';
       res.on('data', (chunk) => data += chunk);
       res.on('end', () => resolve(JSON.parse(data)));
@@ -40,28 +42,27 @@ function requestSpotify(accessToken, path) {
 }
 
 function pickNRandom(items, n) {
-  
-  function randomIndexes(length, num) {
-    let indexes = [];
-    while (num > 0) {
-      let candidate = Math.floor(Math.random() * length);
-      if (!(candidate in indexes)) {
-        indexes.push(candidate);
-        num--;
-      }
+  let artists = Array.from(new Set(items.map(item => item.artists[0].name)));
+  let artistsMap = new Map(
+    artists.map(artist => [artist, items.filter(item => item.artists[0].name === artist)])
+  );
+
+  if (artistsMap.size > n) {
+    let newArtistsMap = new Map();
+    for (let i=0; i<n; i++) {
+      let randomArtist = artists[Math.floor(Math.random() * artists.length)];
+      newArtistsMap.set(randomArtist, artistsMap.get(randomArtist));
+      artists = artists.filter(artist => artist !== randomArtist);
     }
-    return indexes;
+    artistsMap = newArtistsMap;
   }
 
-  if (items.length > n) {
-    const indexes = randomIndexes(items.length, n);
-    let temp = [];
-    for (let index of indexes)
-      temp.push(items[index]);
-    items = temp;
-  }
-
-  return items;
+  return Array.from(artistsMap.keys())
+    .map(artist => {
+      let songs = artistsMap.get(artist);
+      let index = Math.floor(Math.random() * songs.length);
+      return songs[index];
+    });
 }
 
 function reformatSongData(items) {
