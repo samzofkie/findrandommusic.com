@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePause, faCirclePlay, faCircleStop, } from '@fortawesome/free-solid-svg-icons';
 
 import { Song } from './Song.js';
-
+import './App.css';
 
 function Introduction() {
   return (

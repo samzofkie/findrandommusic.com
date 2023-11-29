@@ -1,10 +1,11 @@
-bundle css
-
-px not %
-
 filtering
+  redis set uniqueness?
+  gibberish generation step on and off
   worker queue with session uuids translating into spotify/search query strings
   Proof of concept in git branch
+  genre links / scrape
+
+px not %
 
 auto play
   skip button

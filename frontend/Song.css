@@ -1,0 +1,36 @@
+.song {
+  border-radius: 0px 20px 20px 0px;
+  margin: 1px;
+
+  margin-left: auto;
+  margin-right: auto;
+ 
+  display: grid;
+  grid-template-columns: 34% 66%;
+}
+
+.artwork {
+  position: relative;
+}
+
+.artwork img {
+  width: 100%;
+  transition: opacity 0.5s;
+}
+
+.playback-disabled-text {
+  font-size: 2vw;
+  position: absolute;
+  
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  
+  text-align: center;
+
+  padding: 5%;
+
+  opacity: 0%;
+  transition: opacity 0.5s;
+  cursor: default;
+}

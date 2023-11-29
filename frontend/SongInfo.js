@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt, faPalette, faCalendarDays, faCompactDisc, faMasksTheater, faRankingStar} from '@fortawesome/free-solid-svg-icons';
 
 import PopularityBar from './PopularityBar.js';
+import './SongInfo.css';
+
 
 // input infoJson needs to have .name and .url properties
 function SongInfoLink({infoJson}) {
@@ -63,11 +65,11 @@ export default function SongInfo({songJson, stopPlayback}) {
           <FontAwesomeIcon icon={faMasksTheater} />
           <div className={'song-genres'}> {songJson.genres.join(', ')} </div>
         </IconLine> : null}
-      
-      <FontAwesomeIcon icon={faRankingStar} />
-      <div className={'popularity-bar-container'}>
+     
+      <IconLine>
+        <FontAwesomeIcon icon={faRankingStar} />
         <PopularityBar popularity={songJson.popularity} />
-      </div>
+      </IconLine>
     
     </div>
   );

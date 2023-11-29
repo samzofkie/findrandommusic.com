@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+import './PopularityBar.css';
+
+
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
   return { width, height };
@@ -24,16 +27,17 @@ export default function PopularityBar({popularity}) {
   const borderWidth = width < 600 ? width / 100 : width / 200;
   
   return (
-    <div className={'song-popularity-bar'}>
-      <hr className={'background-bar'} style={{
-        width: '95%',
-        border: `${borderWidth}px solid #303030`
-      }}/>
-      <hr className={'value-bar'} style={{
-        width: `${popularity * 0.95}%`,
-        border: `${borderWidth}px solid #821fbf`,
-      }}/> 
-    </div>
+    
+      <div className={'popularity-bar'}>
+        <hr className={'background-bar'} style={{
+          width: '95%',
+          border: `${borderWidth}px solid #303030`
+        }}/>
+        <hr className={'value-bar'} style={{
+          width: `${popularity * 0.95}%`,
+          border: `${borderWidth}px solid #821fbf`,
+        }}/> 
+      </div>
   );
 }
 

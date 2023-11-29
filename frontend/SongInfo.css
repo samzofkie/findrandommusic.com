@@ -1,0 +1,48 @@
+.song-info {
+  font-size: 2vw;
+  /*margin-left: 5%;*/
+  position: relative;
+  padding-bottom: 8%;
+  display: grid;
+  grid-template-columns: 10% 90%;
+}
+
+.song-title {
+  font-size: 2.5vw;
+  font-weight: 800;
+  grid-column-start: 2;
+}
+
+.icon-line-icon {
+  line-height: 1.7;
+  padding: 1%;
+  text-align: center;
+}
+
+.icon-line-text a, .icon-line-text div {
+  padding-top: 1.3%;
+}
+
+.song-info-link {
+  color: white;
+  text-decoration: none;
+  background-image: linear-gradient(to bottom left, #484848, #181818, #484848);
+  border-radius: 15px;
+  line-height: 1.7;
+  padding: 1%;
+  box-decoration-break: clone;
+}
+
+@media only screen and (max-width: 600px) {
+  .song-info {
+    grid-template-columns: 10% 90%;
+  }
+
+  .artwork .playback-disabled-text, .song-info {
+    font-size: 4vw;
+  }
+
+  .song-title {
+    font-size: 5vw;
+  }
+}

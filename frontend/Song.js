@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useContext } from 'react';
 
 import SongInfo from './SongInfo.js';
 import { AutoPlayContext } from './App.js';
-
+import './Song.css';
 
 function SongArtwork({url, hasPreview, previewDisabledMessageVisible}) {
   return (
@@ -16,7 +16,7 @@ function SongArtwork({url, hasPreview, previewDisabledMessageVisible}) {
           className={'playback-disabled-text'}
           style={{opacity: previewDisabledMessageVisible ? '1' : '0'}}
         >
-        { 'Playback disabled for this song :('}
+          { 'Playback disabled for this song :('}
         </div>
       }
     </div>
