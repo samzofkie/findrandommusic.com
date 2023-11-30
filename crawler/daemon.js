@@ -4,7 +4,7 @@ const redis = require('redis');
 
 const { gibberish } = require('./gibberish.js');
 const { getAccessToken } = require('./accessToken.js');
-
+const genres = require('./genres.json');
 
 function initializeRedisClient() {
   const client = redis.createClient({
@@ -38,10 +38,9 @@ function requestSpotify(accessToken, path) {
     req.on('error', (err) => reject(err));
     req.end();
   });
-
 }
 
-function pickNRandom(items, n) {
+function pickNSongs(items, n) {
   let artists = Array.from(new Set(items.map(item => item.artists[0].name)));
   let artistsMap = new Map(
     artists.map(artist => [artist, items.filter(item => item.artists[0].name === artist)])
@@ -65,41 +64,40 @@ function pickNRandom(items, n) {
     });
 }
 
-function reformatSongData(items) {
-  return items.map((item) => ({
-      'id': item.id,
-      'artwork_url': item.album.images['0'].url,
-      'playback_url': item.preview_url,
-      'release_date': item.album.release_date,
-      'popularity': item.popularity,
+async function lookupGenres(accessToken, songs) {
+  let ids = songs.map(song => song.artists.map(artist => artist.id)).flat();
+  const artistsData = await requestSpotify(accessToken, `/v1/artists?ids=${ids.join(',')}`);
+  const genreMap = new Map(artistsData.artists.map(artist => [artist.name, artist.genres]));
+  for (let song of songs) {
+    song.genres = [];
+    for (let artist of song.artists)
+      song.genres = [ ...song.genres, ...genreMap.get(artist.name)];
+  }
+  return songs;
+}
+
+function reformatSongData(songs) {
+  return songs.map(song => ({
+      'id': song.id,
+      'artwork_url': song.album.images['0'].url,
+      'playback_url': song.preview_url,
+      'release_date': song.album.release_date,
+      'popularity': song.popularity,
+      'genres': song.genres,
       'track': {
-        'name': item.name,
-        'url': item.external_urls.spotify
+        'name': song.name,
+        'url': song.external_urls.spotify
       },
-      'artists': item.artists.map((artist) =>
-        ({
+      'artists': song.artists.map((artist) => ({
           'name': artist.name,
           'url': artist.external_urls.spotify,
           'id': artist.id
-        })
-      ),
+      })),
       'album': {
-        'name': item.album.name,
-        'url': item.album.external_urls.spotify
+        'name': song.album.name,
+        'url': song.album.external_urls.spotify
       }
     }));
-}
-
-async function lookupGenres(accessToken, items) {
-  for (let item of items) {
-    const ids = item.artists.map(artist => artist.id)
-      .reduce((prev, curr) => prev + ',' + curr, '')
-      .slice(1);
-    const artistsData = await requestSpotify(accessToken, `/v1/artists?ids=${ids}`);
-    const allGenres = artistsData.artists.map(artist => artist.genres).flat();
-    item.genres = allGenres;
-  }
-  return items;
 }
 
 function pushSongsToRedisCache(redisClient, items) {
@@ -108,7 +106,7 @@ function pushSongsToRedisCache(redisClient, items) {
 
 function start() {
   const redisClient = initializeRedisClient();
-  const timeoutSeconds = 30;
+  const timeoutSeconds = 1;
   setInterval(async () => {
     try {
       while (await redisClient.sCard('songs') < 500) { 
@@ -116,10 +114,10 @@ function start() {
         const searchTerm = gibberish();
          
         await requestSpotify(accessToken, `/v1/search?q=${searchTerm}&type=track&limit=50`)
-          .then(resJson => pickNRandom(resJson.tracks.items, 5))
+          .then(resJson => pickNSongs(resJson.tracks.items, 5))
+          .then(songs => lookupGenres(accessToken, songs))
           .then(reformatSongData)
-          .then(items => lookupGenres(accessToken, items))
-          .then(items => pushSongsToRedisCache(redisClient, items));
+          .then(songs => pushSongsToRedisCache(redisClient, songs));
       }
     } catch (error) { 
       console.log(error);
