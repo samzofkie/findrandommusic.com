@@ -69,7 +69,7 @@ async function lookupGenres(accessToken, songs) {
   const artistsData = await requestSpotify(accessToken, `/v1/artists?ids=${ids.join(',')}`);
   const genreMap = new Map(artistsData.artists.map(artist => [artist.name, artist.genres]));
   for (let song of songs)
-    song.genres = song.artists.reduce((acc, artist) => [...acc, ...genreMap.get(artist.name)], [])
+    song.genres = [... new Set(song.artists.reduce((acc, artist) => [...acc, ...genreMap.get(artist.name)], []))]
       .map(genre => ({ 
         'name': genre, 
         'url': 'https://open.spotify.com/playlist/' + genrePlaylists[genre]

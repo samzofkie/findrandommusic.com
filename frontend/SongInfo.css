@@ -1,8 +1,6 @@
 .song-info {
   font-size: 2vw;
-  /*margin-left: 5%;*/
   position: relative;
-  padding-bottom: 8%;
   display: grid;
   grid-template-columns: 10% 90%;
 }
