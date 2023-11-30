@@ -29,10 +29,11 @@ function IconLine({children}) {
 }
 
 export default function SongInfo({songJson, stopPlayback}) {
-  function calculateArtistsList(artists) {
-    let infoLinks = artists.map(artist =>
-      <SongInfoLink key={artist.id} infoJson={artist} />
-    ).reduce((prev, curr) => [prev, ', ', curr]);
+  
+  function calculateLinkCommaList(items) {   
+    let infoLinks = items.map(item =>
+      <SongInfoLink key={item.id} infoJson={item} />
+    ).reduce((prev, curr) => [prev, ', ', curr]);   
     if (Array.isArray(infoLinks))
       infoLinks[infoLinks.length - 2] = ' & ';
     return infoLinks;
@@ -47,7 +48,7 @@ export default function SongInfo({songJson, stopPlayback}) {
             
       <IconLine>
         <FontAwesomeIcon icon={faPalette} />
-        {calculateArtistsList(songJson.artists)}
+        {calculateLinkCommaList(songJson.artists)}
       </IconLine>
 
       <IconLine>
@@ -63,8 +64,11 @@ export default function SongInfo({songJson, stopPlayback}) {
       {songJson.genres.length > 0 ?
         <IconLine>
           <FontAwesomeIcon icon={faMasksTheater} />
-          <div className={'song-genres'}> {songJson.genres.join(', ')} </div>
-        </IconLine> : null}
+          {calculateLinkCommaList(songJson.genres)}
+          {/*<div className={'song-genres'}> {songJson.genres.join(', ')} </div>*/}
+        </IconLine> 
+        : null
+      }
      
       <IconLine>
         <FontAwesomeIcon icon={faRankingStar} />
