@@ -38,5 +38,5 @@ exports.gibberish = function gibberish() {
   if (gibberishIndex > gibFunctions.length - 1)
     gibberishIndex = 0;
 
-  return gibFunctions[gibberishIndex]();
+  return gibFunctions[gibberishIndex]().replace(/\s/g, "");
 };

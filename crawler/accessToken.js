@@ -88,7 +88,7 @@ exports.getAccessToken = function getAccessToken() {
   if (accessTokenCached()) {
     const [token, expirationDate] = readCachedAccessToken();
     if (new Date() < expirationDate) {
-      return token
+      return token;
     } else {
       return requestAndCacheNewAccessToken();
     }

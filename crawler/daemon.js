@@ -6,6 +6,7 @@ const { gibberish } = require('./gibberish.js');
 const { getAccessToken } = require('./accessToken.js');
 const genrePlaylists = require('./genres.json');
 
+
 function initializeRedisClient() {
   const client = redis.createClient({
     'url': 'redis://redis',
@@ -15,8 +16,11 @@ function initializeRedisClient() {
   return client;
 }
 
-function requestSpotify(accessToken, path) {
-  console.log('requesting ' + path);
+class HTTPS429Error extends Error {}
+
+function requestSpotify(accessToken, path) { 
+  console.log('Requesting ' + path);
+  
   const options = {
     hostname: 'api.spotify.com',
     port: 443,
@@ -27,20 +31,27 @@ function requestSpotify(accessToken, path) {
     },
   };
 
-  return new Promise((resolve, reject) => {
-    const req = https.request(options, (res) => {
-      if (res.statusCode === 429)
-        console.log('\ngot 429!\n')
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => resolve(JSON.parse(data)));
-    });
-    req.on('error', (err) => reject(err));
+  function makeRequest(resolve, reject) {
+
+    function handleResponse(response) {
+      if (response.statusCode === 429) {
+        reject(new HTTPS429Error());
+      } else {
+        let data = '';
+        response.on('data', chunk => data += chunk);
+        response.on('end', () => resolve(JSON.parse(data)));
+      }
+    }
+
+    const req = https.request(options, handleResponse);
+    req.on('error', err => reject(err));
     req.end();
-  });
+  }
+
+  return new Promise(makeRequest);
 }
 
-function pickNSongs(items, n) {
+function pickNSongs(items, n) { 
   let artists = Array.from(new Set(items.map(item => item.artists[0].name)));
   let artistsMap = new Map(
     artists.map(artist => [artist, items.filter(item => item.artists[0].name === artist)])
@@ -77,7 +88,7 @@ async function lookupGenres(accessToken, songs) {
   return songs;
 }
 
-function reformatSongData(songs) {
+function formatSongData(songs) {
   return songs.map(song => ({
       'id': song.id,
       'artwork_url': song.album.images['0'].url,
@@ -109,25 +120,43 @@ function pushSongsToRedisCache(redisClient, items) {
   items.map(item => redisClient.sAdd('songs', JSON.stringify(item)));
 }
 
-function start() {
-  const redisClient = initializeRedisClient();
-  const timeoutSeconds = 1;
-  setInterval(async () => {
-    try {
-      while (await redisClient.sCard('songs') < 500) { 
-        const accessToken = await getAccessToken();
-        const searchTerm = gibberish();
-         
-        await requestSpotify(accessToken, `/v1/search?q=${searchTerm}&type=track&limit=50`)
-          .then(resJson => pickNSongs(resJson.tracks.items, 5))
-          .then(songs => lookupGenres(accessToken, songs))
-          .then(reformatSongData)
-          .then(songs => pushSongsToRedisCache(redisClient, songs));
-      }
-    } catch (error) { 
-      console.log(error);
+async function trawlForSongs(redisClient, numSongs) {
+  while (await redisClient.sCard('songs') < numSongs) {
+    const accessToken = await getAccessToken();
+    const searchTerm = gibberish();
+
+    const searchResultsJson = await requestSpotify(accessToken, `/v1/search?q=${searchTerm}&type=track&limit=50`);
+    
+    if (searchResultsJson.tracks.total === 0) {
+      console.log(`Searching for ${searchTerm} returned 0 songs.`);
+      continue;
     }
-  }, timeoutSeconds * 1000);
+    const selectedSongs = pickNSongs(searchResultsJson.tracks.items, 5);
+    const songsWithGenreInfo = await lookupGenres(accessToken, selectedSongs);
+    const formattedSongs = formatSongData(songsWithGenreInfo);
+    pushSongsToRedisCache(redisClient, formattedSongs);
+  }
+}
+
+async function start() {
+  const redisClient = initializeRedisClient();
+  const checkCacheIntervalSeconds = 30;
+  const numSongs = 500;
+
+  const sleep = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
+  
+  while (true) {
+    try {
+      await trawlForSongs(redisClient, numSongs);
+    } catch (error) {
+      if (error instanceof HTTPS429Error) {
+        console.log('Got a 429');
+        await sleep(2.5);
+      } else
+        throw error;
+    }
+    await sleep(checkCacheIntervalSeconds);
+  }
 }
 
 start();
