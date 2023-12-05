@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
 import { createRoot } from 'react-dom/client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCirclePause, faCirclePlay, faCircleStop, } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePause, faCirclePlay, faCircleStop, faSliders } from '@fortawesome/free-solid-svg-icons';
 
 import { Song } from './Song.js';
 import './App.css';
+
 
 function Introduction() {
   return (
@@ -12,9 +13,9 @@ function Introduction() {
       <h1>findrandommusic.com</h1>
       <h3>the only fair way to listen to music</h3>
       <ul>
-        <li> {'Click on artwork or around text to hear a preview'} </li>
+        <li> {'Click on artwork or around text to hear a preview.'} </li>
         <li> {'Click on the song title to open song in Spotify, album title to open album, or artist name to open artist.'} </li>
-        <li> {'The bar with the colored line shows how popular the song is, according to Spotify'} </li>
+        <li> {'The bar with the colored line shows how popular the song is, according to Spotify.'} </li>
       </ul>
     </div>
   );
@@ -58,6 +59,35 @@ function ButtonBar({pauseSong}) {
       <AutoPlayButton />
       <PauseButton onClick={pauseSong} />
     </div>
+  );
+}
+
+function FilterSettingsMenu() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  return (
+    <>
+      <div 
+        className={'filter-menu'} 
+        style={ 
+          menuOpen ? 
+          {width: '25%', display: 'grid', gridTemplateColumns: '25% 75%'} 
+          : null
+        }
+      >
+        <div>
+          <FontAwesomeIcon 
+            className={'filter-menu-button'} 
+            icon={faSliders} 
+            onClick={() => {setMenuOpen(!menuOpen); console.log('done');}}
+          />
+        </div>
+        
+        <div style={menuOpen ? null : {display: 'none'}}>
+          <span>sup</span>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -119,7 +149,9 @@ export default function App() {
             changePlayingSong={setPlayingSong}
           />
         )}
-        
+
+        <FilterSettingsMenu />
+              
         <ButtonBar pauseSong={() => setPlayingSong('')} />
       </AutoPlayContext.Provider>
 

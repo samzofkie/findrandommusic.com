@@ -66,6 +66,21 @@
   text-align: center;
 }
 
+.filter-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  background-color: red;
+  padding: 5%;
+  border: 3px solid white;
+  border-radius: 30px;
+}
+
+.filter-menu-button {
+  color: white;
+  font-size: 4vw;
+  cursor: pointer;
+}
 
 @media only screen and (max-width: 600px) {
   .song, .introduction {
