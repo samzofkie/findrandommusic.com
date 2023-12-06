@@ -72,11 +72,15 @@ export default function App() {
     window.scrollTo(0, topPosition - (windowHeight - divHeight) / 2);
   }
  
+  function toggleAutoPlay() {
+    setAutoPlayOn(!autoPlayOn);
+  }
+
   return (
     <>
       <Introduction />
       
-      <AutoPlayContext.Provider value={{autoPlayOn, setAutoPlayOn, playNextSong}}>      
+      <AutoPlayContext.Provider value={{autoPlayOn, toggleAutoPlay, playNextSong}}>      
         {songs.map((songJson, i) => 
           <Song  
             key={songJson.id} 

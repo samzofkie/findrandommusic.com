@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePause, faCirclePlay, faCircleStop, faSliders, faX } from '@fortawesome/free-solid-svg-icons';
 import MultiRangeSlider from "multi-range-slider-react";
 
 import './Controls.css';
+import './MultiRangeSlider.css';
+import './ToggleSwitch.css';
 import { AutoPlayContext } from './App.js';
 
 
+function ToggleButton({ onClick }) {
+  return (
+    <label className={"switch"}>
+      <input type="checkbox" onClick={onClick} />
+      <span className={"slider round"}></span>
+    </label>
+  );
+}
+
 function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
+  const { autoPlayOn, toggleAutoPlay } = useContext(AutoPlayContext);
+
   return (
     <div className={'filter-menu'} 
       style={ 
@@ -28,8 +41,9 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
       </div>
       
       <div className={'filter-menu-options'} style={controlsExpanded ? null : {display: 'none'}} >  
-        <div>
-          <span>{'Auto Play'}</span>
+        <div className={'auto-play'}>
+          <span>{'Auto play'}</span>
+          <ToggleButton onClick={toggleAutoPlay} />
         </div>
         
         <div>
@@ -46,6 +60,10 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
             min={0} max={100}
             minValue={0} maxValue={100}
           />
+        </div>
+
+        <div className={'genres'}>
+          <span>{'Genres'}</span>
         </div>
       </div>
     
