@@ -4,6 +4,7 @@ import SongInfo from './SongInfo.js';
 import { AutoPlayContext } from './App.js';
 import './Song.css';
 
+
 function SongArtwork({url, hasPreview, previewDisabledMessageVisible}) {
   return (
     <div className={'artwork-column'}>
@@ -51,7 +52,7 @@ function AudioPlayer({url, isPlaying, stopPlayback, id}) {
   );
 }
 
-export function Song({songJson, isPlaying, changePlayingSong}) {
+export default function Song({songJson, isPlaying, changePlayingSong}) {
   const [previewDisabledMessageVisible, setPreviewDisabledMessageVisible] = useState(false);
   const hasPreview = songJson.playback_url !== null;
   

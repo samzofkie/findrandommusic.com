@@ -1,10 +1,7 @@
-import React, { useState, useEffect, useContext, createContext } from 'react';
-import { createRoot } from 'react-dom/client';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCirclePause, faCirclePlay, faCircleStop, faSliders } from '@fortawesome/free-solid-svg-icons';
-import MultiRangeSlider from "multi-range-slider-react";
+import React, { useState, useEffect, createContext } from 'react';
 
-import { Song } from './Song.js';
+import Song from './Song.js';
+import Controls from './Controls.js';
 import './App.css';
 
 
@@ -22,89 +19,11 @@ function Introduction() {
   );
 }
 
-function PauseButton({ onClick }) {
-  const [pressed, setPressed] = useState(false);
-  return (
-    <div>
-      <FontAwesomeIcon 
-        className={'pause-symbol'} 
-        icon={faCirclePause} 
-        style={pressed ? {color: '#303030'} : null}
-        onClick={onClick}
-      />
-    </div>
-  );
-}
-
 export const AutoPlayContext = createContext({});
 
-function AutoPlayButton() {
-  const { autoPlayOn, setAutoPlayOn } = useContext(AutoPlayContext);
-  
+function Loader() {
   return (
-    <div className={'auto-play-button'}>
-      <FontAwesomeIcon
-        className={'auto-play-symbol'}
-        icon={autoPlayOn ? faCircleStop : faCirclePlay}
-        onClick={() => setAutoPlayOn(!autoPlayOn)}
-        style={autoPlayOn ? {outline: '5px solid #821fbf'} : null}
-      />
-      <div className={'auto-play-button-label'}>{'Auto Play'}</div>
-    </div>
-  );
-}
-
-function ButtonBar({pauseSong}) {
-  return (
-    <div className={'button-bar'}> 
-      <AutoPlayButton />
-      <PauseButton onClick={pauseSong} />
-    </div>
-  );
-}
-
-function FilterSettingsMenu() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  return (
-    <>
-      <div 
-        className={'filter-menu'} 
-        style={ 
-          menuOpen ? 
-          {width: '25%', display: 'grid', gridTemplateColumns: '25% 75%', height: '80%'} 
-          : null
-        }
-      >
-        <div>
-          <FontAwesomeIcon 
-            className={'filter-menu-button'} 
-            icon={faSliders} 
-            onClick={() => {setMenuOpen(!menuOpen); console.log('done');}}
-          />
-        </div>
-        
-        <div style={menuOpen ? null : {display: 'none'}} className={'filter-options'}>
-          
-          <div>{'Auto Play'}</div>
-          <div>
-            <span>{'Release year:'}</span>
-            <MultiRangeSlider ruler={false} label={false} 
-              min={1900} max={new Date().getFullYear()}
-              minValue={1900} maxValue={new Date().getFullYear()}
-            />
-          </div>
-          <div>
-            {'Popularity:'}
-            <MultiRangeSlider ruler={false} label={false} 
-              min={0} max={100}
-              minValue={0} maxValue={100}
-            />
-          </div>
-
-        </div>
-      </div>
-    </>
+    <div className={'loader'}></div>
   );
 }
 
@@ -157,7 +76,7 @@ export default function App() {
     <>
       <Introduction />
       
-      <AutoPlayContext.Provider value={{autoPlayOn, setAutoPlayOn, playNextSong}}>
+      <AutoPlayContext.Provider value={{autoPlayOn, setAutoPlayOn, playNextSong}}>      
         {songs.map((songJson, i) => 
           <Song  
             key={songJson.id} 
@@ -166,13 +85,11 @@ export default function App() {
             changePlayingSong={setPlayingSong}
           />
         )}
-
-        <FilterSettingsMenu />
-              
-        <ButtonBar pauseSong={() => setPlayingSong('')} />
+        
+        <Controls pause={() => setPlayingSong('')} />      
       </AutoPlayContext.Provider>
 
-      <div className={'loader'}></div>
+      <Loader />
     </>
   );
 }
