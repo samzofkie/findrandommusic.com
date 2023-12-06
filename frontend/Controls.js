@@ -18,11 +18,25 @@ function ToggleButton({ onClick }) {
   );
 }
 
+function MultiRangeSliderControl({ range, setRange }) {
+  return (
+    <MultiRangeSlider ruler={false} label={false} 
+      min={range.start} max={range.end}
+      minValue={range.start} maxValue={range.end}
+      onChange={sliderValues => setRange({
+        'start': sliderValues.min, 
+        'end': sliderValues.max
+      })}
+    />
+  );
+}
+
 function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
   const { autoPlayOn, toggleAutoPlay } = useContext(AutoPlayContext);
   const [dateRange, setDateRange] = useState({'start': 1900, 'end': new Date().getFullYear()});
   const [popularityRange, setPopularityRange] = useState({'start': 0, 'end': 100});
   const [genres, setGenres] = useState([]);
+  const [selectedGenres, setSelectedGenres] = useState([]);
 
   async function fetchGenreList() {
     await fetch('/genre-list')
@@ -35,63 +49,55 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
   }, []);
 
   return (
-    <div className={'filter-menu'} 
-      style={ 
-        controlsExpanded ? 
-        {
-          display: 'grid', 
-          gridTemplateColumns: '25% 75%',
-          border: '3px solid white'
-        } 
-        : null
-      }
-    >
-      <div className={'filter-menu-button'} style={controlsExpanded ? {textAlign: 'center', fontSize: '3vw'} : null}>
-        <FontAwesomeIcon 
-          icon={controlsExpanded ? faX : faSliders} 
-          onClick={toggleExpand}
-        />
+    <div className={'filter-menu'} style={controlsExpanded ? {border: '3px solid white'} : null} >
+      <div className={'first-line'}> 
+        <div className={'filter-menu-button'} style={controlsExpanded ? {fontSize: '3vw'} : null} >
+          <FontAwesomeIcon 
+            icon={controlsExpanded ? faX : faSliders} 
+            onClick={toggleExpand}
+          />
+        </div>
+          
+        { !controlsExpanded ? null :
+          <div className={'auto-play control'}>
+            <span>{'Auto play'}</span>
+            <ToggleButton onClick={toggleAutoPlay} />
+          </div>
+        }
       </div>
-      
-      <div className={'filter-menu-options'} style={controlsExpanded ? null : {display: 'none'}} >  
-        <div className={'auto-play'}>
-          <span>{'Auto play'}</span>
-          <ToggleButton onClick={toggleAutoPlay} />
-        </div>
-        
-        <div>
+      { !controlsExpanded ? null : <>
+        <div className={'release-year control'}>
           <span>{'Release year'}</span>
-          <MultiRangeSlider ruler={false} label={false} 
-            min={dateRange.start} max={dateRange.end}
-            minValue={dateRange.start} maxValue={dateRange.end}
-            onChange={sliderValues => setDateRange({
-              'start': sliderValues.min, 
-              'end': sliderValues.max
-            })}
-          />
-        </div>
-        
-        <div>
-          <span>{'Popularity'}</span>
-          <MultiRangeSlider ruler={false} label={false} 
-            min={popularityRange.start} max={popularityRange.end}
-            minValue={popularityRange.start} maxValue={popularityRange.end}
-            onChange={sliderValues => setPopularityRange({
-              'start': sliderValues.min,
-              'end': sliderValues.max
-            })}
-          />
+          <MultiRangeSliderControl range={dateRange} setRange={setDateRange} />
         </div>
 
-        <div className={'genres'}>
-          <span>{'Genres'}</span>
-          <p>
-            {genres.slice(0,5).map(genre => <span>{genre}</span>)}
-          </p>
+        <div className={'popularity control'}>
+          <span>{'Popularity'}</span>
+          <MultiRangeSliderControl range={popularityRange} setRange={setPopularityRange} />
         </div>
-      </div>
-    
-    </div>   
+
+        <div className={'genre control'}>
+          <span>{'Genre'}</span>
+          <div>
+            {genres.map((genre, i) =>
+              <button 
+                className={'genre-button'} 
+                key={i}
+                onClick={() => {
+                  if (selectedGenres.includes(genre))
+                    setSelectedGenres(selectedGenres.filter(g => g !== genre));
+                  else
+                    setSelectedGenres(selectedGenres.concat(genre));
+                }}
+                style={selectedGenres.includes(genre) ? {backgroundColor: '#821fbf'} : null}
+              >
+                {genre}
+              </button>
+            )}
+          </div>
+        </div>
+      </> }
+    </div>
   );
 }
 
@@ -107,7 +113,7 @@ export default function Controls({ pause }) {
   const [controlsExpanded, setControlsExpanded] = useState(false);
  
   return (
-    <div className={'controls'} style={{width: controlsExpanded ? '25%' : '8%'}} >
+    <div className={'controls'} style={{width: controlsExpanded ? '30%' : '8%'}} >
       <FilterSettingsMenu 
         controlsExpanded={controlsExpanded}
         toggleExpand={() => setControlsExpanded(!controlsExpanded)} 
