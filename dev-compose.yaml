@@ -13,6 +13,7 @@ services:
     volumes: 
       - ./api:/api
       - ./public:/api/public
+      - ./shared:/api/shared
     working_dir: /api
     command: node app.js --serve-static=true
     ports:
@@ -27,6 +28,7 @@ services:
       - redis
     volumes: 
       - ./crawler:/crawler
+      - ./shared:/crawler/shared
     working_dir: /crawler
     command: node daemon.js
 

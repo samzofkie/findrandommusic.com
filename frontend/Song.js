@@ -31,7 +31,7 @@ function AudioPlayer({url, isPlaying, stopPlayback, id}) {
   const ref = useRef(null);
   const { autoPlayOn, playNextSong } = useContext(AutoPlayContext);
 
-  url = 'https://www.w3schools.com/html/horse.ogg';
+  //url = 'https://www.w3schools.com/html/horse.ogg';
 
   useEffect(() => {
     if (isPlaying) 

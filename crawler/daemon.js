@@ -4,7 +4,7 @@ const redis = require('redis');
 
 const { gibberish } = require('./gibberish.js');
 const { getAccessToken } = require('./accessToken.js');
-const genrePlaylists = require('./genres.json');
+const genrePlaylists = require('./shared/genres.json');
 
 
 function initializeRedisClient() {
@@ -19,7 +19,7 @@ function initializeRedisClient() {
 class HTTPS429Error extends Error {}
 
 function requestSpotify(accessToken, path) { 
-  console.log('Requesting ' + path);
+  //console.log('Requesting ' + path);
   
   const options = {
     hostname: 'api.spotify.com',
@@ -145,6 +145,8 @@ async function start() {
 
   const sleep = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
   
+  console.log('Crawler starting.');
+  
   while (true) {
     try {
       await trawlForSongs(redisClient, numSongs);
@@ -153,7 +155,7 @@ async function start() {
         console.log('Got a 429');
         await sleep(2.5);
       } else
-        throw error;
+        console.error(error);//throw error;
     }
     await sleep(checkCacheIntervalSeconds);
   }

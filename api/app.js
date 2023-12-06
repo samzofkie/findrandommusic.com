@@ -4,7 +4,8 @@ var morgan = require('morgan');
 const {createClient} = require('redis');
 const {rateLimit} = require('express-rate-limit');
 
-//const dateFormatter = require('./date-formatter.js');
+const genrePlaylists = require('./shared/genres.json');
+
 
 const SERVE_STATIC = process.argv[2] === '--serve-static=true';
 
@@ -18,7 +19,6 @@ const app = express();
 
 app.use(morgan(function (tokens, req, res) {
   return [
-    //dateFormatter.createDateString(new Date(tokens.date(req, res))),
     tokens.date(req, res),
     tokens.method(req, res),
     tokens.url(req, res),
@@ -44,6 +44,10 @@ app.get('/songs', async (req, res) => {
     songs.push(song);
   }
   res.send(songs);
+});
+
+app.get('/genre-list', async (req, res) => {
+  res.send(Object.keys(genrePlaylists));
 });
 
 if (SERVE_STATIC)

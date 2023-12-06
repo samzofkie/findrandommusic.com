@@ -28,7 +28,8 @@ module.exports = {
       directory: path.join(__dirname, 'public'),
     },
     proxy: {
-      '/songs': 'http://app:3000/'
+      '/songs': 'http://app:3000/',
+      '/genre-list': 'http://app:3000/'
     }
   }
 };

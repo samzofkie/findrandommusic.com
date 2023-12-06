@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePause, faCirclePlay, faCircleStop, faSliders, faX } from '@fortawesome/free-solid-svg-icons';
 import MultiRangeSlider from "multi-range-slider-react";
@@ -20,6 +20,19 @@ function ToggleButton({ onClick }) {
 
 function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
   const { autoPlayOn, toggleAutoPlay } = useContext(AutoPlayContext);
+  const [dateRange, setDateRange] = useState({'start': 1900, 'end': new Date().getFullYear()});
+  const [popularityRange, setPopularityRange] = useState({'start': 0, 'end': 100});
+  const [genres, setGenres] = useState([]);
+
+  async function fetchGenreList() {
+    await fetch('/genre-list')
+      .then(res => res.json())
+      .then(setGenres);
+  }
+
+  useEffect(() => {
+    fetchGenreList();
+  }, []);
 
   return (
     <div className={'filter-menu'} 
@@ -33,7 +46,7 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
         : null
       }
     >
-      <div className={'filter-menu-button'} style={controlsExpanded ? {textAlign: 'center'} : null}>
+      <div className={'filter-menu-button'} style={controlsExpanded ? {textAlign: 'center', fontSize: '3vw'} : null}>
         <FontAwesomeIcon 
           icon={controlsExpanded ? faX : faSliders} 
           onClick={toggleExpand}
@@ -49,21 +62,32 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
         <div>
           <span>{'Release year'}</span>
           <MultiRangeSlider ruler={false} label={false} 
-            min={1900} max={new Date().getFullYear()}
-            minValue={1900} maxValue={new Date().getFullYear()}
+            min={dateRange.start} max={dateRange.end}
+            minValue={dateRange.start} maxValue={dateRange.end}
+            onChange={sliderValues => setDateRange({
+              'start': sliderValues.min, 
+              'end': sliderValues.max
+            })}
           />
         </div>
         
         <div>
           <span>{'Popularity'}</span>
           <MultiRangeSlider ruler={false} label={false} 
-            min={0} max={100}
-            minValue={0} maxValue={100}
+            min={popularityRange.start} max={popularityRange.end}
+            minValue={popularityRange.start} maxValue={popularityRange.end}
+            onChange={sliderValues => setPopularityRange({
+              'start': sliderValues.min,
+              'end': sliderValues.max
+            })}
           />
         </div>
 
         <div className={'genres'}>
           <span>{'Genres'}</span>
+          <p>
+            {genres.slice(0,5).map(genre => <span>{genre}</span>)}
+          </p>
         </div>
       </div>
     
