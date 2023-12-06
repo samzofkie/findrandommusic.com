@@ -70,7 +70,7 @@
   position: fixed;
   top: 0;
   right: 0;
-  background-color: red;
+  background-color: black;
   padding: 5%;
   border: 3px solid white;
   border-radius: 30px;
@@ -80,6 +80,42 @@
   color: white;
   font-size: 4vw;
   cursor: pointer;
+}
+
+.filter-options {
+  font-size: 2vw;
+  display: grid;
+  grid-template-rows: 25% 25% 50%;
+}
+
+.multi-range-slider {
+  box-shadow: none;
+  border: none;
+  border-radius: none;
+}
+
+.multi-range-slider .bar-left, .multi-range-slider .bar-inner, .multi-range-slider .bar-right {
+  box-shadow: none;
+  background-color: #303030;
+}
+
+.multi-range-slider .bar-inner {
+  background-color: #821fbf;
+  border: none;
+}
+
+.multi-range-slider .thumb::before {
+  border: 2px solid black;
+  box-shadow: none;
+  outline: none;
+  height: 20px;
+  width: 20px;
+}
+
+.multi-range-slider .thumb .caption * {
+  background-color: #303030;
+  box-shadow: none;
+  border: 2px solid white;
 }
 
 @media only screen and (max-width: 600px) {
