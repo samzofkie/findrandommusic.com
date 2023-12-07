@@ -1,4 +1,5 @@
-import React, { useState, useEffect, createContext } from 'react';
+import React, { useState, useRef, useEffect, createContext } from 'react';
+import { nanoid } from 'nanoid';
 
 import Song from './Song.js';
 import Controls from './Controls.js';
@@ -31,13 +32,24 @@ export default function App() {
   const [songs, setSongs] = useState([]);
   const [playingSong, setPlayingSong] = useState('');
   const [autoPlayOn, setAutoPlayOn] = useState(false);
+  const id = useRef('');
+  const songsUrlRef = useRef(new URL(document.location.href + 'songs'));
 
   async function fetchSongs() {
-    await fetch('/songs')
+    console.log(songsUrlRef.current.href);
+    await fetch(songsUrlRef.current)
       .then(res => res.json())
       .then(songJsonStrings => songJsonStrings.map(string => JSON.parse(string)))
       .then(songJsons => songJsons.filter(json => Object.keys(json).length > 0))
       .then(songJsons => setSongs(s => s.concat(songJsons)));
+  }
+
+  function clearSongs() {
+    setSongs([]);
+  }
+
+  function setSongsUrl(url) {
+    songsUrlRef.current = url;
   }
 
   function scrollRatio() {
@@ -51,7 +63,8 @@ export default function App() {
 
   useEffect(() => {
     document.onscrollend = scrollRatio;
-    fetchSongs();  
+    fetchSongs();
+    id.current = nanoid();
   }, []);
 
   function playNextSong(currentId) {
@@ -90,7 +103,13 @@ export default function App() {
           />
         )}
         
-        <Controls pause={() => setPlayingSong('')} />      
+        <Controls 
+          pause={() => setPlayingSong('')} 
+          id={id.current} 
+          clearSongs={clearSongs} 
+          setSongsUrl={setSongsUrl}
+          fetchSongs={fetchSongs}
+        />      
       </AutoPlayContext.Provider>
 
       <Loader />

@@ -36,7 +36,7 @@ function MultiRangeSliderControl({ range, bounds, setRange, onSettingsChange }) 
   );
 }
 
-function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
+function FilterSettingsMenu({ controlsExpanded, toggleExpand, id, clearSongs, setSongsUrl, fetchSongs }) {
   const { autoPlayOn, toggleAutoPlay } = useContext(AutoPlayContext);
   
   const dateBounds = {'start': 1900, 'end': new Date().getFullYear()};
@@ -57,7 +57,20 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
   }
 
   function onSettingsChange() {
-    console.log('hey the settings have changed', dateRef.current, popularityRef.current, selectedGenres);
+    let data = {
+      'id': id,
+      'date_start': dateRef.current.start,
+      'date_end': dateRef.current.end,
+      'popularity_start': popularityRef.current.start,
+      'popularity_end': popularityRef.current.end,
+      'genres': selectedGenres.join(',')
+    };
+    let url = new URL(document.location.href + 'songs');
+    for (let setting in data) 
+      url.searchParams.append(setting, data[setting]);
+    clearSongs();
+    setSongsUrl(url);
+    fetchSongs();
   }
 
   useEffect(() => {
@@ -133,14 +146,18 @@ function PauseButton({ pause }) {
   );
 }
 
-export default function Controls({ pause }) {
+export default function Controls({ pause, id, clearSongs, setSongsUrl, fetchSongs }) {
   const [controlsExpanded, setControlsExpanded] = useState(false);
  
   return (
     <div className={'controls'} style={{width: controlsExpanded ? '30%' : '8%'}} >
       <FilterSettingsMenu 
         controlsExpanded={controlsExpanded}
-        toggleExpand={() => setControlsExpanded(!controlsExpanded)} 
+        toggleExpand={() => setControlsExpanded(!controlsExpanded)}
+        id={id}
+        clearSongs={clearSongs}
+        setSongsUrl={setSongsUrl}
+        fetchSongs={fetchSongs}
       />
       <PauseButton pause={pause} />
     </div>
