@@ -72,6 +72,10 @@
   overflow-y: scroll;
 }
 
+.genre-list {
+  overflow-y: scroll;
+}
+
 .genre-button {
   color: white;
   background-color: black;

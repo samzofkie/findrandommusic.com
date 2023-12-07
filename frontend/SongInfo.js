@@ -65,7 +65,6 @@ export default function SongInfo({songJson, stopPlayback}) {
         <IconLine>
           <FontAwesomeIcon icon={faMasksTheater} />
           {calculateLinkCommaList(songJson.genres)}
-          {/*<div className={'song-genres'}> {songJson.genres.join(', ')} </div>*/}
         </IconLine> 
         : null
       }

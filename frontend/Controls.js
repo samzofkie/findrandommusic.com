@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePause, faCirclePlay, faCircleStop, faSliders, faX } from '@fortawesome/free-solid-svg-icons';
 import MultiRangeSlider from "multi-range-slider-react";
@@ -18,35 +18,55 @@ function ToggleButton({ onClick }) {
   );
 }
 
-function MultiRangeSliderControl({ range, setRange }) {
+function MultiRangeSliderControl({ range, bounds, setRange, onSettingsChange }) {
+  function onChange(sliderValues) {
+    setRange({
+      'start': sliderValues.minValue,
+      'end': sliderValues.maxValue
+    });
+    onSettingsChange();
+  }
+
   return (
     <MultiRangeSlider ruler={false} label={false} 
-      min={range.start} max={range.end}
+      min={bounds.start} max={bounds.end}
       minValue={range.start} maxValue={range.end}
-      onChange={sliderValues => setRange({
-        'start': sliderValues.min, 
-        'end': sliderValues.max
-      })}
+      onChange={onChange}
     />
   );
 }
 
 function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
   const { autoPlayOn, toggleAutoPlay } = useContext(AutoPlayContext);
-  const [dateRange, setDateRange] = useState({'start': 1900, 'end': new Date().getFullYear()});
-  const [popularityRange, setPopularityRange] = useState({'start': 0, 'end': 100});
-  const [genres, setGenres] = useState([]);
+  
+  const dateBounds = {'start': 1900, 'end': new Date().getFullYear()};
+  const dateRef = useRef(dateBounds);
+  const setDateRange = obj => dateRef.current = obj;
+
+  const popularityBounds = {'start': 0, 'end': 100};
+  const popularityRef = useRef(popularityBounds);
+  const setPopularityRange = obj => popularityRef.current = obj;
+
+  const genres = useRef([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
 
   async function fetchGenreList() {
     await fetch('/genre-list')
       .then(res => res.json())
-      .then(setGenres);
+      .then(arr => genres.current = arr);
+  }
+
+  function onSettingsChange() {
+    console.log('hey the settings have changed', dateRef.current, popularityRef.current, selectedGenres);
   }
 
   useEffect(() => {
     fetchGenreList();
   }, []);
+
+  useEffect(() => {
+    onSettingsChange();
+  }, [selectedGenres]);
 
   return (
     <div className={'filter-menu'} style={controlsExpanded ? {border: '3px solid white'} : null} >
@@ -68,18 +88,22 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
       { !controlsExpanded ? null : <>
         <div className={'release-year control'}>
           <span>{'Release year'}</span>
-          <MultiRangeSliderControl range={dateRange} setRange={setDateRange} />
+          <MultiRangeSliderControl range={dateRef.current} bounds={dateBounds}
+            setRange={setDateRange} onSettingsChange={onSettingsChange}
+          />
         </div>
 
         <div className={'popularity control'}>
           <span>{'Popularity'}</span>
-          <MultiRangeSliderControl range={popularityRange} setRange={setPopularityRange} />
+          <MultiRangeSliderControl range={popularityRef.current} bounds={popularityBounds}
+            setRange={setPopularityRange} onSettingsChange={onSettingsChange}
+          />
         </div>
 
         <div className={'genre control'}>
           <span>{'Genre'}</span>
-          <div>
-            {genres.map((genre, i) =>
+          <div className={'genre-list'}>
+            {genres.current.map((genre, i) =>
               <button 
                 className={'genre-button'} 
                 key={i}
