@@ -1,13 +1,11 @@
 filtering
-  redis set uniqueness?
-  gibberish generation step on and off
-  worker queue with session uuids translating into spotify/search query strings
-
+  passing userSettings to trawlForSongs
+  have /songs route wait for songs to hit cache
+  
 px not %
 
 auto play
   skip button
-  rethink design
 
 playlist
 
@@ -15,5 +13,6 @@ options of what data to display
 
 harden nginx
 
+rizz tf outta README
+
 kubernetes aws autoscaling
-unit testing

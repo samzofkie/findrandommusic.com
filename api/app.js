@@ -38,6 +38,20 @@ app.use('/songs', rateLimit({
 }));
 
 app.get('/songs', async (req, res) => {
+  // TODO:
+  // validate input
+  const userId = req.query.id;
+  if (!userId) {
+    res.status(404).send('Sorry your id param j ain\'t lookin right...');
+    return;
+  }
+  
+  let settings = req.query;
+  delete settings.id;
+  settings.genres = settings.genres.split(',');
+  settings.mostRecentRequest = new Date().toString();
+  await client.HSET('users', userId, JSON.stringify(settings)); 
+  
   let songs = [];
   for (let i=0; i<10; i++) {
     const song = await client.sPop('songs');

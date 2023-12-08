@@ -140,15 +140,28 @@ async function trawlForSongs(redisClient, numSongs) {
 
 async function start() {
   const redisClient = initializeRedisClient();
-  const checkCacheIntervalSeconds = 30;
+  const checkCacheIntervalSeconds = 1;
   const numSongs = 500;
 
   const sleep = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
   
   console.log('Crawler starting.');
-  
+ 
   while (true) {
     try {
+      const userIds = await redisClient.HKEYS('users');
+      let userSettings = new Map();
+      for (let id of userIds) {
+        let settings = JSON.parse(await redisClient.HGET('users', id));
+        settings.recentRequest = new Date(settings.recentRequest);
+        let minutesOld = (new Date() - settings.recentRequest) / (1000 * 60);
+        if (minutesOld > 10) {
+          await redisClient.HDEL('users', id);
+        } else {
+          userSettings.set(id, settings)
+        }
+      }
+ 
       await trawlForSongs(redisClient, numSongs);
     } catch (error) {
       if (error instanceof HTTPS429Error) {
