@@ -51,10 +51,20 @@ app.get('/songs', async (req, res) => {
   settings.genres = settings.genres.split(',');
   settings.mostRecentRequest = new Date().toString();
   await client.HSET('users', userId, JSON.stringify(settings)); 
-  
+  //await client.HSET('users', 'crapo', JSON.stringify(settings)); 
+ 
+  let nSongs = 0;
+  while (true) {
+    console.log('spinning', nSongs);
+    nSongs = await client.sCard(userId);
+    if (nSongs > 0)
+      break;
+  }
+  console.log('theres songs in da cache');
+
   let songs = [];
-  for (let i=0; i<10; i++) {
-    const song = await client.sPop('songs');
+  for (let i=0; i<nSongs; i++) {
+    const song = await client.sPop(userId);
     songs.push(song);
   }
   res.send(songs);

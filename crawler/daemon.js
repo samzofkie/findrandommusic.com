@@ -19,7 +19,7 @@ function initializeRedisClient() {
 class HTTPS429Error extends Error {}
 
 function requestSpotify(accessToken, path) { 
-  //console.log('Requesting ' + path);
+  console.log('Requesting ' + path);
   
   const options = {
     hostname: 'api.spotify.com',
@@ -76,15 +76,19 @@ function pickNSongs(items, n) {
 }
 
 async function lookupGenres(accessToken, songs) {
-  let ids = songs.map(song => song.artists.map(artist => artist.id)).flat();
+  let ids = Array.from(songs.values()).flat()
+    .map(song => song.artists.map(artist => artist.id)).flat()
   const artistsData = await requestSpotify(accessToken, `/v1/artists?ids=${ids.join(',')}`);
   const genreMap = new Map(artistsData.artists.map(artist => [artist.name, artist.genres]));
-  for (let song of songs)
-    song.genres = [... new Set(song.artists.reduce((acc, artist) => [...acc, ...genreMap.get(artist.name)], []))]
-      .map(genre => ({ 
-        'name': genre, 
-        'url': 'https://open.spotify.com/playlist/' + genrePlaylists[genre]
-      })); 
+  
+  for (let userSongs of songs.values())
+    for (let song of userSongs)
+      song.genres = [... new Set(song.artists.reduce((acc, artist) => [...acc, ...genreMap.get(artist.name)], []))]
+        .map(genre => ({ 
+          'name': genre, 
+          'url': 'https://open.spotify.com/playlist/' + genrePlaylists[genre]
+        }));
+  
   return songs;
 }
 
@@ -116,8 +120,10 @@ function formatSongData(songs) {
     }));
 }
 
-function pushSongsToRedisCache(redisClient, items) {
-  items.map(item => redisClient.sAdd('songs', JSON.stringify(item)));
+async function pushSongsToRedisCache(redisClient, user, songs) {
+  for (let song of songs)
+    await redisClient.sAdd(user, JSON.stringify(song));
+  console.log(`Pushed ${songs.length} songs to ${user}.`);
 }
 
 async function trawlForSongs(redisClient, numSongs) {
@@ -138,6 +144,15 @@ async function trawlForSongs(redisClient, numSongs) {
   }
 }
 
+function makeSearchRequestString(settings) {
+  let params = new URLSearchParams('type=track&limit=50');
+  let filterString = `${'a'} year:${settings.date_start}-${settings.date_end}`
+  if (settings.genres.length > 0)
+    filterString += ' genre:' + settings.genres.join(','); 
+  params.set('q', filterString);
+  return '/v1/search?' + params.toString();
+}
+
 async function start() {
   const redisClient = initializeRedisClient();
   const checkCacheIntervalSeconds = 1;
@@ -150,25 +165,51 @@ async function start() {
   while (true) {
     try {
       const userIds = await redisClient.HKEYS('users');
-      let userSettings = new Map();
+      let users = new Map();
       for (let id of userIds) {
         let settings = JSON.parse(await redisClient.HGET('users', id));
-        settings.recentRequest = new Date(settings.recentRequest);
-        let minutesOld = (new Date() - settings.recentRequest) / (1000 * 60);
+        settings.mostRecentRequest = new Date(settings.mostRecentRequest);
+        let minutesOld = (new Date() - settings.mostRecentRequest) / (1000 * 60);
         if (minutesOld > 10) {
           await redisClient.HDEL('users', id);
         } else {
-          userSettings.set(id, settings)
+          users.set(id, settings)
         }
       }
- 
-      await trawlForSongs(redisClient, numSongs);
+      
+      if (users.size > 0) {
+        // TODO
+        // for each user, make search requests until you get results
+        // make one request to /v1/artists for all the results
+        // package all the data and push to the right place
+        const accessToken = await getAccessToken();
+
+        let songs = new Map();
+        for (let id of users.keys()) {
+          const requestString = makeSearchRequestString(users.get(id));
+          let results = await requestSpotify(accessToken, requestString);
+          const selectedSongs = pickNSongs(results.tracks.items, 5);
+          songs.set(id, selectedSongs);
+        }
+        songs = await lookupGenres(accessToken, songs);
+        for (let id of songs.keys()) {
+          songs.set(id, formatSongData(songs.get(id)));
+          await pushSongsToRedisCache(redisClient, id, songs.get(id));
+        }
+
+        //console.log(songs);
+         
+        //process.exit(0);
+
+        //await trawlForSongs(redisClient, numSongs, users);
+      }
     } catch (error) {
       if (error instanceof HTTPS429Error) {
         console.log('Got a 429');
         await sleep(2.5);
       } else
-        console.error(error);//throw error;
+        //console.error(error); 
+        throw error;
     }
     await sleep(checkCacheIntervalSeconds);
   }
