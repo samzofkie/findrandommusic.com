@@ -64,7 +64,6 @@ export default function App() {
       const response = await fetch(url);
       let songs = await response.json();
       songs = songs.map(JSON.parse).filter(json => Object.keys(json).length > 0);
-      console.log(songs);
       setSongs(s => s.concat(songs));
     } catch (error) {
       console.log('got an err');
@@ -101,7 +100,8 @@ export default function App() {
   function lookupNextPlayableSongIndex(id) {
     const playableSongsIds = songs.filter(song => song.playback_url !== null)
       .map(song => song.id);
-    return playableSongsIds.indexOf(id) + 1;
+    const nextPlayableSongId = playableSongsIds[playableSongsIds.indexOf(id) + 1];
+    return songs.map(song => song.id).indexOf(nextPlayableSongId);
   }
 
   function scrollToSongDiv(songDiv) {
@@ -134,7 +134,6 @@ export default function App() {
     if (percentageDownThePage() > 0.8)
       fetchSongs();
   }
-
 
   useEffect(() => {
     filterParams.current .id= nanoid();
