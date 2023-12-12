@@ -6,8 +6,12 @@ import MultiRangeSlider from "multi-range-slider-react";
 import './Controls.css';
 import './MultiRangeSlider.css';
 import './ToggleSwitch.css';
-import { PlaybackContext } from './App.js';
+import { PlaybackContext, FilterContext } from './App.js';
 
+
+let genreList = await fetch('/genre-list').then(res => res.json());
+export const dateFilterBounds = {'start': 1900, 'end': new Date().getFullYear()};
+export const popularityFilterBounds = {'start': 0, 'end': 100};
 
 function ToggleButton({ onChange, isChecked }) {
   return (
@@ -15,24 +19,6 @@ function ToggleButton({ onChange, isChecked }) {
       <input type="checkbox" checked={isChecked} onChange={onChange} />
       <span className={"slider round"}></span>
     </label>
-  );
-}
-
-function MultiRangeSliderControl({ range, bounds, setRange, onSettingsChange }) {
-  function onChange(sliderValues) {
-    setRange({
-      'start': sliderValues.minValue,
-      'end': sliderValues.maxValue
-    });
-    onSettingsChange();
-  }
-
-  return (
-    <MultiRangeSlider ruler={false} label={false} 
-      min={bounds.start} max={bounds.end}
-      minValue={range.start} maxValue={range.end}
-      onChange={onChange}
-    />
   );
 }
 
@@ -46,23 +32,83 @@ function AutoPlayToggle() {
   );
 }
 
-function FilterSettingsMenu({ controlsExpanded, toggleExpand, id, clearSongs, setSongsUrl, fetchSongs }) { 
-  const dateBounds = {'start': 1900, 'end': new Date().getFullYear()};
-  const dateRef = useRef(dateBounds);
-  const setDateRange = obj => dateRef.current = obj;
+function FilterRange({cssClassName, label, bounds, filterParamsPrefix }) {
+  const { filterParams, setFilterParams } = useContext(FilterContext);
+  const [startPropName, endPropName] = [filterParamsPrefix + 'Start',
+                                        filterParamsPrefix + 'End'];
+  return (
+    <div className={cssClassName + ' control'}>
+      <span>{label}</span>
 
-  const popularityBounds = {'start': 0, 'end': 100};
-  const popularityRef = useRef(popularityBounds);
-  const setPopularityRange = obj => popularityRef.current = obj;
+      <MultiRangeSlider ruler={false} label={false} 
+        min={bounds.start} 
+        max={bounds.end}
+        minValue={filterParams.current[startPropName]}
+        maxValue={filterParams.current[endPropName]}
+        onChange={({minValue, maxValue}) => setFilterParams({
+          ...filterParams.current,
+          [startPropName]: minValue,
+          [endPropName]: maxValue
+        })}
+      />
+    </div>
+  );
+}
 
-  const genres = useRef([]);
+function DateRange() {
+  return (
+    <FilterRange
+      cssClassName={'release-year'}
+      label={'Release year'}
+      bounds={dateFilterBounds}
+      filterParamsPrefix={'date'}
+    />
+  );
+}
+
+function PopularityRange() {
+  return (
+    <FilterRange
+      cssClassName={'popularity'}
+      label={'Popularity'}
+      bounds={popularityFilterBounds}
+      filterParamsPrefix={'popularity'}
+    />
+  );
+}
+
+function GenreList() {
   const [selectedGenres, setSelectedGenres] = useState([]);
 
-  async function fetchGenreList() {
-    await fetch('/genre-list')
-      .then(res => res.json())
-      .then(arr => genres.current = arr);
+  function toggleGenre(genre) {
+    if (selectedGenres.includes(genre))
+      setSelectedGenres(selectedGenres.filter(g => g !== genre));
+    else
+      setSelectedGenres(selectedGenres.concat(genre));
   }
+
+  /*useEffect(() => {
+    onSettingsChange();
+  }, [selectedGenres]); */
+
+  return (
+    <div className={'genre control'}>
+      <span>{'Genre'}</span>
+      <div className={'genre-list'}>
+        {genreList.map((genreString, i) => 
+          <button className={'genre-button'} key={i}
+            onClick={() => toggleGenre(genreString)}
+            style={selectedGenres.includes(genreString) ? {backgroundColor: '#821fbf'} : null}
+          >
+            {genreString}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FilterSettingsMenu({ controlsExpanded, toggleExpand, id, clearSongs, setSongsUrl, fetchSongs }) { 
 
   function onSettingsChange() {
     let data = {
@@ -81,13 +127,6 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand, id, clearSongs, se
     //fetchSongs();
   }
 
-  useEffect(() => {
-    fetchGenreList();
-  }, []);
-
-  useEffect(() => {
-    onSettingsChange();
-  }, [selectedGenres]);
 
   return (
     <div className={'filter-menu'} style={controlsExpanded ? {border: '3px solid white'} : null} >
@@ -100,42 +139,14 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand, id, clearSongs, se
         { !controlsExpanded ? null : <AutoPlayToggle /> }
       </div>
       
-      { !controlsExpanded ? null : <>
-        <div className={'release-year control'}>
-          <span>{'Release year'}</span>
-          <MultiRangeSliderControl range={dateRef.current} bounds={dateBounds}
-            setRange={setDateRange} onSettingsChange={onSettingsChange}
-          />
-        </div>
+      { !controlsExpanded ? null : 
+        <> 
+          <DateRange />
+          <PopularityRange />
+          <GenreList />
+        </>
+      }
 
-        <div className={'popularity control'}>
-          <span>{'Popularity'}</span>
-          <MultiRangeSliderControl range={popularityRef.current} bounds={popularityBounds}
-            setRange={setPopularityRange} onSettingsChange={onSettingsChange}
-          />
-        </div>
-
-        <div className={'genre control'}>
-          <span>{'Genre'}</span>
-          <div className={'genre-list'}>
-            {genres.current.map((genre, i) =>
-              <button 
-                className={'genre-button'} 
-                key={i}
-                onClick={() => {
-                  if (selectedGenres.includes(genre))
-                    setSelectedGenres(selectedGenres.filter(g => g !== genre));
-                  else
-                    setSelectedGenres(selectedGenres.concat(genre));
-                }}
-                style={selectedGenres.includes(genre) ? {backgroundColor: '#821fbf'} : null}
-              >
-                {genre}
-              </button>
-            )}
-          </div>
-        </div>
-      </> }
     </div>
   );
 }

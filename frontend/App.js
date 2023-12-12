@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, createContext } from 'react';
 import { nanoid } from 'nanoid';
 
 import Song from './Song.js';
-import Controls from './Controls.js';
+import Controls, {dateFilterBounds, popularityFilterBounds} from './Controls.js';
 import './App.css';
 
 
@@ -56,7 +56,16 @@ export default function App() {
   /* The filterParams ref keeps track of the current settings indicated 
      by the user via <Controls/>, and it is updated by setFilterParams, which
      is passed to <Controls/>. The settings are encoded in an object. */
-  const filterParams = useRef({});
+  const filterParams = useRef(
+    {
+      id: nanoid(),
+      dateStart: dateFilterBounds.start,
+      dateEnd: dateFilterBounds.end,
+      popularityStart: popularityFilterBounds.start,
+      popularityEnd: popularityFilterBounds.end,
+      genres: []
+    }
+  );
  
   function setFilterParams(newParams) {
     filterParams.current = newParams;
@@ -67,9 +76,24 @@ export default function App() {
      endpoint on the backend, and then append the new songs to the current
      songs array. It is used in sequence with clearSongs() by different child
      components of <Controls/> to clear old songs and load new ones. */
-  function buildQueryString() { 
-    const paramString = new URLSearchParams(filterParams.current).toString();
-    return paramString === '' ? '' : '?' + paramString;
+  function buildQueryString() {
+    let songsParams = new URLSearchParams(filterParams.current);
+
+    function ifBoundsUnchangedOmit(name, bounds) {
+      if (songsParams.get(name + 'Start') === bounds.start.toString() &&
+          songsParams.get(name + 'End') === bounds.end.toString()) {
+        songsParams.delete(name + 'Start');
+        songsParams.delete(name + 'End');
+      }
+    }
+
+    ifBoundsUnchangedOmit('date', dateFilterBounds);
+    ifBoundsUnchangedOmit('popularity', popularityFilterBounds);
+
+    if (songsParams.get('genres').length < 1)
+      songsParams.delete('genres');
+     
+    return songsParams.toString() === '' ? '' : '?' + songsParams.toString();
   }
 
    async function fetchSongs() {
@@ -78,7 +102,11 @@ export default function App() {
       console.log('fetchin', url);
       const response = await fetch(url);
       let songs = await response.json();
-      songs = songs.map(JSON.parse).filter(json => Object.keys(json).length > 0);
+      songs = songs.map(JSON.parse)
+        .filter(song => song !== null)
+        .filter(json => Object.keys(json).length > 0);
+      if (songs.length === 0)
+        console.error('GETting ' + url + ' returned 0 songs!');
       setSongs(s => s.concat(songs));
     } catch (error) {
       console.log('got an err');
@@ -156,7 +184,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    filterParams.current .id= nanoid();
+    //filterParams.current .id= nanoid();
     let initialSongsRequestMade = false;
     if (!initialSongsRequestMade)
       fetchSongs();
@@ -166,7 +194,7 @@ export default function App() {
       document.removeEventListener('onscrollend', checkIfMoreSongsNeeded);
     };
   }, []);
- 
+  
   return (
     <>
       <Introduction />
@@ -177,12 +205,14 @@ export default function App() {
 
         <SongsList songs={songs} currentlyPlayingSong={currentlyPlayingSong} />
         
-        <Controls 
-          id={filterParams.current.id} 
-          clearSongs={clearSongs} 
-          setSongsUrl={setFilterParams}
-          fetchSongs={fetchSongs}
-        />
+        <FilterContext.Provider value={{filterParams, setFilterParams}} >
+          <Controls 
+            id={filterParams.current.id} 
+            clearSongs={clearSongs} 
+            setSongsUrl={setFilterParams}
+            fetchSongs={fetchSongs}
+          />
+        </FilterContext.Provider>
 
       </PlaybackContext.Provider>
 
