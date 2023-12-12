@@ -89,34 +89,46 @@ function PopularityRange() {
 }
 
 function GenreList() {
-  const [selectedGenres, setSelectedGenres] = useState([]);
+  const { filterParams, setFilterParams } = useContext(FilterContext);
+  const [selectedGenres, setSelectedGenres] = useState(
+    filterParams.current.genres,
+  );
 
+  /* We call setFilterParams with the same filtered or concat'd version of
+     selectedGenres immeadiately after setting it because calling the set
+     function doesn't immeadiately update it. */
   function toggleGenre(genre) {
-    if (selectedGenres.includes(genre))
+    if (selectedGenres.includes(genre)) {
       setSelectedGenres(selectedGenres.filter((g) => g !== genre));
-    else setSelectedGenres(selectedGenres.concat(genre));
+      setFilterParams({
+        ...filterParams.current,
+        genres: selectedGenres.filter((g) => g !== genre),
+      });
+    } else {
+      setSelectedGenres(selectedGenres.concat(genre));
+      setFilterParams({
+        ...filterParams.current,
+        genres: selectedGenres.concat(genre),
+      });
+    }
   }
-
-  /*useEffect(() => {
-    onSettingsChange();
-  }, [selectedGenres]); */
 
   return (
     <div className={"genre control"}>
       <span>{"Genre"}</span>
       <div className={"genre-list"}>
-        {genreList.map((genreString, i) => (
+        {genreList.map((genre, i) => (
           <button
             className={"genre-button"}
             key={i}
-            onClick={() => toggleGenre(genreString)}
+            onClick={() => toggleGenre(genre)}
             style={
-              selectedGenres.includes(genreString)
+              selectedGenres.includes(genre)
                 ? { backgroundColor: "#821fbf" }
                 : null
             }
           >
-            {genreString}
+            {genre}
           </button>
         ))}
       </div>
