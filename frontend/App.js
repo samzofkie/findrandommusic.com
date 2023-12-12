@@ -173,7 +173,7 @@ export default function App() {
       
       <PlaybackContext.Provider value={
         {pausePlayback, playSongById, autoPlayOn, toggleAutoPlay, playNextSong}
-      }>
+      } >
 
         <SongsList songs={songs} currentlyPlayingSong={currentlyPlayingSong} />
         

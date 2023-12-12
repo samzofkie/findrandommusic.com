@@ -9,10 +9,10 @@ import './ToggleSwitch.css';
 import { PlaybackContext } from './App.js';
 
 
-function ToggleButton({ onClick }) {
+function ToggleButton({ onChange, isChecked }) {
   return (
     <label className={"switch"}>
-      <input type="checkbox" onClick={onClick} />
+      <input type="checkbox" checked={isChecked} onChange={onChange} />
       <span className={"slider round"}></span>
     </label>
   );
@@ -36,9 +36,17 @@ function MultiRangeSliderControl({ range, bounds, setRange, onSettingsChange }) 
   );
 }
 
-function FilterSettingsMenu({ controlsExpanded, toggleExpand, id, clearSongs, setSongsUrl, fetchSongs }) {
+function AutoPlayToggle() {
   const { autoPlayOn, toggleAutoPlay } = useContext(PlaybackContext);
-  
+  return (
+    <div className={'auto-play control'}>
+      <span>{'Auto play'}</span>
+      <ToggleButton isChecked={autoPlayOn} onChange={toggleAutoPlay} />
+    </div>
+  );
+}
+
+function FilterSettingsMenu({ controlsExpanded, toggleExpand, id, clearSongs, setSongsUrl, fetchSongs }) { 
   const dateBounds = {'start': 1900, 'end': new Date().getFullYear()};
   const dateRef = useRef(dateBounds);
   const setDateRange = obj => dateRef.current = obj;
@@ -83,21 +91,15 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand, id, clearSongs, se
 
   return (
     <div className={'filter-menu'} style={controlsExpanded ? {border: '3px solid white'} : null} >
+      
       <div className={'first-line'}> 
         <div className={'filter-menu-button'} style={controlsExpanded ? {fontSize: '3vw'} : null} >
-          <FontAwesomeIcon 
-            icon={controlsExpanded ? faX : faSliders} 
-            onClick={toggleExpand}
-          />
+          <FontAwesomeIcon icon={controlsExpanded ? faX : faSliders} onClick={toggleExpand} />
         </div>
           
-        { !controlsExpanded ? null :
-          <div className={'auto-play control'}>
-            <span>{'Auto play'}</span>
-            <ToggleButton onClick={toggleAutoPlay} />
-          </div>
-        }
+        { !controlsExpanded ? null : <AutoPlayToggle /> }
       </div>
+      
       { !controlsExpanded ? null : <>
         <div className={'release-year control'}>
           <span>{'Release year'}</span>
