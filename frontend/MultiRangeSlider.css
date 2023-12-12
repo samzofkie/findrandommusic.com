@@ -5,7 +5,9 @@
   padding: 10px;
 }
 
-.multi-range-slider .bar-left, .multi-range-slider .bar-inner, .multi-range-slider .bar-right {
+.multi-range-slider .bar-left,
+.multi-range-slider .bar-inner,
+.multi-range-slider .bar-right {
   box-shadow: none;
   background-color: #303030;
 }

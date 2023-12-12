@@ -1,35 +1,36 @@
-const path = require('path');
+const path = require("path");
 
 module.exports = {
   entry: {
-    index: './index.js',
+    index: "./index.js",
   },
   output: {
-    filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'public'),
+    filename: "[name].bundle.js",
+    path: path.resolve(__dirname, "public"),
   },
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader'
+        loader: "babel-loader",
       },
       {
         test: /\.css$/i,
-        use: ['style-loader', 'css-loader']
-      }
-    ]
+        use: ["style-loader", "css-loader"],
+      },
+    ],
   },
- 
-  mode: 'development',
+
+  mode: "development",
+  devtool: "inline-source-map",
   devServer: {
     static: {
-      directory: path.join(__dirname, 'public'),
+      directory: path.join(__dirname, "public"),
     },
     proxy: {
-      '/songs': 'http://app:3000/',
-      '/genre-list': 'http://app:3000/'
-    }
-  }
+      "/songs": "http://app:3000/",
+      "/genre-list": "http://app:3000/",
+    },
+  },
 };

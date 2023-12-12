@@ -5,7 +5,7 @@
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 2%;
- 
+
   display: grid;
   grid-template-columns: 34% 66%;
 }
@@ -22,11 +22,11 @@
 .playback-disabled-text {
   font-size: 2vw;
   position: absolute;
-  
+
   top: 50%;
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
-  
+
   text-align: center;
 
   padding: 5%;

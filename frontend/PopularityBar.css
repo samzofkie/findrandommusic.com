@@ -1,11 +1,12 @@
 .popularity-bar {
   display: flex;
-  align-items: center; 
+  align-items: center;
   grid-column-start: 2;
   position: relative;
 }
 
-.background-bar, .value-bar {
+.background-bar,
+.value-bar {
   width: 100%;
   border-radius: 10px;
 
