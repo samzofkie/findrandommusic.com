@@ -136,30 +136,7 @@ function GenreList() {
   );
 }
 
-function FilterSettingsMenu({
-  controlsExpanded,
-  toggleExpand,
-  id,
-  clearSongs,
-  setSongsUrl,
-  fetchSongs,
-}) {
-  function onSettingsChange() {
-    let data = {
-      id: id,
-      date_start: dateRef.current.start,
-      date_end: dateRef.current.end,
-      popularity_start: popularityRef.current.start,
-      popularity_end: popularityRef.current.end,
-      genres: selectedGenres.join(","),
-    };
-    let url = new URL(document.location.href + "songs");
-    for (let setting in data) url.searchParams.append(setting, data[setting]);
-    clearSongs();
-    setSongsUrl(url);
-    //fetchSongs();
-  }
-
+function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
   return (
     <div
       className={"filter-menu"}
@@ -199,7 +176,7 @@ function PauseButton() {
   );
 }
 
-export default function Controls({ id, clearSongs, setSongsUrl, fetchSongs }) {
+export default function Controls() {
   const [controlsExpanded, setControlsExpanded] = useState(false);
 
   return (
@@ -210,10 +187,6 @@ export default function Controls({ id, clearSongs, setSongsUrl, fetchSongs }) {
       <FilterSettingsMenu
         controlsExpanded={controlsExpanded}
         toggleExpand={() => setControlsExpanded(!controlsExpanded)}
-        id={id}
-        clearSongs={clearSongs}
-        setSongsUrl={setSongsUrl}
-        fetchSongs={fetchSongs}
       />
       <PauseButton />
     </div>

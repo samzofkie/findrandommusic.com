@@ -74,8 +74,9 @@ export default function App() {
   });
 
   function setFilterParams(newParams) {
-    console.log('would now be a good time to change?');
     filterParams.current = newParams;
+    clearSongs();
+    fetchSongs();
   }
 
   /* fetchSongs() and it's helper buildQueryString() encode the filterParams
@@ -107,7 +108,6 @@ export default function App() {
   async function fetchSongs() {
     try {
       const url = "/songs" + buildQueryString();
-      console.log("fetchin", url);
       const response = await fetch(url);
       let songs = await response.json();
       songs = songs
@@ -118,7 +118,7 @@ export default function App() {
         console.error("GETting " + url + " returned 0 songs!");
       setSongs((s) => s.concat(songs));
     } catch (error) {
-      console.log("got an err");
+      console.error("fetchSongs() error:");
       throw error;
     }
   }
@@ -217,12 +217,7 @@ export default function App() {
         <SongsList songs={songs} currentlyPlayingSong={currentlyPlayingSong} />
 
         <FilterContext.Provider value={{ filterParams, setFilterParams }}>
-          <Controls
-            id={filterParams.current.id}
-            clearSongs={clearSongs}
-            setSongsUrl={setFilterParams}
-            fetchSongs={fetchSongs}
-          />
+          <Controls />
         </FilterContext.Provider>
       </PlaybackContext.Provider>
 
