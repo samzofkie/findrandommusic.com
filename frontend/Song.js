@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 
 import SongInfo from './SongInfo.js';
-import { AutoPlayContext } from './App.js';
+import { PlaybackContext } from './App.js';
 import './Song.css';
 
 
@@ -27,10 +27,9 @@ function SongArtwork({url, hasPreview, previewDisabledMessageVisible}) {
 }
 
 
-function AudioPlayer({url, isPlaying, stopPlayback, id}) {
+function AudioPlayer({id, url, isPlaying}) {
   const ref = useRef(null);
-  const { autoPlayOn, playNextSong } = useContext(AutoPlayContext);
-
+  const { pausePlayback, autoPlayOn, playNextSong } = useContext(PlaybackContext);
   //url = 'https://www.w3schools.com/html/horse.ogg';
 
   useEffect(() => {
@@ -45,27 +44,26 @@ function AudioPlayer({url, isPlaying, stopPlayback, id}) {
       if (autoPlayOn)
         playNextSong(id);
       else
-        stopPlayback();
+        pausePlayback();
     }}>
       <source src={url} type={'audio/mpeg'} />
     </audio>
   );
 }
 
-export default function Song({songJson, isPlaying, changePlayingSong}) {
+export default function Song({song, isPlaying}) {
   const [previewDisabledMessageVisible, setPreviewDisabledMessageVisible] = useState(false);
-  const hasPreview = songJson.playback_url !== null;
-  
+  const { playSongById } = useContext(PlaybackContext);
+  const hasPreview = song.playback_url !== null;
+
   function handleClick() {
     if (hasPreview)
-      changePlayingSong(songJson.id);
+      playSongById(song.id);
     else {
       setPreviewDisabledMessageVisible(true);
       setTimeout(() => setPreviewDisabledMessageVisible(false), 1000);
     }
   }
-
-  const stopPlayback = () => changePlayingSong('');
 
   return (
     <div 
@@ -76,19 +74,18 @@ export default function Song({songJson, isPlaying, changePlayingSong}) {
       onClick={handleClick}
     >
       <SongArtwork 
-        url={songJson.artwork_url} 
+        url={song.artwork_url} 
         hasPreview={hasPreview}
         previewDisabledMessageVisible={previewDisabledMessageVisible}
       />
       
-      <SongInfo songJson={songJson} stopPlayback={stopPlayback}/>
+      <SongInfo song={song}/>
       
       {hasPreview && 
         <AudioPlayer 
-          url={songJson.playback_url} 
+          id={song.id} 
+          url={song.playback_url} 
           isPlaying={isPlaying} 
-          stopPlayback={stopPlayback} 
-          id={songJson.id} 
         />
       }
     </div>

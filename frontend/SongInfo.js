@@ -28,7 +28,7 @@ function IconLine({children}) {
   );
 }
 
-export default function SongInfo({songJson, stopPlayback}) {
+export default function SongInfo({song}) {
   
   function calculateLinkCommaList(items) {   
     let infoLinks = items.map(item =>
@@ -43,35 +43,35 @@ export default function SongInfo({songJson, stopPlayback}) {
     <div className={'song-info'}>
       
       <div className={'song-title'}>
-        <b><SongInfoLink infoJson={songJson.track}/></b>
+        <b><SongInfoLink infoJson={song.track}/></b>
       </div>
             
       <IconLine>
         <FontAwesomeIcon icon={faPalette} />
-        {calculateLinkCommaList(songJson.artists)}
+        {calculateLinkCommaList(song.artists)}
       </IconLine>
 
       <IconLine>
         <FontAwesomeIcon icon={faCompactDisc} />
-        <SongInfoLink infoJson={songJson.album} />
+        <SongInfoLink infoJson={song.album} />
       </IconLine>
       
       <IconLine>
         <FontAwesomeIcon icon={faCalendarDays} />
-        <div className={'song-date'}> {songJson.release_date.slice(0, 4)} </div>
+        <div className={'song-date'}> {song.release_date.slice(0, 4)} </div>
       </IconLine>
 
-      {songJson.genres.length > 0 ?
+      {song.genres.length > 0 ?
         <IconLine>
           <FontAwesomeIcon icon={faMasksTheater} />
-          {calculateLinkCommaList(songJson.genres)}
+          {calculateLinkCommaList(song.genres)}
         </IconLine> 
         : null
       }
      
       <IconLine>
         <FontAwesomeIcon icon={faRankingStar} />
-        <PopularityBar popularity={songJson.popularity} />
+        <PopularityBar popularity={song.popularity} />
       </IconLine>
     
     </div>

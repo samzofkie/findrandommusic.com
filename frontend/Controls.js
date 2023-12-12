@@ -6,7 +6,7 @@ import MultiRangeSlider from "multi-range-slider-react";
 import './Controls.css';
 import './MultiRangeSlider.css';
 import './ToggleSwitch.css';
-import { AutoPlayContext } from './App.js';
+import { PlaybackContext } from './App.js';
 
 
 function ToggleButton({ onClick }) {
@@ -37,7 +37,7 @@ function MultiRangeSliderControl({ range, bounds, setRange, onSettingsChange }) 
 }
 
 function FilterSettingsMenu({ controlsExpanded, toggleExpand, id, clearSongs, setSongsUrl, fetchSongs }) {
-  const { autoPlayOn, toggleAutoPlay } = useContext(AutoPlayContext);
+  const { autoPlayOn, toggleAutoPlay } = useContext(PlaybackContext);
   
   const dateBounds = {'start': 1900, 'end': new Date().getFullYear()};
   const dateRef = useRef(dateBounds);
@@ -70,7 +70,7 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand, id, clearSongs, se
       url.searchParams.append(setting, data[setting]);
     clearSongs();
     setSongsUrl(url);
-    fetchSongs();
+    //fetchSongs();
   }
 
   useEffect(() => {
@@ -138,15 +138,16 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand, id, clearSongs, se
   );
 }
 
-function PauseButton({ pause }) {
+function PauseButton() {
+  const { pausePlayback } = useContext(PlaybackContext);
   return (
     <div className={'pause-button'}>
-      <FontAwesomeIcon icon={faCirclePause} onClick={pause} />
+      <FontAwesomeIcon icon={faCirclePause} onClick={pausePlayback} />
     </div>
   );
 }
 
-export default function Controls({ pause, id, clearSongs, setSongsUrl, fetchSongs }) {
+export default function Controls({ id, clearSongs, setSongsUrl, fetchSongs }) {
   const [controlsExpanded, setControlsExpanded] = useState(false);
  
   return (
@@ -159,7 +160,7 @@ export default function Controls({ pause, id, clearSongs, setSongsUrl, fetchSong
         setSongsUrl={setSongsUrl}
         fetchSongs={fetchSongs}
       />
-      <PauseButton pause={pause} />
+      <PauseButton />
     </div>
   );
 }

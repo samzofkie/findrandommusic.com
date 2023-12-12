@@ -20,13 +20,28 @@ function Introduction() {
   );
 }
 
+function SongsList({ songs, currentlyPlayingSong }) {
+  return (
+    <>
+      {songs.map(song => 
+        <Song  
+          key={song.id} 
+          song={song} 
+          isPlaying={currentlyPlayingSong === song.id}
+        />
+      )}
+    </>
+  );
+}
+
 function Loader() {
   return (
     <div className={'loader'}></div>
   );
 }
 
-export const AutoPlayContext = createContext({});
+export const PlaybackContext = createContext({});
+export const FilterContext = createContext({});
 
 export default function App() {
   /* Each song is a JSON object that gets fed to a <Song/> */
@@ -76,9 +91,14 @@ export default function App() {
      pauser the playback. */
   const [currentlyPlayingSong, setCurrentlyPlayingSong] = useState('');
 
-  /* This is used by the <PauseButton/>. */
+  /* This is used by the <PauseButton/> and by <AudioPlayer/> to indicate
+     playback has ended. */
   function pausePlayback() {
     setCurrentlyPlayingSong('');
+  }
+
+  function playSongById(id) {
+    setCurrentlyPlayingSong(id);
   }
   
   // TODO: Should this be a ref instead of state?
@@ -146,31 +166,25 @@ export default function App() {
       document.removeEventListener('onscrollend', checkIfMoreSongsNeeded);
     };
   }, []);
-
-   
+ 
   return (
     <>
       <Introduction />
       
-      <AutoPlayContext.Provider value={{autoPlayOn, toggleAutoPlay, playNextSong}}>      
-        {songs.map(songJson  => 
-          <Song  
-            key={songJson.id} 
-            songJson={songJson} 
-            isPlaying={currentlyPlayingSong === songJson.id}
-            changePlayingSong={setCurrentlyPlayingSong}
-          />
-        )}
+      <PlaybackContext.Provider value={
+        {pausePlayback, playSongById, autoPlayOn, toggleAutoPlay, playNextSong}
+      }>
+
+        <SongsList songs={songs} currentlyPlayingSong={currentlyPlayingSong} />
         
         <Controls 
-          pause={pausePlayback} 
           id={filterParams.current.id} 
           clearSongs={clearSongs} 
-
           setSongsUrl={setFilterParams}
           fetchSongs={fetchSongs}
-        />      
-      </AutoPlayContext.Provider>
+        />
+
+      </PlaybackContext.Provider>
 
       <Loader />
     </>
