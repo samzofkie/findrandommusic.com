@@ -1,15 +1,19 @@
 filtering
   passing userSettings to trawlForSongs
   have /songs route wait for songs to hit cache
-  
+  multirangeslider minimum value
+
 px not %
+  frontend reactivity
+  use columns for FilterMenu
 
 auto play
   skip button
 
 playlist
 
-options of what data to display
+options of what data to display?
+playback preview length?
 
 harden nginx
 

@@ -6,7 +6,7 @@ services:
     volumes:
       - redis-dump:/data
 
-  app:
+  api:
     image: node
     depends_on:
       - redis
@@ -15,7 +15,7 @@ services:
       - ./public:/api/public
       - ./shared:/api/shared
     working_dir: /api
-    command: node app.js --serve-static=true
+    command: node api.js --serve-static=true
     ports:
       - 3000:3000
     
@@ -35,7 +35,7 @@ services:
   dev-server:
     image: node
     depends_on:
-      - app
+      - api
     volumes:
       - ./frontend:/frontend
       - ./public:/frontend/public
