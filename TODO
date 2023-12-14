@@ -1,6 +1,6 @@
 filtering
-  passing userSettings to trawlForSongs
-  have /songs route wait for songs to hit cache
+  adjust crawler to stop searching for songs after cache reaches certain number
+  crawler to use less gibberishy searchterms if search results are slim pickins
   multirangeslider minimum value
 
 px not %
@@ -18,5 +18,7 @@ playback preview length?
 harden nginx
 
 rizz tf outta README
+
+put crawler and gibberish and accesstoken in classes
 
 kubernetes aws autoscaling

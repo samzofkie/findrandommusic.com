@@ -5,6 +5,7 @@ const { createClient } = require("redis");
 const { rateLimit } = require("express-rate-limit");
 
 const genrePlaylists = require("./shared/genres.json");
+const { meaningfulFilterParams, haveFilterParamsChanged } = require('./shared/filterParams.js');
 
 const SERVE_STATIC = process.argv[2] === "--serve-static=true";
 
@@ -58,16 +59,6 @@ async function popNSongsFromSet(nSongs, setName) {
 // Validate input-- dates out of bounds, popularity values out of bounds, genres that don't exist
 // Error handling for popNSongsFrom()
 app.get("/songs", async (req, res) => {
-  /* If none of these parameters are set in the query string, just return 10
-     songs from the 'songs' set. */
-  const meaningfulFilterParams = [
-    "dateStart",
-    "dateEnd",
-    "popularityStart",
-    "popularityEnd",
-    "genres",
-  ];
-
   /* If none of the meaningfulFilterParams are set, just return songs from the 
      generic 'songs' set." */
   if (!meaningfulFilterParams.some((name) => req.query.hasOwnProperty(name))) {
@@ -75,10 +66,10 @@ app.get("/songs", async (req, res) => {
     return;
   }
 
-  /* Return a 406 if the user hasn't given us an ID. */
+  /* Return a 400 if the user hasn't given us an ID. */
   if (!req.query.hasOwnProperty("id")) {
     res
-      .status(406)
+      .status(400)
       .send(
         "Can't accept filter parameters without an id field in the query string!",
       );
@@ -91,19 +82,13 @@ app.get("/songs", async (req, res) => {
     await redisClient.HSET("users", req.query.id, JSON.stringify(req.query));
   }
 
-  function haveFilterParametersChanged(oldParams, newParams) {
-    return meaningfulFilterParams.every(
-      (param) => oldParams.param === newParams.param,
-    );
-  }
-
   /* See README! */
   const userSeenBefore = (await redisClient.HKEYS("users")).includes(
     req.query.id,
   );
   if (userSeenBefore) {
     if (
-      haveFilterParametersChanged(
+      haveFilterParamsChanged(
         JSON.parse(await redisClient.HGET("users", req.query.id)),
         req.query,
       )
@@ -115,11 +100,11 @@ app.get("/songs", async (req, res) => {
     await pushUserParamsToRedis();
   }
 
-  //while (await redisClient.SCARD(req.query.id) < 10) ;
+  while (await redisClient.SCARD(req.query.id) < 10) ;
 
-  //res.send(popNSongsFromSet(10, req.query.id));
+  res.send(await popNSongsFromSet(10, req.query.id));
 
-  res.status(404).send("sowwy aint implemented yet");
+  //res.status(404).send("sowwy aint implemented yet");
 });
 
 app.get("/genre-list", async (req, res) => {
