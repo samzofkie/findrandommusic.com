@@ -1,217 +1,235 @@
-const https = require('node:https');
-const fs = require('node:fs');
-const redis = require('redis');
+const https = require("node:https");
+const fs = require("node:fs");
+const redis = require("redis");
 
-const { gibberish } = require('./gibberish.js');
-const { getAccessToken } = require('./accessToken.js');
-const genrePlaylists = require('./shared/genres.json');
-
+const { gibberish } = require("./gibberish.js");
+const { getAccessToken } = require("./accessToken.js");
+const genrePlaylists = require("./shared/genres.json");
+const { haveFilterParamsChanged } = require("./shared/filterParams.js");
 
 function initializeRedisClient() {
   const client = redis.createClient({
-    'url': 'redis://redis',
+    url: "redis://redis",
   });
-  client.on('error', err => console.log('Redis Client Error', err));
+  client.on("error", (err) => console.log("Redis Client Error", err));
   client.connect();
   return client;
 }
 
 class HTTPS429Error extends Error {}
 
-function requestSpotify(accessToken, path) { 
-  console.log('Requesting ' + path);
-  
+function requestSpotify(accessToken, path) {
+  console.log("Requesting " + path);
+
   const options = {
-    hostname: 'api.spotify.com',
+    hostname: "api.spotify.com",
     port: 443,
     path: path,
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Authorization': `Bearer ${accessToken}`
+      Authorization: `Bearer ${accessToken}`,
     },
   };
 
   function makeRequest(resolve, reject) {
-
     function handleResponse(response) {
       if (response.statusCode === 429) {
         reject(new HTTPS429Error());
       } else {
-        let data = '';
-        response.on('data', chunk => data += chunk);
-        response.on('end', () => resolve(JSON.parse(data)));
+        let data = "";
+        response.on("data", (chunk) => (data += chunk));
+        response.on("end", () => resolve(JSON.parse(data)));
       }
     }
 
     const req = https.request(options, handleResponse);
-    req.on('error', err => reject(err));
+    req.on("error", (err) => reject(err));
     req.end();
   }
 
   return new Promise(makeRequest);
 }
 
-function pickNSongs(items, n) { 
-  let artists = Array.from(new Set(items.map(item => item.artists[0].name)));
-  let artistsMap = new Map(
-    artists.map(artist => [artist, items.filter(item => item.artists[0].name === artist)])
+function buildSpotifySearchQueryString(user) {
+  let q = gibberish();
+  if (user.hasOwnProperty("genres")) q += ` genre:${user.genres}`;
+  if (user.hasOwnProperty("dateStart"))
+    q += ` year:${user.dateStart}-${user.dateEnd}`;
+  return new URLSearchParams({ type: "track", limit: 50, q: q }).toString();
+}
+
+/* pickNSongs recieves an array items of objects representing songs, and 
+   and chooses n of them, guaranteed to not choose more than one song by a
+   single artist. */
+function pickNSongs(items, n) {
+  /* artistNames is an array of each of the leading artists names, with no 
+     duplicates. */
+  let artistNames = Array.from(
+    new Set(items.map((item) => item.artists[0].name)),
   );
 
-  if (artistsMap.size > n) {
-    let newArtistsMap = new Map();
-    for (let i=0; i<n; i++) {
-      let randomArtist = artists[Math.floor(Math.random() * artists.length)];
-      newArtistsMap.set(randomArtist, artistsMap.get(randomArtist));
-      artists = artists.filter(artist => artist !== randomArtist);
-    }
-    artistsMap = newArtistsMap;
+  /* artistsMap maps each artistName to an array of all the songs in items
+     for which they are the first artist listed. */
+  let artistsMap = new Map(
+    artistNames.map((name) => [
+      name,
+      items.filter((item) => item.artists[0].name === name),
+    ]),
+  );
+
+  let chosenSongs = [];
+  const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  for (let i = 0; i < Math.min(n, artistNames.length); i++) {
+    // Chose a random artist
+    let randomArtist = randomChoice(artistNames);
+    // Push a random one of their songs to chosenSongs
+    chosenSongs.push(randomChoice(artistsMap.get(randomArtist)));
+    // Remove them from artistNames
+    artistNames = artistNames.filter((artist) => artist !== randomArtist);
   }
-
-  return Array.from(artistsMap.keys())
-    .map(artist => {
-      let songs = artistsMap.get(artist);
-      let index = Math.floor(Math.random() * songs.length);
-      return songs[index];
-    });
+  return chosenSongs;
 }
 
-async function lookupGenres(accessToken, songs) {
-  let ids = Array.from(songs.values()).flat()
-    .map(song => song.artists.map(artist => artist.id)).flat()
-  const artistsData = await requestSpotify(accessToken, `/v1/artists?ids=${ids.join(',')}`);
-  const genreMap = new Map(artistsData.artists.map(artist => [artist.name, artist.genres]));
-  
-  for (let userSongs of songs.values())
-    for (let song of userSongs)
-      song.genres = [... new Set(song.artists.reduce((acc, artist) => [...acc, ...genreMap.get(artist.name)], []))]
-        .map(genre => ({ 
-          'name': genre, 
-          'url': 'https://open.spotify.com/playlist/' + genrePlaylists[genre]
+/* lookupGenres takes the object userSongs, extracts all the artists' IDs from
+   all the songs, requests Spotify's /v1/artists endpoint to get the 'genre'
+   attribute for each artist, and then adds a 'genres' property to each song
+   object in userSongs, and returns the modified userSongs. */
+async function lookupGenres(accessToken, userSongs) {
+  let ids = Object.values(userSongs)
+    .flat()
+    .map((song) => song.artists)
+    .flat()
+    .map((artist) => artist.id);
+  ids = [...new Set(ids)];
+  const artistsData = (
+    await requestSpotify(accessToken, "/v1/artists?ids=" + ids.join(","))
+  ).artists;
+
+  /* For each song in all of userSongs, create an empty array for the genres
+     property, and for each artist in that song, append the genres of that
+     artist from artistsData to that song's genres array. */
+  for (let songs of Object.values(userSongs))
+    for (let song of songs) {
+      song.genres = [];
+      for (let artist of song.artists) {
+        let genres = artistsData.find(
+          (artistsDatum) => artistsDatum.id === artist.id,
+        ).genres;
+        genres = genres.map((genre) => ({
+          name: genre,
+          url: "https://open.spotify.com/playlist/" + genrePlaylists[genre],
         }));
-  
-  return songs;
+        song.genres = song.genres.concat(genres);
+      }
+    }
+
+  return userSongs;
 }
 
-function formatSongData(songs) {
-  return songs.map(song => ({
-      'id': song.id,
-      'artwork_url': song.album.images['0'].url,
-      'playback_url': song.preview_url,
-      'release_date': song.album.release_date,
-      'popularity': song.popularity,
-      'track': {
-        'name': song.name,
-        'url': song.external_urls.spotify
-      },
-      'artists': song.artists.map(artist => ({
-        'name': artist.name,
-        'url': artist.external_urls.spotify,
-        'id': artist.id
-      })),
-      'album': {
-        'name': song.album.name,
-        'url': song.album.external_urls.spotify
-      },
-      'genres': song.genres.map((genre, i) => ({
-        'name': genre.name,
-        'url': genre.url,
-        'id': i
-      }))
-    }));
+function formatSongData(song) {
+  return {
+    id: song.id,
+    artwork_url: song.album.images["0"].url,
+    playback_url: song.preview_url,
+    release_date: song.album.release_date,
+    popularity: song.popularity,
+    track: {
+      name: song.name,
+      url: song.external_urls.spotify,
+    },
+    artists: song.artists.map((artist) => ({
+      name: artist.name,
+      url: artist.external_urls.spotify,
+      id: artist.id,
+    })),
+    album: {
+      name: song.album.name,
+      url: song.album.external_urls.spotify,
+    },
+    genres: song.genres.map((genre, i) => ({
+      name: genre.name,
+      url: genre.url,
+      id: i,
+    })),
+  };
 }
 
 async function pushSongsToRedisCache(redisClient, user, songs) {
-  for (let song of songs)
-    await redisClient.sAdd(user, JSON.stringify(song));
+  for (let song of songs) await redisClient.sAdd(user, JSON.stringify(song));
   console.log(`Pushed ${songs.length} songs to ${user}.`);
 }
 
-async function trawlForSongs(redisClient, numSongs) {
-  while (await redisClient.sCard('songs') < numSongs) {
-    const accessToken = await getAccessToken();
-    const searchTerm = gibberish();
-
-    const searchResultsJson = await requestSpotify(accessToken, `/v1/search?q=${searchTerm}&type=track&limit=50`);
-    
-    if (searchResultsJson.tracks.total === 0) {
-      console.log(`Searching for ${searchTerm} returned 0 songs.`);
-      continue;
-    }
-    const selectedSongs = pickNSongs(searchResultsJson.tracks.items, 5);
-    const songsWithGenreInfo = await lookupGenres(accessToken, selectedSongs);
-    const formattedSongs = formatSongData(songsWithGenreInfo);
-    pushSongsToRedisCache(redisClient, formattedSongs);
-  }
-}
-
-function makeSearchRequestString(settings) {
-  let params = new URLSearchParams('type=track&limit=50');
-  let filterString = `${'a'} year:${settings.date_start}-${settings.date_end}`
-  if (settings.genres.length > 0)
-    filterString += ' genre:' + settings.genres.join(','); 
-  params.set('q', filterString);
-  return '/v1/search?' + params.toString();
+function sleep(seconds) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 100));
 }
 
 async function start() {
   const redisClient = initializeRedisClient();
-  const checkCacheIntervalSeconds = 1;
-  const numSongs = 500;
 
-  const sleep = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
-  
-  console.log('Crawler starting.');
- 
   while (true) {
     try {
-      const userIds = await redisClient.HKEYS('users');
-      let users = new Map();
-      for (let id of userIds) {
-        let settings = JSON.parse(await redisClient.HGET('users', id));
-        settings.mostRecentRequest = new Date(settings.mostRecentRequest);
-        let minutesOld = (new Date() - settings.mostRecentRequest) / (1000 * 60);
-        if (minutesOld > 10) {
-          await redisClient.HDEL('users', id);
-        } else {
-          users.set(id, settings)
-        }
+      let users = [
+        ...Object.values(await redisClient.HGETALL("users")).map((string) =>
+          JSON.parse(string),
+        ),
+        {
+          id: "songs",
+          mostRecentRequest: new Date().toString(),
+        },
+      ];
+
+      // TODO remove expired users
+
+      const accessToken = await getAccessToken();
+
+      // Search for songs for each user, that match their parameters
+      let userSongs = Object.fromEntries(
+        await Promise.all(
+          users.map(async (user) => {
+            const searchQueryString = buildSpotifySearchQueryString(user);
+            const results = await requestSpotify(
+              accessToken,
+              "/v1/search/?" + searchQueryString,
+            );
+            const songs = pickNSongs(results.tracks.items, 5);
+            return [user.id, songs];
+          }),
+        ),
+      );
+
+      // Add genre data to each song
+      userSongs = await lookupGenres(accessToken, userSongs);
+
+      // Format song data
+      userSongs = Object.fromEntries(
+        Object.keys(userSongs).map((user) => [
+          user,
+          userSongs[user].map((song) => formatSongData(song)),
+        ]),
+      );
+
+      for (let user of Object.keys(userSongs)) {
+        const justUsedFilterParams = users.find((u) => u.id === user);
+        const currentFilterParams = JSON.parse(
+          await redisClient.HGET("users", user),
+        );
+
+        // TODO: This should use proper locking
+        if (
+          user === "songs" ||
+          !haveFilterParamsChanged(justUsedFilterParams, currentFilterParams)
+        )
+          await pushSongsToRedisCache(redisClient, user, userSongs[user]);
       }
-      
-      if (users.size > 0) {
-        // TODO
-        // for each user, make search requests until you get results
-        // make one request to /v1/artists for all the results
-        // package all the data and push to the right place
-        const accessToken = await getAccessToken();
 
-        let songs = new Map();
-        for (let id of users.keys()) {
-          const requestString = makeSearchRequestString(users.get(id));
-          let results = await requestSpotify(accessToken, requestString);
-          const selectedSongs = pickNSongs(results.tracks.items, 5);
-          songs.set(id, selectedSongs);
-        }
-        songs = await lookupGenres(accessToken, songs);
-        for (let id of songs.keys()) {
-          songs.set(id, formatSongData(songs.get(id)));
-          await pushSongsToRedisCache(redisClient, id, songs.get(id));
-        }
+      process.exit(0);
 
-        //console.log(songs);
-         
-        //process.exit(0);
-
-        //await trawlForSongs(redisClient, numSongs, users);
-      }
+      // push to redis sets for each user, check "users" hash before
     } catch (error) {
-      if (error instanceof HTTPS429Error) {
-        console.log('Got a 429');
-        await sleep(2.5);
-      } else
-        //console.error(error); 
-        throw error;
+      if (error instanceof HTTPS429Error) await sleep(3);
+      else throw error;
     }
-    await sleep(checkCacheIntervalSeconds);
+    await sleep(1);
   }
 }
 
