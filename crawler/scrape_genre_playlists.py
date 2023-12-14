@@ -25,7 +25,7 @@ class MyParser(HTMLParser):
         print('some shit happened')
 
 MyParser().feed(html)
-with open('genres.json', 'w') as f:
+with open('./shared/genres.json', 'w') as f:
   f.write('{\n')
   kvs = list(genre_data.items())
   for genre, link in kvs[:-1]:
