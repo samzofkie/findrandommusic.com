@@ -5,38 +5,44 @@ const words = fs
   .readFileSync("./dictionaries/wordlist.10000", "utf8")
   .split("\n");
 
-let gibberishIndex = 0;
-
-function gibberishTruncate(word) {
-  if (word.length < 5) return word;
-  const desiredLength = 5 + Math.floor(Math.random() * (word.length - 5));
-  const startIndex = Math.floor(Math.random() * (word.length - desiredLength));
-  return word.slice(startIndex, startIndex + desiredLength);
-}
-
-exports.gibberish = function gibberish() {
-  function gib1() {
-    const chars = "abcdefghijklmnopqrstuvwxyz";
-    const len = 3 + Math.floor(Math.random() * 4);
-    let gib = "";
-    for (let i = 0; i < len; i++)
-      gib += chars.charAt(Math.floor(Math.random() * chars.length));
-    return gib;
+module.exports = class GibberishGenerator {
+  constructor() {
+    this.index = 0;
+    this.chars = "abcdefghijklmnopqrstuvwxyz";
   }
 
-  function gib2() {
-    const index = Math.floor(Math.random() * names.length);
-    return gibberishTruncate(names[index]);
+  randomIntLessThan(max) {
+    return Math.floor(Math.random() * max);
   }
 
-  function gib3() {
-    const index = Math.floor(Math.random() * words.length);
-    return gibberishTruncate(words[index]);
+  randomChoice(indexable) {
+    return indexable[this.randomIntLessThan(indexable.length)];
   }
 
-  const gibFunctions = [gib1, gib2, gib3];
-  gibberishIndex++;
-  if (gibberishIndex > gibFunctions.length - 1) gibberishIndex = 0;
+  randomLetters(length) {
+    let word = "";
+    for (let i = 0; i < length; i++) word += this.randomChoice(this.chars);
+    return word;
+  }
 
-  return gibFunctions[gibberishIndex]().replace(/\s/g, "");
+  fragment(string, length) {
+    if (string.length <= length) return string;
+    const start = this.randomIntLessThan(string.length - length);
+    return string.slice(start, start + length);
+  }
+
+  randomNameFragment(length) {
+    return this.fragment(this.randomChoice(names), length);
+  }
+
+  randomWordFragment(length) {
+    return this.fragment(this.randomChoice(words), length);
+  }
+
+  generate(length) {
+    this.index = (this.index + 1) % 3;
+    if (this.index === 0) return this.randomLetters(length);
+    else if (this.index === 1) return this.randomNameFragment(length);
+    else return this.randomWordFragment(length);
+  }
 };

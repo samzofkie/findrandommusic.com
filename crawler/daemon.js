@@ -2,7 +2,7 @@ const https = require("node:https");
 const fs = require("node:fs");
 const redis = require("redis");
 
-const { gibberish } = require("./gibberish.js");
+const GibberishGenerator = require("./gibberish.js");
 const { getAccessToken } = require("./accessToken.js");
 const genrePlaylists = require("./shared/genres.json");
 const { haveFilterParamsChanged } = require("./shared/filterParams.js");
@@ -41,7 +41,6 @@ function requestSpotify(accessToken, path) {
         response.on("end", () => resolve(JSON.parse(data)));
       }
     }
-
     const req = https.request(options, handleResponse);
     req.on("error", (err) => reject(err));
     req.end();
@@ -50,8 +49,8 @@ function requestSpotify(accessToken, path) {
   return new Promise(makeRequest);
 }
 
-function buildSpotifySearchQueryString(user) {
-  let q = gibberish();
+function buildSpotifySearchQueryString(user, gg) {
+  let q = gg.generate(4);
   if (user.hasOwnProperty("genres")) q += ` genre:${user.genres}`;
   if (user.hasOwnProperty("dateStart"))
     q += ` year:${user.dateStart}-${user.dateEnd}`;
@@ -101,6 +100,7 @@ async function lookupGenres(accessToken, userSongs) {
     .flat()
     .map((artist) => artist.id);
   ids = [...new Set(ids)];
+
   const artistsData = (
     await requestSpotify(accessToken, "/v1/artists?ids=" + ids.join(","))
   ).artists;
@@ -164,6 +164,7 @@ function sleep(seconds) {
 
 async function start() {
   const redisClient = initializeRedisClient();
+  const gibberishGenerator = new GibberishGenerator();
 
   while (true) {
     try {
@@ -180,11 +181,14 @@ async function start() {
 
       // Remove expired users
       function userIsExpired(user) {
-        return ((new Date() - new Date(user.mostRecentRequest)) / 60000) > 10;
+        return (new Date() - new Date(user.mostRecentRequest)) / 60000 > 10;
       }
 
       for (let user of users)
-        if (userIsExpired(user)) await redisClient.HDEL("users", user.id);
+        if (userIsExpired(user)) {
+          await redisClient.HDEL("users", user.id);
+          await redisClient.DEL(user.id);
+        }
 
       users = users.filter((user) => !userIsExpired(user));
 
@@ -205,7 +209,10 @@ async function start() {
         let userSongs = Object.fromEntries(
           await Promise.all(
             users.map(async (user) => {
-              const searchQueryString = buildSpotifySearchQueryString(user);
+              const searchQueryString = buildSpotifySearchQueryString(
+                user,
+                gibberishGenerator,
+              );
               const results = await requestSpotify(
                 accessToken,
                 "/v1/search/?" + searchQueryString,
@@ -231,6 +238,8 @@ async function start() {
 
         // TODO comment this
         for (let user of Object.keys(userSongs)) {
+          console.log(user);
+
           const justUsedFilterParams = users.find((u) => u.id === user);
           const currentFilterParams = JSON.parse(
             await redisClient.HGET("users", user),
@@ -245,8 +254,10 @@ async function start() {
         }
       }
     } catch (error) {
-      if (error instanceof HTTPS429Error) await sleep(3);
-      else throw error;
+      if (error instanceof HTTPS429Error) {
+        console.error("Got a 429!");
+        await sleep(100);
+      } else throw error;
     }
 
     await sleep(1);
