@@ -188,7 +188,16 @@ async function start() {
         )
       ).filter((user) => user.currentNumSongs < user.maxCacheSize);
 
-      // TODO remove expired users
+      // Remove expired users
+      function userIsExpired(user) {
+        return (new Date() - new Date(user.mostRecentRequest))/60000 > 10;
+      }
+
+      for (let user of users)
+        if (userIsExpired(user))
+          await redisClient.HDEL("users", user.id)
+ 
+      users = users.filter(user => !userIsExpired(user));
 
       if (users.length > 0) {
         const accessToken = await getAccessToken();

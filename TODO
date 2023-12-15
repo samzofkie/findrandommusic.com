@@ -1,7 +1,8 @@
 filtering
-  adjust crawler to stop searching for songs after cache reaches certain number
   crawler to use less gibberishy searchterms if search results are slim pickins
   multirangeslider minimum value
+  give up searching at a certain point
+  popularity
 
 selected genres float to top
 
