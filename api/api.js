@@ -93,19 +93,18 @@ app.get("/songs", async (req, res) => {
         JSON.parse(await redisClient.HGET("users", req.query.id)),
         req.query,
       )
-    ) {
-      await pushUserParamsToRedis();
+    ) { 
       await redisClient.DEL(req.query.id);
+      await pushUserParamsToRedis();
     }
   } else {
     await pushUserParamsToRedis();
   }
 
+  // TODO: would this be better as a setInterval that resolves a Promise?
   while (await redisClient.SCARD(req.query.id) < 10) ;
 
   res.send(await popNSongsFromSet(10, req.query.id));
-
-  //res.status(404).send("sowwy aint implemented yet");
 });
 
 app.get("/genre-list", async (req, res) => {
