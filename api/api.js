@@ -77,6 +77,7 @@ app.get("/songs", async (req, res) => {
   }
 
   req.query.mostRecentRequest = new Date().toString();
+  req.query.maxCacheSize = 50;
 
   async function pushUserParamsToRedis() {
     await redisClient.HSET("users", req.query.id, JSON.stringify(req.query));

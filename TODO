@@ -3,6 +3,8 @@ filtering
   crawler to use less gibberishy searchterms if search results are slim pickins
   multirangeslider minimum value
 
+selected genres float to top
+
 px not %
   frontend reactivity
   use columns for FilterMenu

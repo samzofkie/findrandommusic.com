@@ -146,10 +146,9 @@ function formatSongData(song) {
       name: song.album.name,
       url: song.album.external_urls.spotify,
     },
-    genres: song.genres.map((genre, i) => ({
+    genres: song.genres.map((genre) => ({
       name: genre.name,
       url: genre.url,
-      id: i,
     })),
   };
 }
@@ -175,60 +174,72 @@ async function start() {
         {
           id: "songs",
           mostRecentRequest: new Date().toString(),
+          maxCacheSize: 500,
         },
       ];
 
+      // Remove users whose Redis sets have more songs than maxCacheSize
+      users = (
+        await Promise.all(
+          users.map(async (user) => ({
+            ...user,
+            currentNumSongs: await redisClient.SCARD(user.id),
+          })),
+        )
+      ).filter((user) => user.currentNumSongs < user.maxCacheSize);
+
       // TODO remove expired users
 
-      const accessToken = await getAccessToken();
+      if (users.length > 0) {
+        const accessToken = await getAccessToken();
 
-      // Search for songs for each user, that match their parameters
-      let userSongs = Object.fromEntries(
-        await Promise.all(
-          users.map(async (user) => {
-            const searchQueryString = buildSpotifySearchQueryString(user);
-            const results = await requestSpotify(
-              accessToken,
-              "/v1/search/?" + searchQueryString,
-            );
-            const songs = pickNSongs(results.tracks.items, 5);
-            return [user.id, songs];
-          }),
-        ),
-      );
-
-      // Add genre data to each song
-      userSongs = await lookupGenres(accessToken, userSongs);
-
-      // Format song data
-      userSongs = Object.fromEntries(
-        Object.keys(userSongs).map((user) => [
-          user,
-          userSongs[user].map((song) => formatSongData(song)),
-        ]),
-      );
-
-      for (let user of Object.keys(userSongs)) {
-        const justUsedFilterParams = users.find((u) => u.id === user);
-        const currentFilterParams = JSON.parse(
-          await redisClient.HGET("users", user),
+        // Search for songs for each user, that match their parameters
+        let userSongs = Object.fromEntries(
+          await Promise.all(
+            users.map(async (user) => {
+              const searchQueryString = buildSpotifySearchQueryString(user);
+              const results = await requestSpotify(
+                accessToken,
+                "/v1/search/?" + searchQueryString,
+              );
+              const songs = pickNSongs(results.tracks.items, 5);
+              return [user.id, songs];
+            }),
+          ),
         );
 
-        // TODO: This should use proper locking
-        if (
-          user === "songs" ||
-          !haveFilterParamsChanged(justUsedFilterParams, currentFilterParams)
-        )
-          await pushSongsToRedisCache(redisClient, user, userSongs[user]);
+        // TODO: if no songs come up, dont request artists
+
+        // Add genre data to each song
+        userSongs = await lookupGenres(accessToken, userSongs);
+
+        // Format song data
+        userSongs = Object.fromEntries(
+          Object.keys(userSongs).map((user) => [
+            user,
+            userSongs[user].map((song) => formatSongData(song)),
+          ]),
+        );
+
+        for (let user of Object.keys(userSongs)) {
+          const justUsedFilterParams = users.find((u) => u.id === user);
+          const currentFilterParams = JSON.parse(
+            await redisClient.HGET("users", user),
+          );
+
+          // TODO: This should use proper locking
+          if (
+            user === "songs" ||
+            !haveFilterParamsChanged(justUsedFilterParams, currentFilterParams)
+          )
+            await pushSongsToRedisCache(redisClient, user, userSongs[user]);
+        }
       }
-
-      process.exit(0);
-
-      // push to redis sets for each user, check "users" hash before
     } catch (error) {
       if (error instanceof HTTPS429Error) await sleep(3);
       else throw error;
     }
+
     await sleep(1);
   }
 }
