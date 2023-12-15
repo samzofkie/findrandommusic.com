@@ -3,7 +3,8 @@ const fs = require("node:fs");
 const redis = require("redis");
 
 const GibberishGenerator = require("./gibberish.js");
-const { getAccessToken } = require("./accessToken.js");
+//const { getAccessToken } = require("./accessToken.js");
+const AccessTokenManager = require("./accessTokenManager.js");
 const genrePlaylists = require("./shared/genres.json");
 const { haveFilterParamsChanged } = require("./shared/filterParams.js");
 
@@ -165,6 +166,7 @@ function sleep(seconds) {
 async function start() {
   const redisClient = initializeRedisClient();
   const gibberishGenerator = new GibberishGenerator();
+  const accessTokenManager = new AccessTokenManager();
 
   while (true) {
     try {
@@ -203,7 +205,7 @@ async function start() {
       ).filter((user) => user.currentNumSongs < user.maxCacheSize);
 
       if (users.length > 0) {
-        const accessToken = await getAccessToken();
+        const accessToken = await accessTokenManager.get();
 
         // Search for songs for each user, that match their parameters
         let userSongs = Object.fromEntries(
