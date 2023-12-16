@@ -1,27 +1,22 @@
-filtering
+backend
+  api return promise not while loop
   crawler to use less gibberishy searchterms if search results are slim pickins
-  multirangeslider minimum value
   give up searching at a certain point
   popularity
 
-selected genres float to top
-
-px not %
+frontend
+  multirangeslider minimum value
+  px not %
   frontend reactivity
   use columns for FilterMenu
+  error handling
+  auto play skip button
+  selected genres float to top
 
-auto play
-  skip button
-
-playlist
-
+playlist?
 options of what data to display?
 playback preview length?
 
 harden nginx
-
-rizz tf outta README
-
-put crawler and gibberish and accesstoken in classes
-
+readme diagrams
 kubernetes aws autoscaling

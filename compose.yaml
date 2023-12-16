@@ -23,7 +23,7 @@ services:
     volumes: 
       - ./crawler:/crawler
     working_dir: /crawler
-    command: node daemon.js
+    command: ./daemon.js
 
   proxy:
     image: nginx

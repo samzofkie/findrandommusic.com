@@ -30,7 +30,7 @@ services:
       - ./crawler:/crawler
       - ./shared:/crawler/shared
     working_dir: /crawler
-    command: node daemon.js
+    command: ./daemon.js
 
   dev-server:
     image: node
