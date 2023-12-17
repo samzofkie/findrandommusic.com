@@ -1,7 +1,6 @@
 backend
-  api return promise not while loop
-  crawler to use less gibberishy searchterms if search results are slim pickins
   popularity
+  real locking
 
 frontend
   multirangeslider minimum value
@@ -12,6 +11,7 @@ frontend
   auto play skip button
   selected genres float to top
   SongInfo genre remove duplicates
+  duplicate songs show up?
 
 playlist?
 options of what data to display?

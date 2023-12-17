@@ -72,6 +72,7 @@ module.exports = class Crawler {
         id: "songs",
         mostRecentRequest: new Date().toString(),
         maxCacheSize: 500,
+        searchTermLength: 5,
       },
     ];
     users = await this.removeExpiredUsers(users);
@@ -80,7 +81,7 @@ module.exports = class Crawler {
   }
 
   buildSearchQueryString(user) {
-    let q = this.gibberishGenerator.generate(4);
+    let q = this.gibberishGenerator.generate(user.searchTermLength);
     if (user.hasOwnProperty("genres")) q += ` genre:${user.genres}`;
     if (user.hasOwnProperty("dateStart"))
       q += ` year:${user.dateStart}-${user.dateEnd}`;
@@ -102,9 +103,8 @@ module.exports = class Crawler {
 
     function makeRequest(resolve, reject) {
       function handleResponse(response) {
-        if (response.statusCode === 429) {
-          reject(new HTTPS429Error());
-        } else {
+        if (response.statusCode === 429) reject(new HTTPS429Error());
+        else {
           let data = "";
           response.on("data", (chunk) => (data += chunk));
           response.on("end", () => resolve(JSON.parse(data)));
@@ -272,6 +272,25 @@ module.exports = class Crawler {
     }
   }
 
+  /* Instead of implementing a simple moving average, we're just going
+     to decrement user.searchTermLength by 1 if we found no songs, and
+     increment by 1 if we found > this.pickPerSearch / 2 this loop. */
+  async adjustSearchTermLengths(users, userSongs) {
+    for (let user of users.filter((user) => user.id !== "songs")) {
+      const songsFoundThisLoop =
+        userSongs.get(user.id) === undefined
+          ? 0
+          : userSongs.get(user.id).length;
+      if (songsFoundThisLoop === 0) {
+        user.searchTermLength = Math.max(1, user.searchTermLength - 1);
+        await this.redisClient.HSET("users", user.id, JSON.stringify(user));
+      } else if (songsFoundThisLoop > this.pickPerSearch / 2) {
+        user.searchTermLength += 1;
+        await this.redisClient.HSET("users", user.id, JSON.stringify(user));
+      }
+    }
+  }
+
   async start() {
     while (true) {
       try {
@@ -289,6 +308,8 @@ module.exports = class Crawler {
             userSongs = this.formatUserSongs(userSongs);
             await this.pushUserSongsToRedis(users, userSongs);
           }
+
+          await this.adjustSearchTermLengths(users, userSongs);
         }
       } catch (error) {
         if (error instanceof HTTPS429Error) {
