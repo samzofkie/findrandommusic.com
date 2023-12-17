@@ -17,7 +17,7 @@ module.exports = class Crawler {
     this.userExpirationMinutes = 10;
     this.pickPerSearch = 5;
     this._429TimeoutSeconds = 60;
-    this.everyLoopTimeoutSeconds = 5;
+    this.everyLoopTimeoutSeconds = 1;
   }
 
   initializeRedisClient() {
@@ -32,9 +32,12 @@ module.exports = class Crawler {
   async sleep(seconds) {
     return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
   }
-  
+
   userIsExpired(user) {
-    return (new Date() - new Date(user.mostRecentRequest)) / (1000 * 60) > this.userExpirationMinutes;
+    return (
+      (new Date() - new Date(user.mostRecentRequest)) / (1000 * 60) >
+      this.userExpirationMinutes
+    );
   }
 
   async removeExpiredUsers(users) {
@@ -45,15 +48,19 @@ module.exports = class Crawler {
         await this.redisClient.DEL(user.id);
       }
 
-    return users.filter(user => !this.userIsExpired(user));
+    return users.filter((user) => !this.userIsExpired(user));
   }
 
   async filterFullCacheUsers(users) {
-    return (await Promise.all(users.map(async user => {
-      if (user.maxCacheSize > await this.redisClient.SCARD(user.id))
-        return user;
-      else return null;
-    }))).filter(f => f);
+    return (
+      await Promise.all(
+        users.map(async (user) => {
+          if (user.maxCacheSize > (await this.redisClient.SCARD(user.id)))
+            return user;
+          else return null;
+        }),
+      )
+    ).filter((f) => f);
   }
 
   async getUsers() {
@@ -110,7 +117,7 @@ module.exports = class Crawler {
 
     return new Promise(makeRequest);
   }
-    
+
   /* pickNSongs recieves an array items of objects representing songs, and 
   and chooses n of them, guaranteed to not choose more than one song by a
   single artist. */
@@ -146,22 +153,26 @@ module.exports = class Crawler {
   async searchForSongs(users) {
     return new Map(
       await Promise.all(
-        users.map(async user => {
-          const searchResults = await this.makeSpotifyRequest("/v1/search?" + this.buildSearchQueryString(user));
-          return [user.id, this.pickNSongs(searchResults.tracks.items, this.pickPerSearch)]
-        })
-      )
+        users.map(async (user) => {
+          const searchResults = await this.makeSpotifyRequest(
+            "/v1/search?" + this.buildSearchQueryString(user),
+          );
+          return [
+            user.id,
+            this.pickNSongs(searchResults.tracks.items, this.pickPerSearch),
+          ];
+        }),
+      ),
     );
   }
-  
+
   removeNoSearchResultsUsers(userSongs) {
     for (let user of userSongs.keys()) {
-      if (userSongs.get(user).length === 0)
-        userSongs.delete(user);
+      if (userSongs.get(user).length === 0) userSongs.delete(user);
     }
     return userSongs;
   }
-  
+
   searchesReturnedNothing(userSongs) {
     return [...userSongs.values()].flat().length === 0;
   }
@@ -171,9 +182,13 @@ module.exports = class Crawler {
      attribute for each artist, and then adds a 'genres' property to each song
      object in userSongs, and returns the modified userSongs. */
   async lookupGenres(userSongs) {
-    let ids = [...userSongs.values()].flat().map(song => song.artists).flat().map(artist => artist.id); 
+    let ids = [...userSongs.values()]
+      .flat()
+      .map((song) => song.artists)
+      .flat()
+      .map((artist) => artist.id);
     ids = [...new Set(ids)];
-     
+
     const artistsData = (
       await this.makeSpotifyRequest("/v1/artists?ids=" + ids.join(","))
     ).artists;
@@ -227,21 +242,24 @@ module.exports = class Crawler {
   }
 
   formatUserSongs(userSongs) {
-    return new Map([...userSongs.keys()].map(user =>
-      [user,
-       userSongs.get(user).map(this.formatSong)]
-    ));
+    return new Map(
+      [...userSongs.keys()].map((user) => [
+        user,
+        userSongs.get(user).map(this.formatSong),
+      ]),
+    );
   }
 
   async pushSongsToRedis(userId, songs) {
-    for (let song of songs) await this.redisClient.SADD(userId, JSON.stringify(song));
+    for (let song of songs)
+      await this.redisClient.SADD(userId, JSON.stringify(song));
     console.log(`Pushed ${songs.length} songs to ${userId}.`);
   }
 
   // TODO: comment this
   async pushUserSongsToRedis(users, userSongs) {
     for (let userId of userSongs.keys()) {
-      const justUsedFilterParams = users.find(user => user.id === userId);
+      const justUsedFilterParams = users.find((user) => user.id === userId);
       const currentFilterParams = JSON.parse(
         await this.redisClient.HGET("users", userId),
       );
@@ -257,34 +275,29 @@ module.exports = class Crawler {
   async start() {
     while (true) {
       try {
-        
         const users = await this.getUsers();
-        
+
         if (users.length > 0) {
-          
           /* A Map mapping user.ids to arrays of song objects. */
           let userSongs = await this.searchForSongs(users);
           userSongs = this.removeNoSearchResultsUsers(userSongs);
 
           if (this.searchesReturnedNothing(userSongs))
-            console.log('No songs found!');
+            console.log("No songs found!");
           else {
             userSongs = await this.lookupGenres(userSongs);
             userSongs = this.formatUserSongs(userSongs);
             await this.pushUserSongsToRedis(users, userSongs);
           }
-        
-        } 
-      
+        }
       } catch (error) {
         if (error instanceof HTTPS429Error) {
           console.log("Got a 429");
           await this.sleep(this._429TimeoutSeconds);
-        } else
-          throw error;
+        } else throw error;
       }
-      
+
       await this.sleep(this.everyLoopTimeoutSeconds);
     }
-  } 
-}
+  }
+};

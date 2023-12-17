@@ -9,7 +9,9 @@ module.exports = class AccessTokenManager {
   }
 
   readCachedAccessToken() {
-    const [token, expirationDateString] = fs.readFileSync("access-token", "utf8").split("\n");
+    const [token, expirationDateString] = fs
+      .readFileSync("access-token", "utf8")
+      .split("\n");
     return [token, new Date(expirationDateString)];
   }
 
@@ -33,7 +35,9 @@ module.exports = class AccessTokenManager {
     const accessToken = dataString.match(tokenRe)[0].slice(16);
 
     const expiresInRe = RegExp('"expires_in":[0-9]*', "g");
-    const expiresInSeconds = parseInt(dataString.match(expiresInRe)[0].slice(13));
+    const expiresInSeconds = parseInt(
+      dataString.match(expiresInRe)[0].slice(13),
+    );
     const currentTime = new Date();
     const expirationDate = new Date(
       currentTime.getTime() + expiresInSeconds * 1000,
@@ -75,7 +79,6 @@ module.exports = class AccessTokenManager {
     });
   }
 
-
   async requestAndCacheNewAccessToken() {
     console.log("Requesting a new access token...");
     const [token, expirationDate] = await this.requestNewAccessToken();
@@ -86,9 +89,8 @@ module.exports = class AccessTokenManager {
   async get() {
     if (this.accessTokenCached()) {
       const [token, expirationDate] = this.readCachedAccessToken();
-      if (new Date() < expirationDate)
-        return token;
+      if (new Date() < expirationDate) return token;
     }
     return await this.requestAndCacheNewAccessToken();
   }
-}
+};

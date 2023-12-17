@@ -5,7 +5,10 @@ const { createClient } = require("redis");
 const { rateLimit } = require("express-rate-limit");
 
 const genrePlaylists = require("./shared/genres.json");
-const { meaningfulFilterParams, haveFilterParamsChanged } = require('./shared/filterParams.js');
+const {
+  meaningfulFilterParams,
+  haveFilterParamsChanged,
+} = require("./shared/filterParams.js");
 
 const SERVE_STATIC = process.argv[2] === "--serve-static=true";
 
@@ -43,16 +46,15 @@ app.use(
 );
 
 async function popNSongsFromSet(nSongs, setName) {
-  /* let songs = [];
-  for (let i=0; i<nSongs; i++)
-    songs.push(await redisClient.sPop(setName));
-  return songs; */
-
   return await Promise.all(
     [...new Array(nSongs).keys()].map(
       async (i) => await redisClient.sPop(setName),
     ),
   );
+}
+
+function requestHasMeaningfulParamsSet(req) {
+  return meaningfulFilterParams.some((name) => req.query.hasOwnProperty(name));
 }
 
 // TODO:
@@ -61,10 +63,15 @@ async function popNSongsFromSet(nSongs, setName) {
 app.get("/songs", async (req, res) => {
   /* If none of the meaningfulFilterParams are set, just return songs from the 
      generic 'songs' set." */
-  if (!meaningfulFilterParams.some((name) => req.query.hasOwnProperty(name))) {
+
+  if (!requestHasMeaningfulParamsSet(req)) {
     res.send(await popNSongsFromSet(10, "songs"));
     return;
   }
+
+  const userSeenBefore = (await redisClient.HKEYS("users")).includes(
+    req.query.id,
+  );
 
   /* Return a 400 if the user hasn't given us an ID. */
   if (!req.query.hasOwnProperty("id")) {
@@ -74,6 +81,13 @@ app.get("/songs", async (req, res) => {
         "Can't accept filter parameters without an id field in the query string!",
       );
     return;
+
+    /* If the request has an ID, has no meaningful filter parameters set, and 
+     has been seen before, delete them from Redis so the crawler stops wasting
+     time. */
+  } else if (!requestHasMeaningfulParamsSet(req) && userSeenBefore) {
+    redisClient.HDEL("users", req.query.id);
+    redisClient.DEL(req.query.id);
   }
 
   req.query.mostRecentRequest = new Date().toString();
@@ -84,16 +98,13 @@ app.get("/songs", async (req, res) => {
   }
 
   /* See README! */
-  const userSeenBefore = (await redisClient.HKEYS("users")).includes(
-    req.query.id,
-  );
   if (userSeenBefore) {
     if (
       haveFilterParamsChanged(
         JSON.parse(await redisClient.HGET("users", req.query.id)),
         req.query,
       )
-    ) { 
+    ) {
       await redisClient.DEL(req.query.id);
       await pushUserParamsToRedis();
     }
@@ -101,9 +112,18 @@ app.get("/songs", async (req, res) => {
     await pushUserParamsToRedis();
   }
 
-  // TODO: would this be better as a setInterval that resolves a Promise?
-  while (await redisClient.SCARD(req.query.id) < 10) ;
-
+  const startTime = new Date();
+  while ((await redisClient.SCARD(req.query.id)) < 10)
+    if ((new Date() - startTime) / 1000 > 60) {
+      res
+        .status(500)
+        .send(
+          "It's taking a really long time to find results, maybe different filter settings :/ sorry.",
+        );
+      redisClient.HDEL("users", req.query.id);
+      redisClient.DEL(req.query.id);
+      return;
+    }
   res.send(await popNSongsFromSet(10, req.query.id));
 });
 
