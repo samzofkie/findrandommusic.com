@@ -5,6 +5,14 @@
   position: relative;
 }
 
+.background-bar {
+  border: 6px solid #303030;
+}
+
+.value-bar {
+  border: 6px solid #821fbf;
+}
+
 .background-bar,
 .value-bar {
   width: 100%;
@@ -12,4 +20,10 @@
 
   position: absolute;
   top: 50%;
+}
+
+@media only screen and (max-width: 600px) {
+  .background-bar, .value-bar {
+    border-width: 5px;
+  }
 }

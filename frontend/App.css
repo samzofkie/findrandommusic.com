@@ -4,20 +4,20 @@
 }
 
 .introduction h1 {
-  font-size: 3vw;
+  font-size: 40px;
 }
 
 .introduction h3 {
-  font-size: 2vw;
+  font-size: 30px;
 }
 
 .introduction li {
-  font-size: 1.5vw;
+  font-size: 20px;
 }
 
 .introduction,
 .song {
-  width: 60%;
+  width: 800px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -26,8 +26,8 @@
   border: 10px solid #303030;
   border-radius: 50%;
   border-top: 10px solid #821fbf;
-  width: 8vw;
-  height: 8vw;
+  width: 100px;
+  height: 100px;
   -webkit-animation: spin 1s linear infinite;
   animation: spin 1s linear infinite;
   margin-left: auto;
@@ -59,11 +59,11 @@
   }
 
   .introduction h1 {
-    font-size: 5vw;
+    font-size: 30px;
   }
 
   .introduction li,
   .introduction h3 {
-    font-size: 3vw;
+    font-size: 18px;
   }
 }
