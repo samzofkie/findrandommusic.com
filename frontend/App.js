@@ -32,7 +32,7 @@ function Introduction() {
 
 function SongsList({ songs, currentlyPlayingSong }) {
   return (
-    <>
+    <div className={"song-list"}>
       {songs.map((song) => (
         <Song
           key={song.id}
@@ -40,7 +40,7 @@ function SongsList({ songs, currentlyPlayingSong }) {
           isPlaying={currentlyPlayingSong === song.id}
         />
       ))}
-    </>
+    </div>
   );
 }
 

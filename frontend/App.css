@@ -22,6 +22,11 @@
   margin-right: auto;
 }
 
+.song-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .loader {
   border: 10px solid #303030;
   border-radius: 50%;
