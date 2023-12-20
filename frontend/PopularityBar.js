@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import "./PopularityBar.css";
 
 export default function PopularityBar({ popularity }) {
-
   return (
     <div className={"popularity-bar"}>
       <hr

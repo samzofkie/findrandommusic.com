@@ -65,7 +65,9 @@ export default function SongInfo({ song }) {
       {song.genres.length > 0 ? (
         <IconLine>
           <FontAwesomeIcon icon={faMasksTheater} />
-          {calculateLinkCommaList(song.genres.map((genre, i) => ({...genre, id: i})))}
+          {calculateLinkCommaList(
+            song.genres.map((genre, i) => ({ ...genre, id: i })),
+          )}
         </IconLine>
       ) : null}
 

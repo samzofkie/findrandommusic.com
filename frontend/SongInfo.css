@@ -41,7 +41,8 @@
     font-size: 20px;
   }
 
-  .icon-line-text a, .icon-line-text div {
-    margin-top: 5px; 
+  .icon-line-text a,
+  .icon-line-text div {
+    margin-top: 5px;
   }
 }

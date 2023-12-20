@@ -23,7 +23,8 @@
 }
 
 @media only screen and (max-width: 600px) {
-  .background-bar, .value-bar {
+  .background-bar,
+  .value-bar {
     border-width: 5px;
   }
 }

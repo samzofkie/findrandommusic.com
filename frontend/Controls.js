@@ -142,7 +142,13 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
       className={"filter-menu"}
       style={controlsExpanded ? { border: "3px solid white" } : null}
     >
-      <div className={"first-line"}>
+      {!controlsExpanded ? (
+        <div className={"filter-menu-button"}>
+          <FontAwesomeIcon icon={faSliders} onClick={toggleExpand} />
+        </div>
+      ) : null}
+
+      {/*<div className={"first-line"}>
         <div
           className={"filter-menu-button"}
           style={controlsExpanded ? { fontSize: "3vw" } : null}
@@ -162,7 +168,7 @@ function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
           <PopularityRange />
           <GenreList />
         </>
-      )}
+      )}*/}
     </div>
   );
 }
@@ -176,19 +182,25 @@ function PauseButton() {
   );
 }
 
-export default function Controls() {
-  const [controlsExpanded, setControlsExpanded] = useState(false);
+export default function Controls({
+  controlsExpanded,
+  toggleControlsExpanded,
+  width,
+}) {
+  let style = { width: width + "%" };
+  if (controlsExpanded) {
+    style.border = "2px solid white";
+    style.borderRadius = "20px";
+  }
 
   return (
-    <div
-      className={"controls"}
-      style={{ width: controlsExpanded ? "30%" : "8%" }}
-    >
-      <FilterSettingsMenu
+    <div className={"controls"} onClick={toggleControlsExpanded} style={style}>
+      {/*<FilterSettingsMenu
         controlsExpanded={controlsExpanded}
         toggleExpand={() => setControlsExpanded(!controlsExpanded)}
       />
-      <PauseButton />
+      <PauseButton />*/}
+      {"controls"}
     </div>
   );
 }

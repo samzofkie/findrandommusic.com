@@ -6,4 +6,9 @@ body {
   background-color: black;
   color: white;
   font-family: "Public Sans", Arial, sans-serif;
+  margin: 0px;
+}
+
+* {
+  box-sizing: border-box;
 }

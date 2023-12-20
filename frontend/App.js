@@ -8,6 +8,8 @@ import Controls, {
 } from "./Controls.js";
 import "./App.css";
 
+const SONG_WIDTH = 600;
+
 function Introduction() {
   return (
     <div className={"introduction"}>
@@ -30,15 +32,56 @@ function Introduction() {
   );
 }
 
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return { width, height };
+}
+
+function useWindowDimensions() {
+  const [windowDimensions, setWindowDimensions] = useState(
+    getWindowDimensions(),
+  );
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return windowDimensions;
+}
+
 function SongsList({ songs, currentlyPlayingSong }) {
+  const ref = useRef(null);
+  const [width, setWidth] = useState(0);
+  const { width: windowWidth } = useWindowDimensions();
+
+  useEffect(() => {
+    if (ref.current) setWidth(ref.current.offsetWidth);
+  });
+
+  const numColumns = Math.floor(width / SONG_WIDTH);
+
   return (
-    <div className={"song-list"}>
-      {songs.map((song) => (
-        <Song
-          key={song.id}
-          song={song}
-          isPlaying={currentlyPlayingSong === song.id}
-        />
+    <div
+      className={"song-list"}
+      ref={ref}
+      style={{ gridTemplateColumns: "auto ".repeat(numColumns) }}
+    >
+      {Array.from(Array(numColumns)).map((_, columnIndex) => (
+        <div className={"song-column"} key={columnIndex}>
+          {songs
+            .filter((song) => songs.indexOf(song) % numColumns === columnIndex)
+            .map((song) => (
+              <Song
+                key={song.id}
+                song={song}
+                isPlaying={currentlyPlayingSong === song.id}
+              />
+            ))}
+        </div>
       ))}
     </div>
   );
@@ -138,8 +181,6 @@ export default function App() {
     setCurrentlyPlayingSong(id);
   }
 
-  // TODO: Should this be a ref instead of state?
-  //       Do we need AutoPlayContext or could we pass props?
   /* The autoPlayOn boolean state is set by a component in <Controls/>, and
      lets <Song/>s know whether or not to call playNextSong() when the playing
      of their audio preview ends. autoPlayOn, toggleAutoPlay, and playNextSong
@@ -191,6 +232,15 @@ export default function App() {
     if (percentageDownThePage() > 0.8) fetchSongs();
   }
 
+  const [controlsExpanded, setControlsExpanded] = useState(false);
+
+  const controlsCollapsedWidth = 5;
+  const controlsExpandedWidth = 50;
+
+  function toggleControlsExpanded() {
+    setControlsExpanded(!controlsExpanded);
+  }
+
   useEffect(() => {
     let initialSongsRequestMade = false;
     if (!initialSongsRequestMade) fetchSongs();
@@ -202,9 +252,28 @@ export default function App() {
   }, []);
 
   return (
-    <>
-      <Introduction />
-
+    <div
+      className={"app"}
+      style={
+        controlsExpanded
+          ? {
+              gridTemplateColumns:
+                100 -
+                controlsExpandedWidth +
+                "% " +
+                controlsExpandedWidth +
+                "%",
+            }
+          : {
+              gridTemplateColumns:
+                100 -
+                controlsCollapsedWidth +
+                "% " +
+                controlsCollapsedWidth +
+                "%",
+            }
+      }
+    >
       <PlaybackContext.Provider
         value={{
           pausePlayback,
@@ -214,14 +283,27 @@ export default function App() {
           playNextSong,
         }}
       >
-        <SongsList songs={songs} currentlyPlayingSong={currentlyPlayingSong} />
+        <div className={"main-content"}>
+          <Introduction />
+
+          <SongsList
+            songs={songs}
+            currentlyPlayingSong={currentlyPlayingSong}
+          />
+
+          <Loader />
+        </div>
 
         <FilterContext.Provider value={{ filterParams, setFilterParams }}>
-          <Controls />
+          <Controls
+            controlsExpanded={controlsExpanded}
+            toggleControlsExpanded={toggleControlsExpanded}
+            width={
+              controlsExpanded ? controlsExpandedWidth : controlsCollapsedWidth
+            }
+          />
         </FilterContext.Provider>
       </PlaybackContext.Provider>
-
-      <Loader />
-    </>
+    </div>
   );
 }
