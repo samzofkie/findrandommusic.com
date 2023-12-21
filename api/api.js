@@ -137,6 +137,6 @@ if (SERVE_STATIC) app.use(express.static("public"));
 const port = 3000;
 
 app.listen(port, () => {
-  console.log(`app.js listening on port ${port}`);
+  console.log(`api.js listening on port ${port}`);
   if (SERVE_STATIC) console.log("serving static files from 'public' dir");
 });
