@@ -149,6 +149,7 @@ export default function App() {
   }
 
   async function fetchSongs() {
+    console.log("fetchin");
     try {
       const url = "/songs" + buildQueryString();
       const response = await fetch(url);
@@ -234,7 +235,7 @@ export default function App() {
 
   const [controlsExpanded, setControlsExpanded] = useState(false);
 
-  const controlsCollapsedWidth = 5;
+  const controlsCollapsedWidth = 8;
   const controlsExpandedWidth = 50;
 
   function toggleControlsExpanded() {

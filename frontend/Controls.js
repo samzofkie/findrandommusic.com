@@ -43,6 +43,23 @@ function FilterRange({ cssClassName, label, bounds, filterParamsPrefix }) {
     filterParamsPrefix + "Start",
     filterParamsPrefix + "End",
   ];
+
+  /* This prevents the rendering of a <MultiRangeSlider/> from calling
+     setFilterParams, because it triggers the onChange event on render. */
+  let renderedNow = useRef(false);
+  const setRenderedNow = () => (renderedNow.current = true);
+
+  function onChange({ minValue, maxvalue }) {
+    console.log("onChange", renderedNow.current);
+    if (renderedNow.current)
+      setFilterParams({
+        ...filterParams.current,
+        [startPropName]: minValue,
+        [endPropName]: maxValue,
+      });
+    else setRenderedNow();
+  }
+
   return (
     <div className={cssClassName + " control"}>
       <span>{label}</span>
@@ -54,13 +71,7 @@ function FilterRange({ cssClassName, label, bounds, filterParamsPrefix }) {
         max={bounds.end}
         minValue={filterParams.current[startPropName]}
         maxValue={filterParams.current[endPropName]}
-        onChange={({ minValue, maxValue }) =>
-          setFilterParams({
-            ...filterParams.current,
-            [startPropName]: minValue,
-            [endPropName]: maxValue,
-          })
-        }
+        onChange={onChange}
       />
     </div>
   );
@@ -136,39 +147,29 @@ function GenreList() {
   );
 }
 
-function FilterSettingsMenu({ controlsExpanded, toggleExpand }) {
+function FilterSettingsMenu({ controlsExpanded, toggleControlsExpanded }) {
   return (
     <div
       className={"filter-menu"}
-      style={controlsExpanded ? { border: "3px solid white" } : null}
+      style={
+        controlsExpanded
+          ? { border: "3px solid white" }
+          : { border: "0px solid black" }
+      }
     >
-      {!controlsExpanded ? (
-        <div className={"filter-menu-button"}>
-          <FontAwesomeIcon icon={faSliders} onClick={toggleExpand} />
-        </div>
-      ) : null}
-
-      {/*<div className={"first-line"}>
-        <div
-          className={"filter-menu-button"}
-          style={controlsExpanded ? { fontSize: "3vw" } : null}
-        >
-          <FontAwesomeIcon
-            icon={controlsExpanded ? faX : faSliders}
-            onClick={toggleExpand}
-          />
-        </div>
-
-        {!controlsExpanded ? null : <AutoPlayToggle />}
-      </div>
-
       {!controlsExpanded ? null : (
         <>
+          <div className={"first-line"}>
+            <div className={"filter-menu-button"}>
+              <FontAwesomeIcon icon={faX} onClick={toggleControlsExpanded} />
+            </div>
+            <AutoPlayToggle />
+          </div>
           <DateRange />
           <PopularityRange />
-          <GenreList />
+          {/*<GenreList />*/}
         </>
-      )}*/}
+      )}
     </div>
   );
 }
@@ -188,19 +189,21 @@ export default function Controls({
   width,
 }) {
   let style = { width: width + "%" };
-  if (controlsExpanded) {
-    style.border = "2px solid white";
-    style.borderRadius = "20px";
-  }
 
   return (
-    <div className={"controls"} onClick={toggleControlsExpanded} style={style}>
-      {/*<FilterSettingsMenu
+    <div className={"controls"} style={style}>
+      {!controlsExpanded ? (
+        <FontAwesomeIcon
+          icon={faSliders}
+          onClick={toggleControlsExpanded}
+          className="filter-menu-expand-button"
+        />
+      ) : null}
+      <FilterSettingsMenu
         controlsExpanded={controlsExpanded}
-        toggleExpand={() => setControlsExpanded(!controlsExpanded)}
+        toggleControlsExpanded={toggleControlsExpanded}
       />
-      <PauseButton />*/}
-      {"controls"}
+      <PauseButton />
     </div>
   );
 }

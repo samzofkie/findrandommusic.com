@@ -4,15 +4,18 @@ backend
   find bug in returning 0 songs
 
 frontend
-  multirangeslider minimum value
-  px not %
+  nice toggle animationz
+  why is toggleControlsExpanded restarting playback
+  GenreList performance
   frontend reactivity
-  use columns for FilterMenu
+  
   error handling
   auto play skip button
   selected genres float to top
   SongInfo genre remove duplicates
   duplicate songs show up?
+
+  multirangeslider minimum value
 
 playlist?
 options of what data to display?

@@ -5,26 +5,41 @@
   width: auto;
 
   transition: width 0.5s;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  font-size: 60px;
+  text-align: right;
+  padding: 10px;
 }
 
 .pause-button:active {
   color: #303030;
 }
 
+.filter-menu-expand-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
 .filter-menu {
   display: flex;
   flex-direction: column;
-  gap: 1%;
-  font-size: 2vw;
+  gap: 5px;
+  font-size: 30px;
 
-  background-color: black;
-  border: 3px solid black;
   border-radius: 30px;
-  padding: 5%;
+  padding: 25px;
   height: 100%;
   overflow: scroll;
 
-  transition: border-color 0.5s;
+  transition:
+    border-width 0.5s,
+    border-color 0.5s;
+  text-align: left;
 }
 
 .first-line {
@@ -36,7 +51,6 @@
 }
 
 .filter-menu-button {
-  font-size: 60px;
   cursor: pointer;
 }
 
