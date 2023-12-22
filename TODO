@@ -8,7 +8,8 @@ frontend
   why is toggleControlsExpanded restarting playback
   GenreList performance
   frontend reactivity
-  
+ 
+  auto play order
   error handling
   auto play skip button
   selected genres float to top

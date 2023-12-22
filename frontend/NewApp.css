@@ -1,0 +1,38 @@
+body {
+  margin: 0px;
+}
+
+body * {
+  box-sizing: border-box;
+}
+
+.app {
+  display: grid;
+}
+
+.app > * {
+  border: 2px solid white;
+  border-radius: 20px;
+  padding: 5px;
+}
+
+.song-list {
+  position: relative;
+}
+
+
+.controls {
+  position: fixed;
+  right: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.song {
+  position: absolute;
+  left: 10px;
+  border: 1px solid red;
+  transition:
+    left 0.5s,
+    top 0.5s;
+}
