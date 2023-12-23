@@ -6,6 +6,7 @@ backend
 frontend
   nice toggle animationz
   why is toggleControlsExpanded restarting playback
+  suspense
   GenreList performance
   frontend reactivity
  
