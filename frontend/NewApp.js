@@ -42,27 +42,33 @@ function SongList() {
   }
 
   const [width, setWidth] = useState(0);
-  const numColumns = Math.floor(width / SONG_WIDTH);
   const songs = Array.from(Array(NUM_SONGS).keys());
+  
+  const padding = 20;
+  const numColumns = Math.max(Math.floor((width - padding) / (SONG_WIDTH + padding)), 1);
 
   useEffect(() => {
     if (ref.current) setWidth(ref.current.offsetWidth);
   });
+  
+  const height = Math.max(...Array.from(Array(numColumns).keys())
+    .map(columnNum => songHeights.current.filter((_, songHeightIndex) => songHeightIndex % numColumns === columnNum))
+    .map(songColumnHeights => songColumnHeights.reduce((acc, curr) => acc + curr + padding, padding)));
 
   return (
     <div
       className={"song-list"}
       ref={ref}
       style={{
-        height: songHeights.current.reduce((acc, curr) => acc + curr, 5),
+        height: height,
       }}
     >
       {songs.map((i) => {
         const y = songHeights.current
           .slice(0, i)
           .filter((_, filterIndex) => filterIndex % numColumns === i % numColumns)
-          .reduce((acc, curr) => acc + curr + 5, 5);
-        const left = numColumns === 0? 5 : (i % numColumns) * (SONG_WIDTH + 5) + 5;
+          .reduce((acc, curr) => acc + curr + padding, padding);
+        const left = numColumns === 0? padding : (i % numColumns) * (SONG_WIDTH + padding) + padding;
         return (
           <Song 
             key={i}

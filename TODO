@@ -4,6 +4,9 @@ backend
   find bug in returning 0 songs
 
 frontend
+  center <Song/>s in <SongList/>
+  One column not longer than the other
+
   nice toggle animationz
   why is toggleControlsExpanded restarting playback
   suspense

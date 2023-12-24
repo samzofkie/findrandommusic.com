@@ -35,4 +35,5 @@ body * {
   transition:
     left 0.5s,
     top 0.5s;
+  background-color: black;
 }
