@@ -8,8 +8,8 @@ function randomLetter() {
   return abc[Math.floor(Math.random() * abc.length)];
 }
 
-function Song({ i, y, left, reportHeight, _testHeight }) {
-  const elementRef = useCallback(node => {
+function Song({ i, coord, y, left, reportHeight, _testHeight }) {
+  const elementRef = useCallback((node) => {
     if (!node) return;
     const resizeObserver = new ResizeObserver(() => {
       reportHeight(i, node.offsetHeight);
@@ -17,25 +17,30 @@ function Song({ i, y, left, reportHeight, _testHeight }) {
     resizeObserver.observe(node);
   }, []);
 
-  let style = { width: SONG_WIDTH, maxWidth: SONG_WIDTH, top: y, left: left, height: _testHeight };
+  let style = {
+    width: SONG_WIDTH,
+    maxWidth: SONG_WIDTH,
+    top: coord.y,
+    left: coord.x,
+    height: _testHeight,
+  };
 
   return (
-    <div
-      className={"song"}
-      style={style}
-      ref={elementRef}
-    >
+    <div className={"song"} style={style} ref={elementRef}>
       <div>{i}</div>
     </div>
   );
 }
 
 function SongList() {
-  const NUM_SONGS = 100;
+  const NUM_SONGS = 150;
   const ref = useRef(null);
   const songHeights = useRef(Array.from(Array(NUM_SONGS).keys()));
-
-  const randomGenHeights = useRef(Array.from(Array(NUM_SONGS).keys()).map(_ => Math.floor(Math.random() * 50 + 50)));
+  const randomGenHeights = useRef(
+    Array.from(Array(NUM_SONGS).keys()).map((_) =>
+      Math.floor(Math.random() * 100 + 10),
+    ),
+  );
 
   function reportHeight(index, height) {
     songHeights.current[index] = height;
@@ -43,17 +48,30 @@ function SongList() {
 
   const [width, setWidth] = useState(0);
   const songs = Array.from(Array(NUM_SONGS).keys());
-  
-  const padding = 20;
-  const numColumns = Math.max(Math.floor((width - padding) / (SONG_WIDTH + padding)), 1);
 
   useEffect(() => {
     if (ref.current) setWidth(ref.current.offsetWidth);
   });
-  
-  const height = Math.max(...Array.from(Array(numColumns).keys())
-    .map(columnNum => songHeights.current.filter((_, songHeightIndex) => songHeightIndex % numColumns === columnNum))
-    .map(songColumnHeights => songColumnHeights.reduce((acc, curr) => acc + curr + padding, padding)));
+
+  const padding = 20;
+  const numColumns = Math.max(
+    Math.floor((width - padding) / (SONG_WIDTH + padding)),
+    1,
+  );
+
+  let columnStarts = Array.from(Array(numColumns)).map((_) => padding);
+  const verticalSpace = (width - (numColumns * SONG_WIDTH)) / (numColumns + 1);
+  const coords = songHeights.current.map((songHeight, songIndex) => {
+    const columnNum = columnStarts.indexOf(Math.min(...columnStarts));
+    const start = columnStarts[columnNum];
+    columnStarts[columnNum] += songHeight + padding;
+    return {
+      x: verticalSpace + (SONG_WIDTH + verticalSpace) * columnNum,
+      y: start,
+    };
+  });
+
+  const height = Math.max(...columnStarts);
 
   return (
     <div
@@ -66,13 +84,19 @@ function SongList() {
       {songs.map((i) => {
         const y = songHeights.current
           .slice(0, i)
-          .filter((_, filterIndex) => filterIndex % numColumns === i % numColumns)
+          .filter(
+            (_, filterIndex) => filterIndex % numColumns === i % numColumns,
+          )
           .reduce((acc, curr) => acc + curr + padding, padding);
-        const left = numColumns === 0? padding : (i % numColumns) * (SONG_WIDTH + padding) + padding;
+        const left =
+          numColumns === 0
+            ? padding
+            : (i % numColumns) * (SONG_WIDTH + padding) + padding;
         return (
-          <Song 
+          <Song
             key={i}
             i={i}
+            coord={coords[i]}
             y={y}
             left={left}
             reportHeight={reportHeight}
