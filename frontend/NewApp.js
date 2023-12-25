@@ -3,6 +3,27 @@ import "./NewApp.css";
 
 const SONG_WIDTH = 100;
 
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return { width, height };
+}
+
+function useWindowDimensions() {
+  const [windowDimensions, setWindowDimensions] = useState(
+    getWindowDimensions(),
+  );
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return windowDimensions;
+}
+
 function randomLetter() {
   const abc = "abcdefghijklmnopqrstuvwxyz";
   return abc[Math.floor(Math.random() * abc.length)];
@@ -35,6 +56,7 @@ function Song({ i, coord, y, left, reportHeight, _testHeight }) {
 function SongList() {
   const NUM_SONGS = 150;
   const ref = useRef(null);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const songHeights = useRef(Array.from(Array(NUM_SONGS).keys()));
   const randomGenHeights = useRef(
     Array.from(Array(NUM_SONGS).keys()).map((_) =>
