@@ -1,96 +1,28 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
-
-import SongInfo from "./SongInfo.js";
-import { PlaybackContext } from "./App.js";
+import React, { useCallback } from "react";
+import { SONG_WIDTH } from "./SongList.js";
 import "./Song.css";
 
-function SongArtwork({ url, hasPreview, previewDisabledMessageVisible }) {
-  return (
-    <div className={"artwork-column"}>
-      <div className={"artwork"}>
-        <img
-          src={url}
-          style={{ opacity: previewDisabledMessageVisible ? "0.2" : "1" }}
-        />
-        {hasPreview || (
-          <div
-            className={"playback-disabled-text"}
-            style={{ opacity: previewDisabledMessageVisible ? "1" : "0" }}
-          >
-            {"Playback disabled for this song :("}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+const shit = [...Array(1000)].map(_ => Math.random() * 100 + 20);
 
-function AudioPlayer({ id, url, isPlaying }) {
-  const ref = useRef(null);
-  const { pausePlayback, autoPlayOn, playNextSong } =
-    useContext(PlaybackContext);
-  //url = 'https://www.w3schools.com/html/horse.ogg';
+export default function Song({ song, index, reportHeight, coord}) {
+  /* Whenever the main "song" div's height changes, reportHeight. */
+  const ref = useCallback((node) => {
+    if (!node) return 0;
+    const resizeObserver = new ResizeObserver(() => {
+      reportHeight(index, node.offsetHeight);
+    });
+    resizeObserver.observe(node);
+  }, []);
 
-  useEffect(() => {
-    if (isPlaying) ref.current.play();
-    else ref.current.pause();
-  });
+  let style = {width: SONG_WIDTH, border: "3px solid red", top: coord.y, left: coord.x};
+  style.height = shit[index];
 
   return (
-    <audio
+    <div className={"song"}
+      style={style}
       ref={ref}
-      onEnded={() => {
-        if (autoPlayOn) playNextSong(id);
-        else pausePlayback();
-      }}
     >
-      <source src={url} type={"audio/mpeg"} />
-    </audio>
-  );
-}
-
-export default function Song({ song, isPlaying }) {
-  const [previewDisabledMessageVisible, setPreviewDisabledMessageVisible] =
-    useState(false);
-  const { playSongById } = useContext(PlaybackContext);
-  const hasPreview = song.playback_url !== null;
-
-  function handleClick() {
-    if (hasPreview) playSongById(song.id);
-    else {
-      setPreviewDisabledMessageVisible(true);
-      setTimeout(() => setPreviewDisabledMessageVisible(false), 1000);
-    }
-  }
-
-  return (
-    <div
-      className={"song"}
-      style={
-        isPlaying
-          ? {
-              backgroundImage:
-                "linear-gradient(to bottom right, #303030, #050505, #303030)",
-            }
-          : null
-      }
-      onClick={handleClick}
-    >
-      <SongArtwork
-        url={song.artwork_url}
-        hasPreview={hasPreview}
-        previewDisabledMessageVisible={previewDisabledMessageVisible}
-      />
-
-      <SongInfo song={song} />
-
-      {hasPreview && (
-        <AudioPlayer
-          id={song.id}
-          url={song.playback_url}
-          isPlaying={isPlaying}
-        />
-      )}
+      {index}
     </div>
   );
 }

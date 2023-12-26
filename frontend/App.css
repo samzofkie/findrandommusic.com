@@ -1,34 +1,5 @@
-.app {
-  display: grid;
-}
-
-.introduction h1,
-.introduction h3 {
+.introduction h1, .introduction h3 {
   text-align: center;
-}
-
-.introduction h1 {
-  font-size: 40px;
-}
-
-.introduction h3 {
-  font-size: 30px;
-}
-
-.introduction li {
-  font-size: 20px;
-}
-
-.introduction,
-/*.song*/ {
-  width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.song-list {
-  display: grid;
-  max-width: 100%;
 }
 
 .loader {
@@ -61,18 +32,8 @@
   }
 }
 
-@media only screen and (max-width: 600px) {
-  .song,
-  .introduction {
-    width: 100%;
-  }
 
-  .introduction h1 {
-    font-size: 30px;
-  }
-
-  .introduction li,
-  .introduction h3 {
-    font-size: 18px;
-  }
+.app {
+  display: grid;
+  transition: grid-template-columns 0.5s;
 }
