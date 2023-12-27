@@ -3,7 +3,7 @@ import useWindowDimensions from "./useWindowDimensions.js";
 import Song from "./Song.js";
 import "./SongList.css";
 
-export const SONG_WIDTH = 380;
+export const SONG_WIDTH = 500;
 
 export default function SongList({ songs }) {
   /* This just re-renders <SongList/> if the window dimensions change. */
@@ -38,13 +38,12 @@ export default function SongList({ songs }) {
   /* By storing songHeights in state and queueing the state update, we can rerender <SongList/>
      when <Song/> height changes to ensure the layout is pretty. */
   function reportHeight(songIndex, height) {
-    console.log('reporin', songIndex, height);
     if (songHeights[songIndex] !== height)
       setSongHeights(songHeights => songHeights.map((h, i) => i === songIndex ? height : h));
   }
 
   /* Here we do the work of calculating the x, y coords for each song. */
-  const horizontalPadding = 20;
+  const horizontalPadding = 2;
   
   let columnStarts = Array.from(Array(numColumns)).map(_ => horizontalPadding);
   
@@ -55,6 +54,7 @@ export default function SongList({ songs }) {
     const start = columnStarts[columnNum];
     columnStarts[columnNum] += songHeight + horizontalPadding;
     return {
+      x: verticalSpace + (SONG_WIDTH + verticalSpace) * columnNum,
       x: verticalSpace + (SONG_WIDTH + verticalSpace) * columnNum,
       y: start,
     };

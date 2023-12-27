@@ -1,4 +1,20 @@
 .song {
   position: absolute;
   transition: left 0.5s, top 0.5s;
+
+  background-color: black;
+  color: white;
+  border: 1px solid black;
+  border-radius: 0px 20px 20px 0px;
+
+  display: grid;
+  grid-template-columns: 40% 60%;
+  column-gap: 5px;
+
+  padding-bottom: 5px;
+  padding-right: 5px;
+}
+
+.artwork img {
+  max-width: 100%;
 }

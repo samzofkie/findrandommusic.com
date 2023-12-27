@@ -3,8 +3,8 @@ html {
 }
 
 body {
-  background-color: black;
-  color: white;
+  background-image: linear-gradient(to bottom left, #d3dcf5, #d3dcf5, #000000);
+  color: black;
   font-family: "Public Sans", Arial, sans-serif;
   margin: 0px;
 }

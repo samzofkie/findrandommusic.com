@@ -1,8 +1,26 @@
-import React, { useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { SONG_WIDTH } from "./SongList.js";
+import SongInfo from "./SongInfo.js";
 import "./Song.css";
 
-const shit = [...Array(1000)].map(_ => Math.random() * 100 + 20);
+function SongArtwork({ url, hasPreview, previewDisabledMessageVisible }) {
+  return (
+    <div className={"artwork"}>
+      <img
+        src={url}
+        style={{ opacity: previewDisabledMessageVisible ? "0.2" : "1" }}
+      />
+      {hasPreview || (
+        <div
+          className={"playback-disabled-text"}
+          style={{ opacity: previewDisabledMessageVisible ? "1" : "0" }}
+        >
+          {"Playback disabled for this song :("}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Song({ song, index, reportHeight, coord}) {
   /* Whenever the main "song" div's height changes, reportHeight. */
@@ -14,15 +32,23 @@ export default function Song({ song, index, reportHeight, coord}) {
     resizeObserver.observe(node);
   }, []);
 
-  let style = {width: SONG_WIDTH, border: "3px solid red", top: coord.y, left: coord.x};
-  style.height = shit[index];
+  const [previewDisabledMessageVisible, setPreviewDisabledMessageVisible] = useState(false);
+
+  const hasPreview = song.playback_url !== null;
+  
+  let style = {width: SONG_WIDTH, top: coord.y, left: coord.x};
 
   return (
     <div className={"song"}
       style={style}
       ref={ref}
     >
-      {index}
+      <SongArtwork
+        url={song.artwork_url}
+        hasPreview={hasPreview}
+        previewDisabledMessageVisible={previewDisabledMessageVisible}
+      />
+      <SongInfo song={song} />
     </div>
   );
 }
