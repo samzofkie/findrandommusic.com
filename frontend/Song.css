@@ -15,6 +15,28 @@
   padding-right: 5px;
 }
 
+.artwork {
+  position: relative;
+}
+
 .artwork img {
   max-width: 100%;
+  transition: opacity 0.5s;
+}
+
+.playback-disabled-text {
+  position: absolute;
+  
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+
+  text-align: center;
+
+  padding: 10px;
+
+  opacity: 0%;
+  transition: opacity 0.5s;
+  cursor: default;
+
 }

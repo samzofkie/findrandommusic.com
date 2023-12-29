@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, createContext } from "react";
 import { nanoid } from "nanoid";
 import "./App.css";
 import SongList from "./SongList.js";
@@ -32,6 +32,9 @@ function Introduction() {
 function Loader() {
   return <div className={"loader"}></div>;
 }
+
+export const PlaybackContext = createContext({});
+export const FilterContext = createContext({});
 
 export default function App() {
   /* Each song is a JSON object that gets fed to a <Song/> */
@@ -106,6 +109,61 @@ export default function App() {
     }
   }
 
+  /* The currentlyPlayingSong state variable is a string id of the song
+     that should be playing right now. It can be set to the empty string to
+     pauser the playback. */
+  const [currentlyPlayingSong, setCurrentlyPlayingSong] = useState("");
+
+  /* This is used by the <PauseButton/> and by <AudioPlayer/> to indicate
+     playback has ended. */
+  function pausePlayback() {
+    setCurrentlyPlayingSong("");
+  }
+
+  function playSongById(id) {
+    setCurrentlyPlayingSong(id);
+  }
+
+  /* The autoPlayOn boolean state is set by a component in <Controls/>, and
+     lets <Song/>s know whether or not to call playNextSong() when the playing
+     of their audio preview ends. autoPlayOn, toggleAutoPlay, and playNextSong
+     are put into the AutoPlayContext that goes around the <Song/>s and 
+     <Controls/> components. */
+  const [autoPlayOn, setAutoPlayOn] = useState(false);
+
+  function toggleAutoPlay() {
+    setAutoPlayOn(!autoPlayOn);
+  }
+
+  /* lookupNextPlayableSongIndex() assumes that the song JSON object in the songs
+     array that matches it's id argument is playable (i.e. it's playback_url
+     property !== null). */
+  function lookupNextPlayableSongIndex(id) {
+    const playableSongsIds = songs
+      .filter((song) => song.playback_url !== null)
+      .map((song) => song.id);
+    const nextPlayableSongId =
+      playableSongsIds[playableSongsIds.indexOf(id) + 1];
+    return songs.map((song) => song.id).indexOf(nextPlayableSongId);
+  }
+
+  function scrollToSongDiv(songDiv) {
+    const topPosition = songDiv.offsetTop;
+    const divHeight = songDiv.offsetHeight;
+    window.scrollTo(0, topPosition - (window.innerHeight - divHeight) / 2);
+  }
+
+  function numberOfPlayableSongsAfter(i) {
+    return songs.slice(i).filter((song) => song.playback_url !== null).length;
+  }
+
+  function playNextSong(currentId) {
+    const i = lookupNextPlayableSongIndex(currentId);
+    setCurrentlyPlayingSong(songs[i].id);
+    if (numberOfPlayableSongsAfter(i) < 5) fetchSongs();
+    scrollToSongDiv(document.getElementsByClassName("song")[i]);
+  }
+
   /* checkIfMoreSongsNeeded() hits fetchSongs() if we are nearing the end of 
      the scrollable content. */
   function percentageDownThePage() {
@@ -117,7 +175,8 @@ export default function App() {
     if (percentageDownThePage() > 0.8) fetchSongs();
   }
 
-  /* This has the <App/> component call fetchSongs() on load. */
+  /* This has the <App/> component call fetchSongs() on load, and hooks up 
+     checkIfMoreSongsNeeded to document. */
   useEffect(() => {
     let initialSongsRequestMade = false;
     if (!initialSongsRequestMade) fetchSongs();
@@ -127,7 +186,6 @@ export default function App() {
       document.removeEventListener("onscrollend", checkIfMoreSongsNeeded);
     };
   }, []);
-
 
   /* This stuff is for expanding / collapsing the <Controls/> component. */
   const [controlsExpanded, setControlsExpanded] = useState(false);
@@ -147,12 +205,25 @@ export default function App() {
 
   return (
     <div className={"app"} style={columnsStyle}>
-      <div className={"main-content"}>
-        <Introduction />
-        <SongList songs={songs}/>
-        <Loader />
-      </div>
-      <Controls toggleControls={toggleControls} />
+      <PlaybackContext.Provider
+        value={{
+          currentlyPlayingSong,
+          pausePlayback,
+          playSongById,
+          autoPlayOn,
+          toggleAutoPlay,
+          playNextSong,
+        }}
+      >
+        <div className={"main-content"}>
+          <Introduction />
+          <SongList songs={songs}/>
+          <Loader />
+        </div>
+        <FilterContext.Provider value={{ filterParams, setFilterParams }}>
+          <Controls toggleControls={toggleControls} />
+        </FilterContext.Provider>
+      </PlaybackContext.Provider>
     </div>
   );
 }
