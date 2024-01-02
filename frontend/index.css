@@ -3,7 +3,7 @@ html {
 }
 
 body {
-  background-image: linear-gradient(to bottom left, #d3dcf5, #d3dcf5, #000000);
+  background-color: #d3dcf5;
   color: black;
   font-family: "Public Sans", Arial, sans-serif;
   margin: 0px;

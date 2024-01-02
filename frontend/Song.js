@@ -70,7 +70,7 @@ export default function Song({ song, index, reportHeight, coord}) {
 
   let style = {width: SONG_WIDTH, top: coord.y, left: coord.x};
   if (isPlaying)
-    style.backgroundImage = "linear-gradient(to bottom right, #000000, #000dff, #000000)";
+    style.backgroundImage = "linear-gradient(to bottom right, #000000, #5b5b87, #000000)";
 
   function tryToPlay() {
     if (hasPreview) playSongById(song.id);

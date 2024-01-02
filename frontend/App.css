@@ -5,7 +5,7 @@
 .loader {
   border: 10px solid #303030;
   border-radius: 50%;
-  border-top: 10px solid #821fbf;
+  border-top: 10px solid #5b5b87;
   width: 100px;
   height: 100px;
   -webkit-animation: spin 1s linear infinite;
@@ -32,8 +32,7 @@
   }
 }
 
-
 .app {
   display: grid;
-  transition: grid-template-columns 0.5s;
+  transition: grid-template-columns 0.25s;
 }

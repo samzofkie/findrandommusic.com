@@ -43,7 +43,7 @@ export default function App() {
   /* This is used by components in <Controls/> to flush the songs that no
      longer match the filter settings. */
   function clearSongs() {
-    setSongs([]);
+    setSongs(() => []);
   }
 
   /* The filterParams ref keeps track of the current settings indicated 
@@ -194,7 +194,7 @@ export default function App() {
   const controlsExpandedWidth = 35;
 
   function createColumnStyle(widthPercentage) {
-    return { gridTemplateColumns: 100 - widthPercentage + "% " + widthPercentage + "%" };
+    return { gridTemplateColumns: 99 - widthPercentage + "% " + widthPercentage + "%" };
   }
 
   const columnsStyle = createColumnStyle(controlsExpanded ? controlsExpandedWidth : controlsCollapsedWidth);
@@ -216,12 +216,13 @@ export default function App() {
         }}
       >
         <div className={"main-content"}>
-          <Introduction />
+          {/*<Introduction />*/}
           <SongList songs={songs}/>
           <Loader />
         </div>
         <FilterContext.Provider value={{ filterParams, setFilterParams }}>
-          <Controls toggleControls={toggleControls} />
+          <Controls controlsExpanded={controlsExpanded} toggleControls={toggleControls} 
+            width={controlsExpanded ? controlsExpandedWidth : controlsCollapsedWidth} />
         </FilterContext.Provider>
       </PlaybackContext.Provider>
     </div>
