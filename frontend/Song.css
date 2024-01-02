@@ -1,6 +1,8 @@
 .song {
   position: absolute;
-  transition: left 0.25s, top 0.25s;
+  transition:
+    left 0.25s,
+    top 0.25s;
 
   background-color: black;
   color: white;
@@ -26,7 +28,7 @@
 
 .playback-disabled-text {
   position: absolute;
-  
+
   top: 50%;
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
@@ -38,5 +40,4 @@
   opacity: 0%;
   transition: opacity 0.5s;
   cursor: default;
-
 }

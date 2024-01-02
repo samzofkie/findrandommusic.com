@@ -9,7 +9,7 @@
 .multi-range-slider .bar-inner,
 .multi-range-slider .bar-right {
   box-shadow: none;
-  background-color: #303030;
+  background-color: #666666;
 }
 
 .multi-range-slider .bar-inner {
@@ -26,7 +26,7 @@
 }
 
 .multi-range-slider .thumb .caption * {
-  background-color: #303030;
+  background-color: #666666;
   box-shadow: none;
   border: 2px solid white;
 }

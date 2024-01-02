@@ -189,16 +189,20 @@ export default function App() {
 
   /* This stuff is for expanding / collapsing the <Controls/> component. */
   const [controlsExpanded, setControlsExpanded] = useState(false);
-  
+
   const controlsCollapsedWidth = 5;
   const controlsExpandedWidth = 35;
 
   function createColumnStyle(widthPercentage) {
-    return { gridTemplateColumns: 99 - widthPercentage + "% " + widthPercentage + "%" };
+    return {
+      gridTemplateColumns: 99 - widthPercentage + "% " + widthPercentage + "%",
+    };
   }
 
-  const columnsStyle = createColumnStyle(controlsExpanded ? controlsExpandedWidth : controlsCollapsedWidth);
-    
+  const columnsStyle = createColumnStyle(
+    controlsExpanded ? controlsExpandedWidth : controlsCollapsedWidth,
+  );
+
   function toggleControls() {
     setControlsExpanded(!controlsExpanded);
   }
@@ -217,12 +221,17 @@ export default function App() {
       >
         <div className={"main-content"}>
           {/*<Introduction />*/}
-          <SongList songs={songs}/>
+          <SongList songs={songs} />
           <Loader />
         </div>
         <FilterContext.Provider value={{ filterParams, setFilterParams }}>
-          <Controls controlsExpanded={controlsExpanded} toggleControls={toggleControls} 
-            width={controlsExpanded ? controlsExpandedWidth : controlsCollapsedWidth} />
+          <Controls
+            controlsExpanded={controlsExpanded}
+            toggleControls={toggleControls}
+            width={
+              controlsExpanded ? controlsExpandedWidth : controlsCollapsedWidth
+            }
+          />
         </FilterContext.Provider>
       </PlaybackContext.Provider>
     </div>

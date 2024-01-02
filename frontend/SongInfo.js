@@ -49,15 +49,15 @@ function PopularityBar({ popularity }) {
 
 export default function SongInfo({ song }) {
   function calculateLinkCommaList(items) {
-    let infoLinks = items.filter((item, i) => {
-      return items.map(j => j.name).indexOf(item.name) === i;
-    })
+    let infoLinks = items
+      .filter((item, i) => {
+        return items.map((j) => j.name).indexOf(item.name) === i;
+      })
       .map((item) => <SongInfoLink key={item.id} infoJson={item} />)
       .reduce((prev, curr) => [prev, ", ", curr]);
     if (Array.isArray(infoLinks)) infoLinks[infoLinks.length - 2] = " & ";
     return infoLinks;
   }
-
 
   return (
     <div className={"song-info"}>

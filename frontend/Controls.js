@@ -43,12 +43,16 @@ function FilterRange({ cssClassName, label, bounds, filterParamsPrefix }) {
   ];
 
   function onChange(e) {
-    const {maxValue, minValue} = e;
-    setFilterParams({
-      ...filterParams.current,
-      [startPropName]: minValue,
-      [endPropName]: maxValue,
-    });
+    const { maxValue, minValue } = e;
+    if (
+      filterParams.current[startPropName] !== minValue ||
+      filterParams.current[endPropName] !== maxValue
+    )
+      setFilterParams({
+        ...filterParams.current,
+        [startPropName]: minValue,
+        [endPropName]: maxValue,
+      });
   }
 
   return (
@@ -66,7 +70,6 @@ function FilterRange({ cssClassName, label, bounds, filterParamsPrefix }) {
     </div>
   );
 }
-
 
 function DateRange() {
   return (
@@ -91,29 +94,29 @@ function PopularityRange() {
 }
 
 function GenreList() {
-  console.log("GenreList");
   const { filterParams, setFilterParams } = useContext(FilterContext);
+
   const [selectedGenres, setSelectedGenres] = useState(
     filterParams.current.genres,
   );
 
-  /* We call setFilterParams with the same filtered or concat'd version of
-     selectedGenres immeadiately after setting it because calling the set
-     function doesn't immeadiately update it. */
   function toggleGenre(genre) {
-    if (selectedGenres.includes(genre)) {
-      setSelectedGenres(selectedGenres.filter((g) => g !== genre));
-      setFilterParams({
-        ...filterParams.current,
-        genres: selectedGenres.filter((g) => g !== genre),
-      });
-    } else {
-      setSelectedGenres(selectedGenres.concat(genre));
-      setFilterParams({
-        ...filterParams.current,
-        genres: selectedGenres.concat(genre),
-      });
+    const newGenres = selectedGenres.includes(genre)
+      ? selectedGenres.filter((g) => g !== genre)
+      : selectedGenres.concat(genre);
+    setSelectedGenres(newGenres);
+
+    function arraysEqual(a, b) {
+      a.sort();
+      b.sort();
+      return (
+        a.length === b.length &&
+        a.every((element, index) => element === b[index])
+      );
     }
+
+    if (!arraysEqual(newGenres, filterParams.current.genres))
+      setFilterParams({ ...filterParams.current, genres: newGenres });
   }
 
   return (
@@ -127,7 +130,7 @@ function GenreList() {
             onClick={() => toggleGenre(genre)}
             style={
               selectedGenres.includes(genre)
-                ? { backgroundColor: "#821fbf" }
+                ? { backgroundColor: "#5b5b87" }
                 : null
             }
           >
@@ -142,16 +145,26 @@ function GenreList() {
 function FilterMenu({ expanded, toggleExpanded }) {
   let style = {};
   if (expanded) {
-    style.border = "5px solid black";
+    style.borderRadius = 30;
     style.padding = 15;
     style.textAlign = "left";
     style.fontSize = 50;
+    style.backgroundColor = "black";
+    style.color = "white"
   }
   return (
     <div className={"filter-menu"} style={style}>
-      {!expanded? <FontAwesomeIcon icon={faSliders} onClick={toggleExpanded} /> :
+      {!expanded ? (
+        <FontAwesomeIcon icon={faSliders} onClick={toggleExpanded} />
+      ) : (
         <>
-          <div style={{display: "flex", flexFlow: "row nowrap", justifyContent: "space-between"}}>
+          <div
+            style={{
+              display: "flex",
+              flexFlow: "row nowrap",
+              justifyContent: "space-between",
+            }}
+          >
             <FontAwesomeIcon icon={faX} onClick={toggleExpanded} />
             <AutoPlayToggle />
           </div>
@@ -159,7 +172,7 @@ function FilterMenu({ expanded, toggleExpanded }) {
           <PopularityRange />
           <GenreList />
         </>
-      }
+      )}
     </div>
   );
 }
@@ -175,7 +188,7 @@ function PauseButton() {
 
 export default function Controls({ controlsExpanded, toggleControls, width }) {
   return (
-    <div className={"controls"} style={{width: width + "%"}}>
+    <div className={"controls"} style={{ width: width + "%" }}>
       <FilterMenu expanded={controlsExpanded} toggleExpanded={toggleControls} />
       <PauseButton />
     </div>

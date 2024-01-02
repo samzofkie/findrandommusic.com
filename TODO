@@ -1,25 +1,22 @@
+design doc
+
 backend
   popularity
   real locking
   find bug in returning 0 songs
 
 frontend
-  suspense
   GenreList performance
+  scroll nicely on resize
   frontend reactivity
- 
-  auto play order
   error handling
-  auto play skip button
   selected genres float to top
   duplicate songs show up?
-
-  multirangeslider minimum value
+  check if more songs needed on resize
 
 playlist?
 options of what data to display?
 playback preview length?
 
 harden nginx
-readme diagrams
 kubernetes aws autoscaling
