@@ -152,6 +152,10 @@ function FilterMenu({ expanded, toggleExpanded }) {
     style.backgroundColor = "black";
     style.color = "white"
   }
+  if (window.innerWidth < 600) {
+    style.backgroundColor = "black";
+    style.flexGrow = 0;
+  }
   return (
     <div className={"filter-menu"} style={style}>
       {!expanded ? (
@@ -186,9 +190,26 @@ function PauseButton() {
   );
 }
 
-export default function Controls({ controlsExpanded, toggleControls, width }) {
+export default function Controls({ controlsExpanded, toggleControls, width, isMobile }) {
+  let style = { width: width + "%" };
+  if (isMobile) {
+    style.flexDirection = "row";
+    style.width = "100%";
+    style.height = "100%";
+    style.top = controlsExpanded ? "0" : "90vh";
+    style.right = 0;
+    style.transition = "top 0.25s";
+    style.color = "white";
+    style.backgroundColor = "black";
+    style.justifyContent = "flex-end";
+    style.gap = 10;
+  } else {
+    style.top = "1vh";
+    style.right = 10;
+    style.flexDirection = "column";
+  }
   return (
-    <div className={"controls"} style={{ width: width + "%" }}>
+    <div className={"controls"} style={style}>
       <FilterMenu expanded={controlsExpanded} toggleExpanded={toggleControls} />
       <PauseButton />
     </div>

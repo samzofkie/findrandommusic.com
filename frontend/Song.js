@@ -5,7 +5,6 @@ import React, {
   useCallback,
   useContext,
 } from "react";
-import { SONG_WIDTH } from "./SongList.js";
 import SongInfo from "./SongInfo.js";
 import "./Song.css";
 import { PlaybackContext } from "./App.js";
@@ -57,7 +56,7 @@ function AudioPlayer({ id, url, isPlaying }) {
   );
 }
 
-export default function Song({ song, index, reportHeight, coord }) {
+export default function Song({ song, index, reportHeight, coord, width }) {
   /* Whenever the main "song" div's height changes, reportHeight. */
   const ref = useCallback((node) => {
     if (!node) return 0;
@@ -75,7 +74,7 @@ export default function Song({ song, index, reportHeight, coord }) {
   const isPlaying = currentlyPlayingSong === song.id;
   const hasPreview = song.playback_url !== null;
 
-  let style = { width: SONG_WIDTH, top: coord.y, left: coord.x };
+  let style = { width: width, top: coord.y, left: coord.x };
   if (isPlaying)
     style.backgroundImage =
       "linear-gradient(to bottom right, #000000, #5b5b87, #000000)";

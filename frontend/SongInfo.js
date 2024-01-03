@@ -58,9 +58,11 @@ export default function SongInfo({ song }) {
     if (Array.isArray(infoLinks)) infoLinks[infoLinks.length - 2] = " & ";
     return infoLinks;
   }
+  
+  let style = {fontSize: window.innerWidth < 600 ? 10 : 20}
 
   return (
-    <div className={"song-info"}>
+    <div className={"song-info"} style={style}>
       <div className={"song-title"}>
         <SongInfoLink infoJson={song.track} />
       </div>

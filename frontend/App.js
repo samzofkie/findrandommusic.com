@@ -6,6 +6,7 @@ import Controls, {
   dateFilterBounds,
   popularityFilterBounds,
 } from "./Controls.js";
+import useWindowDimensions from "./useWindowDimensions.js";
 
 function Introduction() {
   return (
@@ -187,19 +188,28 @@ export default function App() {
     };
   }, []);
 
+  /* If window.innerWidth < 600, we're going to change the layout of <Controls/>. */
+  const isMobile = window.innerWidth < 600;
+
+  /* We want the whole <App/> component to rerender when the window dimensions change. */
+  const _ = useWindowDimensions();
+
   /* This stuff is for expanding / collapsing the <Controls/> component. */
   const [controlsExpanded, setControlsExpanded] = useState(false);
 
   const controlsCollapsedWidth = 5;
-  const controlsExpandedWidth = 35;
+  const controlsExpandedWidth = isMobile ? 100 : 35;
 
   function createColumnStyle(widthPercentage) {
+    const gridVariableName = isMobile ? "gridTemplateRows" : "gridTemplateColumns";
+    const cssFormatName = [...gridVariableName].map(letter => letter.toUpperCase() === letter ? letter.toLowerCase() + '-' : letter);
     return {
-      gridTemplateColumns: 99 - widthPercentage + "% " + widthPercentage + "%",
+      [gridVariableName]: 99 - widthPercentage + "% " + widthPercentage + "%",
+      transition: cssFormatName + " 0.25s",
     };
   }
 
-  const columnsStyle = createColumnStyle(
+  let columnsStyle = createColumnStyle(
     controlsExpanded ? controlsExpandedWidth : controlsCollapsedWidth,
   );
 
@@ -231,6 +241,7 @@ export default function App() {
             width={
               controlsExpanded ? controlsExpandedWidth : controlsCollapsedWidth
             }
+            isMobile={isMobile}
           />
         </FilterContext.Provider>
       </PlaybackContext.Provider>

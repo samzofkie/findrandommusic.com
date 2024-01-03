@@ -1,18 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import useWindowDimensions from "./useWindowDimensions.js";
 import Song from "./Song.js";
 import "./SongList.css";
 
-export const SONG_WIDTH = 500;
-
 export default function SongList({ songs }) {
-  /* This just re-renders <SongList/> if the window dimensions change. */
-  const _ = useWindowDimensions();
-
   /* We track the CSS width of the main "song-list" div with the width state
      and this useCallback. */
 
   const [width, setWidth] = useState(0);
+
+  const songWidth = Math.min(500, window.innerWidth);
 
   const ref = useCallback((node) => {
     if (!node) return 0;
@@ -23,7 +19,7 @@ export default function SongList({ songs }) {
   }, []);
 
   /* We use width to calculate numColumns. */
-  const numColumns = Math.max(Math.floor(width / SONG_WIDTH), 1);
+  const numColumns = Math.max(Math.floor(width / songWidth), 1);
 
   /* Each <Song/> is going to report it's height in pixels once it's rendered
      and their heights will be stored here in songHeights. We want this to be 
@@ -62,15 +58,15 @@ export default function SongList({ songs }) {
     (_) => horizontalPadding,
   );
 
-  const verticalSpace = (width - numColumns * SONG_WIDTH) / (numColumns + 1);
+  const verticalSpace = (width - numColumns * songWidth) / (numColumns + 1);
 
   const coords = songHeights.map((songHeight, songIndex) => {
     const columnNum = columnStarts.indexOf(Math.min(...columnStarts));
     const start = columnStarts[columnNum];
     columnStarts[columnNum] += songHeight + horizontalPadding;
     return {
-      x: verticalSpace + (SONG_WIDTH + verticalSpace) * columnNum,
-      x: verticalSpace + (SONG_WIDTH + verticalSpace) * columnNum,
+      x: verticalSpace + (songWidth + verticalSpace) * columnNum,
+      x: verticalSpace + (songWidth + verticalSpace) * columnNum,
       y: start,
     };
   });
@@ -86,6 +82,7 @@ export default function SongList({ songs }) {
           index={i}
           reportHeight={reportHeight}
           coord={coords[i] ? coords[i] : { x: 0, y: 0 }}
+          width={songWidth}
         />
       ))}
     </div>

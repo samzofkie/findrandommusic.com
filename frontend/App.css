@@ -35,5 +35,4 @@
 
 .app {
   display: grid;
-  transition: grid-template-columns 0.25s;
 }

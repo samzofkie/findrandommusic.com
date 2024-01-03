@@ -6,8 +6,6 @@
   justify-content: space-between;
   text-align: right;
   position: fixed;
-  right: 10px;
-  top: 1vh;
   transition: width 0.25s;
 }
 
