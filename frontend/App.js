@@ -61,9 +61,13 @@ export default function App() {
 
   function setFilterParams(newParams) {
     filterParams.current = newParams;
+    setErrorMessage('');
     clearSongs();
     fetchSongs();
   }
+
+  /* TODO: error */
+  const [errorMessage, setErrorMessage] = useState('');
 
   /* fetchSongs() and it's helper buildQueryString() encode the filterParams
      object as a proper query string, make the request to the '/songs'
@@ -96,14 +100,21 @@ export default function App() {
       const url = "/songs" + buildQueryString();
       console.log("Fetching " + url);
       const response = await fetch(url);
-      let songs = await response.json();
-      songs = songs
-        .map(JSON.parse)
-        .filter((song) => song !== null)
-        .filter((json) => Object.keys(json).length > 0);
-      if (songs.length === 0)
-        console.error("GETting " + url + " returned 0 songs!");
-      setSongs((s) => s.concat(songs));
+
+      if (response.status === 500) {
+        //console.log(response);
+        //console.log(await response.text());
+        //console.log('500');
+        setErrorMessage(await response.text());
+      } else {
+        let songs = await response.json();
+        songs = songs
+          .map(JSON.parse)
+          .filter((song) => song !== null)
+          .filter((json) => Object.keys(json).length > 0);
+        if (songs.length !== 0)
+          setSongs((s) => s.concat(songs));
+      }
     } catch (error) {
       console.error("fetchSongs() error:");
       throw error;
@@ -216,7 +227,7 @@ export default function App() {
   function toggleControls() {
     setControlsExpanded(!controlsExpanded);
   }
-
+  
   return (
     <div className={"app"} style={columnsStyle}>
       <PlaybackContext.Provider
@@ -232,7 +243,11 @@ export default function App() {
         <div className={"main-content"}>
           {/*<Introduction />*/}
           <SongList songs={songs} />
-          <Loader />
+          {errorMessage === '' ? <Loader /> :
+            <div style={{textAlign: "center"}}>
+              {errorMessage}
+            </div>
+          }
         </div>
         <FilterContext.Provider value={{ filterParams, setFilterParams }}>
           <Controls

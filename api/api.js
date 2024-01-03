@@ -41,7 +41,7 @@ app.use(
   "/songs",
   rateLimit({
     windowMs: 1000,
-    max: 2,
+    max: 10,
   }),
 );
 
@@ -115,7 +115,10 @@ app.get("/songs", async (req, res) => {
 
   const startTime = new Date();
   while ((await redisClient.SCARD(req.query.id)) < 10)
-    if ((new Date() - startTime) / 1000 > 60) {
+    if (haveFilterParamsChanged(JSON.parse(await redisClient.HGET("users", req.query.id)), req.query)) {
+      res.send([]);
+      return;
+    } else if ((new Date() - startTime) / 1000 > 60) {
       res
         .status(500)
         .send(
