@@ -118,10 +118,10 @@ module.exports = class Crawler {
     return new Promise(makeRequest);
   }
 
-  /* pickNSongs recieves an array items of objects representing songs, and 
-  and chooses n of them, guaranteed to not choose more than one song by a
+  /* pickSongs recieves an array items of objects representing songs, and 
+  and chooses this.pickPerSearch of them, guaranteed to not choose more than one song by a
   single artist. */
-  pickNSongs(items, n) {
+  pickSongs(items) {
     /* artistNames is an array of each of the leading artists names, with no 
        duplicates. */
     let artistNames = Array.from(
@@ -139,7 +139,7 @@ module.exports = class Crawler {
 
     let chosenSongs = [];
     const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)];
-    for (let i = 0; i < Math.min(n, artistNames.length); i++) {
+    for (let i = 0; i < Math.min(this.pickPerSearch, artistNames.length); i++) {
       // Chose a random artist
       let randomArtist = randomChoice(artistNames);
       // Push a random one of their songs to chosenSongs
@@ -148,6 +148,12 @@ module.exports = class Crawler {
       artistNames = artistNames.filter((artist) => artist !== randomArtist);
     }
     return chosenSongs;
+  }
+
+  /* pickSongsByPopularity calls pickNSongs after first filtering based on
+     the user's popularity filter settings. */
+  pickSongsByPopularity(user, items) {
+    return this.pickSongs(items.filter(item => item.popularity >= user.popularityStart && item.popularity <= user.popularityEnd));
   }
 
   async searchForSongs(users) {
@@ -159,7 +165,9 @@ module.exports = class Crawler {
           );
           return [
             user.id,
-            this.pickNSongs(searchResults.tracks.items, this.pickPerSearch),
+            user.hasOwnProperty("popularityStart") || user.hasOwnProperty("popularityEnd") ?
+            this.pickSongsByPopularity(user, searchResults.tracks.items) :
+            this.pickSongs(searchResults.tracks.items)
           ];
         }),
       ),
