@@ -193,9 +193,11 @@ export default function App() {
     let initialSongsRequestMade = false;
     if (!initialSongsRequestMade) fetchSongs();
     document.onscrollend = checkIfMoreSongsNeeded;
+    window.onresize = checkIfMoreSongsNeeded;
     return () => {
       initialSongsRequestMade = true;
       document.removeEventListener("onscrollend", checkIfMoreSongsNeeded);
+      window.removeEventListener("onresize", checkIfMoreSongsNeeded);
     };
   }, []);
 
