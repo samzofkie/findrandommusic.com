@@ -58,8 +58,8 @@ export default function SongInfo({ song }) {
     if (Array.isArray(infoLinks)) infoLinks[infoLinks.length - 2] = " & ";
     return infoLinks;
   }
-  
-  let style = {fontSize: window.innerWidth < 600 ? 10 : 20}
+
+  let style = { fontSize: window.innerWidth < 600 ? 15 : 20 };
 
   return (
     <div className={"song-info"} style={style}>

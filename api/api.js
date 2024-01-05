@@ -113,21 +113,36 @@ app.get("/songs", async (req, res) => {
     await pushUserParamsToRedis();
   }
 
+  function sendQuittingMessage() {
+    res.status(500).send("It's taking a really long time to find results, maybe different filter settings :/ sorry.");
+  }
+
   const startTime = new Date();
-  while ((await redisClient.SCARD(req.query.id)) < 10)
-    if (haveFilterParamsChanged(JSON.parse(await redisClient.HGET("users", req.query.id)), req.query)) {
+  while ((await redisClient.SCARD(req.query.id)) < 10) {
+    /* Check the user settings in the "users" hash. In the case the crawler has
+       removed it (because it's been too long), sendQuittingMessage. */
+    const userSettings = await redisClient.HGET("users", req.query.id);
+    
+    if (userSettings === null) {
+      sendQuittingMessage();
+      return;
+    }
+    
+    /* Otherwise, if check if the user has changed their filter parameters
+       since we've been working on fufilling this request, and if they have,
+       benignly send an empty array and give up. */
+    if (haveFilterParamsChanged(JSON.parse(userSettings), req.query)) {
       res.send([]);
       return;
+    /* Otherwise, if more than a minute has passed, remove them from the "users"
+       hash so the crawler stops looking for songs for them, and sendQuittingMessage. */
     } else if ((new Date() - startTime) / 1000 > 60) {
-      res
-        .status(500)
-        .send(
-          "It's taking a really long time to find results, maybe different filter settings :/ sorry.",
-        );
+      sendQuittingMessage();
       redisClient.HDEL("users", req.query.id);
       redisClient.DEL(req.query.id);
       return;
     }
+  }
   res.send(await popNSongsFromSet(10, req.query.id));
 });
 

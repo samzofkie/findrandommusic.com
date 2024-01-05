@@ -61,13 +61,12 @@ export default function App() {
 
   function setFilterParams(newParams) {
     filterParams.current = newParams;
-    setErrorMessage('');
+    setErrorMessage("");
     clearSongs();
     fetchSongs();
   }
 
-  /* TODO: error */
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   /* fetchSongs() and it's helper buildQueryString() encode the filterParams
      object as a proper query string, make the request to the '/songs'
@@ -102,9 +101,6 @@ export default function App() {
       const response = await fetch(url);
 
       if (response.status === 500) {
-        //console.log(response);
-        //console.log(await response.text());
-        //console.log('500');
         setErrorMessage(await response.text());
       } else {
         let songs = await response.json();
@@ -112,8 +108,7 @@ export default function App() {
           .map(JSON.parse)
           .filter((song) => song !== null)
           .filter((json) => Object.keys(json).length > 0);
-        if (songs.length !== 0)
-          setSongs((s) => s.concat(songs));
+        if (songs.length !== 0) setSongs((s) => s.concat(songs));
       }
     } catch (error) {
       console.error("fetchSongs() error:");
@@ -214,8 +209,12 @@ export default function App() {
   const controlsExpandedWidth = isMobile ? 100 : 35;
 
   function createColumnStyle(widthPercentage) {
-    const gridVariableName = isMobile ? "gridTemplateRows" : "gridTemplateColumns";
-    const cssFormatName = [...gridVariableName].map(letter => letter.toUpperCase() === letter ? letter.toLowerCase() + '-' : letter);
+    const gridVariableName = isMobile
+      ? "gridTemplateRows"
+      : "gridTemplateColumns";
+    const cssFormatName = [...gridVariableName].map((letter) =>
+      letter.toUpperCase() === letter ? letter.toLowerCase() + "-" : letter,
+    );
     return {
       [gridVariableName]: 99 - widthPercentage + "% " + widthPercentage + "%",
       transition: cssFormatName + " 0.25s",
@@ -229,7 +228,7 @@ export default function App() {
   function toggleControls() {
     setControlsExpanded(!controlsExpanded);
   }
-  
+
   return (
     <div className={"app"} style={columnsStyle}>
       <PlaybackContext.Provider
@@ -245,11 +244,11 @@ export default function App() {
         <div className={"main-content"}>
           {/*<Introduction />*/}
           <SongList songs={songs} />
-          {errorMessage === '' ? <Loader /> :
-            <div style={{textAlign: "center"}}>
-              {errorMessage}
-            </div>
-          }
+          {errorMessage === "" ? (
+            <Loader />
+          ) : (
+            <div style={{ textAlign: "center" }}>{errorMessage}</div>
+          )}
         </div>
         <FilterContext.Provider value={{ filterParams, setFilterParams }}>
           <Controls

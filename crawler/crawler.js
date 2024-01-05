@@ -323,7 +323,7 @@ module.exports = class Crawler {
         if (error instanceof HTTPS429Error) {
           console.log("Got a 429");
           await this.sleep(this._429TimeoutSeconds);
-        } //else throw error;
+        } else console.error(error);
       }
 
       await this.sleep(this.everyLoopTimeoutSeconds);

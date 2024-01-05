@@ -150,7 +150,7 @@ function FilterMenu({ expanded, toggleExpanded }) {
     style.textAlign = "left";
     style.fontSize = 50;
     style.backgroundColor = "black";
-    style.color = "white"
+    style.color = "white";
   }
   if (window.innerWidth < 600) {
     style.backgroundColor = "black";
@@ -190,7 +190,12 @@ function PauseButton() {
   );
 }
 
-export default function Controls({ controlsExpanded, toggleControls, width, isMobile }) {
+export default function Controls({
+  controlsExpanded,
+  toggleControls,
+  width,
+  isMobile,
+}) {
   let style = { width: width + "%" };
   if (isMobile) {
     style.flexDirection = "row";
