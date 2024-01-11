@@ -182,16 +182,45 @@ export default function App() {
     if (percentageDownThePage() > 0.8) fetchSongs();
   }
 
+  /* TODO rewrite
+  When the window is resized, the shifting columns can cause the songs in
+     the viewport to change pretty drastically. So every time the user scrolls,
+     we store the index of the top visible <Song/> in a ref here, and whenever
+     the page is resized, we scroll to that <Song/>. */
+
+  const topVisibleSongIndex = useRef(0);
+
+  function setTopVisibleSongIndex() {
+    const songDivs = document.getElementsByClassName("song");
+    const songStarts = [...songDivs].map(songDiv => songDiv.offsetTop);
+    topVisibleSongIndex.current = songStarts.indexOf(songStarts.find(songTop => songTop > window.scrollY));
+    console.log('setting topVisibleSong to', topVisibleSongIndex.current);
+  }
+
+  function scrollToTopVisibleSong() {
+    console.log('scrollin to', topVisibleSongIndex.current);
+    const targetSongDiv = document.getElementsByClassName("song")[topVisibleSongIndex.current];
+    if (!targetSongDiv) return;
+    const topPosition = targetSongDiv.offsetTop;
+    console.log('songDiv is reportedly at', topPosition);
+    window.scrollTo(0, topPosition);
+  }
+
+  function onScrollEnd() {
+    checkIfMoreSongsNeeded();
+    setTopVisibleSongIndex();
+  }
+
   /* This has the <App/> component call fetchSongs() on load, and hooks up 
      checkIfMoreSongsNeeded to document. */
   useEffect(() => {
     let initialSongsRequestMade = false;
     if (!initialSongsRequestMade) fetchSongs();
-    document.onscrollend = checkIfMoreSongsNeeded;
+    document.onscrollend = onScrollEnd; //checkIfMoreSongsNeeded;
     window.onresize = checkIfMoreSongsNeeded;
     return () => {
       initialSongsRequestMade = true;
-      document.removeEventListener("onscrollend", checkIfMoreSongsNeeded);
+      document.removeEventListener("onscrollend", onScrollEnd);
       window.removeEventListener("onresize", checkIfMoreSongsNeeded);
     };
   }, []);
@@ -243,7 +272,7 @@ export default function App() {
       >
         <div className={"main-content"}>
           {/*<Introduction />*/}
-          <SongList songs={songs} />
+          <SongList songs={songs} scrollToTopVisibleSong={scrollToTopVisibleSong} />
           {errorMessage === "" ? (
             <Loader />
           ) : (

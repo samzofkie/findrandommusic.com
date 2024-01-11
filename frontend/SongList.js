@@ -2,10 +2,15 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import Song from "./Song.js";
 import "./SongList.css";
 
-export default function SongList({ songs }) {
+export default function SongList({ songs, scrollToTopVisibleSong }) {
+  /* After rendering, we scrollToTopVisibleSong to keep the user's place after
+     togglingControls. */
+  useEffect(() => {
+    setTimeout(500, scrollToTopVisibleSong);
+  });
+
   /* We track the CSS width of the main "song-list" div with the width state
      and this useCallback. */
-
   const [width, setWidth] = useState(0);
 
   const songWidth = Math.min(500, window.innerWidth);
@@ -37,7 +42,8 @@ export default function SongList({ songs }) {
     ]);
   /* This is for when the songs in songs are cleared away, we want to update
      songHeights to respect that (mainly so the <Loader/> appropriately floats
-     back to the top of the .main-content div). */ else if (
+     back to the top of the .main-content div). */ 
+  else if (
     songHeights.length > songs.length
   )
     setSongHeights([...Array(songs.length)].map((_) => 0));

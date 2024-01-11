@@ -2,6 +2,7 @@
 
 ### Frontend
 It's in React!
+![A diagram of the hierarchy of React components for the project.](/doc/components_diagram.png)
 
 ### Backend
 There are 3 main containers that comprise the backend:
@@ -38,3 +39,4 @@ So the `crawler`'s only way of communicating with the `api` container is via the
 1. Grab the current user settings from the *users* hash.
 2. Make requests to the Spotify Web API on behalf of each user, incorporating their filter parameters into it's requests.
 3. Push the found songs to each users' `redis` set, for the `api` to relay to the end users.
+

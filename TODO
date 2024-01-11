@@ -3,9 +3,9 @@ design doc
 backend
   real locking
   use search results subsequent pages
-  api.js:118 redisClient.HGET returning null
 
 frontend
+  tooltips
   GenreList performance
   scroll nicely on resize
   selected genres float to top
@@ -18,3 +18,4 @@ feature ideas
 
 harden nginx
 kubernetes aws autoscaling
+use redux/reducer
