@@ -100,6 +100,7 @@ So the `crawler`'s only way of communicating with the `api` container is via the
   - Song playback plays the whole 30 second preview-- a control to change it (play each song for only 5 seconds before moving on)
   - Option to filter out all songs not supporting audio playback
 - More research into Nginx security
+- Get Nginx logging into a good place
 - Replace Docker compose with Kubernetes
   - Configure an autoscaling setup with a cloud provider
   - Have a hybrid self-hosted / cloud cluster
