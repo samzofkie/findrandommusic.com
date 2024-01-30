@@ -1,5 +1,5 @@
 ### findrandommusic.com
-Technically the only fair way to listen to music.
+(Technically) the only fair way to listen to music.
 
 ### Frontend
 ![A diagram of the hierarchy of React components for the project.](/doc/components_diagram.png)
@@ -104,3 +104,4 @@ So the `crawler`'s only way of communicating with the `api` container is via the
 - Replace Docker compose with Kubernetes
   - Configure an autoscaling setup with a cloud provider
   - Have a hybrid self-hosted / cloud cluster
+- SEO
