@@ -1,0 +1,109 @@
+html {
+  --gray-0: hsl(240 40% 4%);
+  --gray-1: hsl(240 20% 8%);
+  --gray-2: hsl(240 14% 12%);
+  --gray-3: hsl(240 14% 16%);
+  --gray-4: hsl(240 13% 18%);
+  --gray-5: hsl(240 13% 35%);
+  --gray-6: hsl(240 10% 44%);
+  --gray-7: hsl(240 15% 70%);
+  --gray-8: hsl(240 10% 82%);
+  --gray-9: hsl(246 80% 96%);
+
+  --padding-0: 5px;
+  --padding-1: 10px;
+  --padding-2: 20px;
+  
+  --radius-0: 5px;
+  --radius-1: 10px;
+  --radius-2: 30px;
+  --radius-3: 60px;
+
+  --accent-0: hsl(120 80% 70%);
+  --accent-1: hsl(70 90% 60%);
+}
+
+body {
+  background-color: var(--gray-2);
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-1);
+}
+
+h1, p {
+  margin: 0px;
+}
+
+hgroup {
+  font-family: "Baloo Paaji 2", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px;
+}
+
+h1 {
+  color: var(--gray-2);
+  background-color: var(--accent-0);
+  text-shadow: 5px 5px 0px var(--accent-1);
+  padding: var(--padding-1) var(--padding-2);
+  border-radius: var(--radius-3);
+  width: fit-content;
+}
+
+hgroup p {
+  color: var(--accent-0);
+  text-shadow: 1px 1px 0 var(--gray-2), 1px -1px 0 var(--gray-2), -1px 1px 0 var(--gray-2), -1px -1px 0 var(--gray-2), 2px 2px 0px var(--accent-1);
+}
+
+main, footer {
+  color: var(--gray-9);
+  background-color: var(--gray-4);
+  padding: var(--padding-2);
+  border-radius: var(--radius-3);
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--padding-1);
+}
+
+.bxs-hourglass-top {
+  animation: 2s infinite normal rotate;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingP {
+  font-style: italic;
+}
+
+footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  color: var(--gray-7);
+  font-size: 12px;
+}

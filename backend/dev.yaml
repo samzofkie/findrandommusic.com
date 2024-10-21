@@ -1,0 +1,26 @@
+services:
+  dev-server:
+    image: node
+    volumes:
+      - ../frontend:/frontend
+    working_dir: /frontend
+    command: npm run dev
+    ports:
+      - 5173:5173
+
+  api:
+    image: node
+    volumes:
+      - ./api:/api
+    working_dir: /api
+    #env_file: ./api/.env
+    command: node api.js
+
+  #db:
+    #image: postgres
+    #shm_size: 128mb
+    #environment:
+      #POSTGRES_PASSWORD: xGfKqmOznGVrzHc40WY-Y
+      #POSTGRES_DB: jailsolidaritynetwork
+    #volumes:
+      #- ./db:/docker-entrypoint-initdb.d

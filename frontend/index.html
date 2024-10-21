@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>findrandmmusic.com</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Paaji+2:wght@400..800&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <link rel="stylesheet" href="/app.css">
+  </head>
+  <body>
+    <header>
+      <hgroup>
+        <h1>findrandommusic.com</h1>
+        <p>
+          The only fair way to listen to music
+        </p>
+      </hgroup>
+    </header>
+    
+    <main>
+      <i class='bx bxs-hourglass-top bx-lg'></i>
+      <p class="loadingP">Loading music</p>
+    </main>
+    
+    <footer>
+      © 2024 Sam Zofkie All Rights Reserved
+    </footer>
+
+    <script>
+      const loadingP = document.getElementsByClassName("loadingP")[0];
+      setInterval(
+        () => {
+          if (loadingP.innerText.length === 'Loading music...'.length)
+            loadingP.innerText = 'Loading music'
+          else
+            loadingP.innerText += '.'
+        },
+        1000
+      );
+    </script>
+    <script src="src/main.js"></script>
+  </body>
+</html>
